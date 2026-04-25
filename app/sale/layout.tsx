@@ -8,7 +8,7 @@ export default function SaleLayout({
   return (
     <>
       <NavBar />
-      <main className="pt-16">{children}</main>
+      <main className="pt-13">{children}</main>
     </>
   );
 }
