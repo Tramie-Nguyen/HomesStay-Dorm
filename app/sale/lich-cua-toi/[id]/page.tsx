@@ -1,0 +1,171 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import RoomCard from "@/components/room/roomCard";
+import CustomerCard from "@/components/customer/CustomerCard";
+import { useRouter, useParams } from "next/navigation";
+import { RentalData } from "@/types/rental";
+import HandoverModal from "@/components/room/HandoverModal";
+import Image from "next/image";
+
+export default function RentalDetail() {
+  const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
+
+  const [data, setData] = useState<RentalData | null>(null);
+  const [openHandover, setOpenHandover] = useState(false);
+
+  const fetchData = async () => {
+    const res = await fetch(`/api/rental/${id}`);
+    const json = await res.json();
+    setData(json);
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`/api/rental/${id}`, {
+          cache: "no-store",
+        });
+        const json = await res.json();
+        setData(json);
+      } catch (err) {
+        console.error("Fetch error:", err);
+      }
+    };
+
+    if (id) fetchData();
+  }, [id]);
+
+  if (!data) return <div>Loading...</div>;
+
+  const canHandover = !!data.MA_HOP_DONG;
+
+  return (
+    <div className="min-h-screen bg-background px-20">
+      {/* BACK */}
+      <button
+        onClick={() => router.back()}
+        className="text-accent text-3xl cursor-pointer"
+      >
+        ←
+      </button>
+
+      <h2 className="text-center font-bold text-text1">THÔNG TIN THUÊ</h2>
+
+      {/* ===== ROOM ===== */}
+      <div>
+        <h3 className="font-semibold mb-2 text-text2">Thông tin phòng</h3>
+
+        <RoomCard
+          maPhieu={data.MA_PHIEU}
+          roomId={data.MA_PHONG}
+          name={data.TEN_PHONG}
+          bedCode={data.GIUONGS.map((g) => g.MA_GIUONG).join(", ")}
+          totalPrice={data.TONG_TIEN}
+          electricity={data.GIA_DIEN}
+          water={data.GIA_NUOC}
+          wifi={data.WIFI}
+          vehicle={data.GUI_XE}
+          service={data.DICH_VU}
+          checkinTime={`${new Date(data.NGAY).toLocaleDateString("vi-VN")}${
+            data.GIO ? ` ${data.GIO}` : ""
+          }`}
+          status={data.TRANG_THAI_PHONG}
+          imageUrl="/room.png"
+          onRefresh={fetchData}
+        />
+      </div>
+
+      {/* ===== CUSTOMER ===== */}
+      <div className="mt-6">
+        <h3 className="font-semibold mb-2 text-text2">Thông tin khách</h3>
+
+        <CustomerCard
+          id={data.MA_KH}
+          name={data.TEN_KH}
+          code={data.MA_KH}
+          phone={data.SDT}
+          dob={data.NGAY_SINH}
+          cccd={data.CCCD}
+          gender={data.GIOI_TINH}
+          email={data.EMAIL ?? "—"}
+          startDate={data.NGAY_BD}
+          endDate={data.NGAY_KT}
+          contractStatus={data.TRANG_THAI_HOP_DONG}
+          onRefresh={fetchData}
+          disableEdit={!!data.HOP_DONG_IMAGE && !!data.BIEN_BAN_IMAGE}
+        />
+      </div>
+
+      {(data.HOP_DONG_IMAGE || data.BIEN_BAN_IMAGE) && (
+        <div className="mt-6">
+          <h3 className="font-semibold mb-2 text-text2">Tài liệu</h3>
+
+          <div className="flex gap-6">
+            {data.HOP_DONG_IMAGE && (
+              <div>
+                <p className="text-sm mb-1">Hợp đồng</p>
+                <Image
+                  src={data.HOP_DONG_IMAGE}
+                  alt="Hợp đồng"
+                  width={160}
+                  height={112}
+                  className="object-cover rounded-lg border"
+                />
+              </div>
+            )}
+
+            {data.BIEN_BAN_IMAGE && (
+              <div>
+                <p className="text-sm mb-1">Biên bản</p>
+                <Image
+                  src={data.BIEN_BAN_IMAGE}
+                  alt="Biên bản"
+                  width={160}
+                  height={112}
+                  className="object-cover rounded-lg border"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ===== ACTION ===== */}
+      <div className="flex flex-col items-center mt-6 gap-2">
+        {!canHandover && (
+          <p className="text-red-500 text-sm">
+            Chưa có hợp đồng → không thể bàn giao
+          </p>
+        )}
+
+        {data.HOP_DONG_IMAGE && data.BIEN_BAN_IMAGE ? (
+          <button
+            onClick={() => setOpenHandover(true)}
+            className="bg-accent text-white px-6 py-2 rounded-lg"
+          >
+            Chỉnh sửa tài liệu
+          </button>
+        ) : (
+          <button
+            onClick={() => setOpenHandover(true)}
+            className="bg-accent text-white px-6 py-2 rounded-lg"
+          >
+            Bàn giao phòng
+          </button>
+        )}
+
+        {canHandover && (
+          <HandoverModal
+            open={openHandover}
+            onClose={() => setOpenHandover(false)}
+            maHopDong={data.MA_HOP_DONG!}
+            onSuccess={fetchData}
+          />
+        )}
+      </div>
+    </div>
+  );
+}

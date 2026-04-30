@@ -1,9 +1,8 @@
 "use client";
-
 import { useState } from "react";
 import EditCustomerModal from "../customer/EditCustomerModal";
 
-interface CustomerProps {
+interface Props {
   id: string;
   name: string;
   code: string;
@@ -12,43 +11,73 @@ interface CustomerProps {
   cccd: string;
   gender: string;
   email: string;
+
+  startDate?: string | null;
+  endDate?: string | null;
+  contractStatus?: string | null;
+
+  onRefresh?: () => void;
+
+  disableEdit?: boolean;
 }
 
-export default function CustomerCard(props: CustomerProps) {
-  const [open, setOpen] = useState(false);
+export default function CustomerCard(props: Props) {
+  const [openEdit, setOpenEdit] = useState(false);
+  const formatDate = (date?: string | null) => {
+    if (!date) return "";
+    return new Date(date).toLocaleDateString("vi-VN");
+  };
 
   return (
-    <>
-      <div className="bg-base rounded-2xl p-4 flex gap-6 items-center">
-        <div className="w-40 h-40 bg-gray-300 rounded-full flex items-center justify-center text-3xl">
-          👤
-        </div>
-
-        <div className="flex-1 text-text1 text-sm">
-          <p className="font-semibold">{props.name}</p>
-          <p>Mã KH: {props.code}</p>
-          <p>Số điện thoại: {props.phone}</p>
-          <p>Ngày sinh: {props.dob}</p>
-          <p>CCCD: {props.cccd}</p>
-          <p>Giới tính: {props.gender}</p>
-          <p>Email: {props.email}</p>
-
-          <div className="flex justify-end mt-2">
-            <button
-              onClick={() => setOpen(true)}
-              className="cursor-pointer bg-text2 text-white px-4 py-2 rounded-lg"
-            >
-              Chỉnh sửa thông tin
-            </button>
-          </div>
-        </div>
+    <div className="bg-base p-6 rounded-2xl mt-4 flex gap-6 items-center">
+      <div className="w-32 h-32 bg-gray-300 rounded-full flex items-center justify-center">
+        👤
       </div>
 
+      <div className="text-sm text-text1 space-y-1">
+        <p className="font-semibold text-lg">{props.name}</p>
+        <p>Mã KH: {props.code}</p>
+        <p>Số điện thoại: {props.phone}</p>
+        <p>Ngày sinh: {formatDate(props.dob)}</p>
+        <p>CCCD: {props.cccd}</p>
+        <p>Giới tính: {props.gender}</p>
+        <p>Email: {props.email}</p>
+
+        {props.startDate && props.endDate && (
+          <p>
+            Thời hạn: {formatDate(props.startDate)} -{" "}
+            {formatDate(props.endDate)}
+          </p>
+        )}
+
+        {props.contractStatus && (
+          <p className="font-medium">
+            Trạng thái hợp đồng:{" "}
+            <span
+              className={
+                props.contractStatus === "Đã ký" ? "text-text2" : "text-red-500"
+              }
+            >
+              {props.contractStatus}
+            </span>
+          </p>
+        )}
+      </div>
+
+      {!props.disableEdit && (
+        <button
+          className="cursor-pointer bg-text2 text-white px-4 py-2 rounded-lg"
+          onClick={() => setOpenEdit(true)}
+        >
+          Chỉnh sửa thông tin
+        </button>
+      )}
       <EditCustomerModal
-        open={open}
-        onClose={() => setOpen(false)}
+        open={openEdit}
+        onClose={() => setOpenEdit(false)}
         customer={props}
+        onSuccess={props.onRefresh}
       />
-    </>
+    </div>
   );
 }

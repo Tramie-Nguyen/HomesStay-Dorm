@@ -16,9 +16,7 @@ export default function Home() {
       return;
     }
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-    const res = await fetch(`${API_URL}/auth/login`, {
+    const res = await fetch("/api/auth/signin", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -32,7 +30,7 @@ export default function Home() {
     }
 
     setAuthData({
-      name: data.role === "CUSTOMER" ? data.user.HO_TEN : data.user.MA_NV,
+      name: data.role === "CUSTOMER" ? data.user.TEN_KH : data.user.TEN_NV,
       role: data.role,
       token: null,
       user: data.user,

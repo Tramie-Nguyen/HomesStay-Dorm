@@ -15,10 +15,24 @@ interface Props {
     gender: string;
     email: string;
   };
+  onSuccess?: () => void;
 }
 
-export default function EditCustomerModal({ open, onClose, customer }: Props) {
-  const [form, setForm] = useState(customer);
+export default function EditCustomerModal({
+  open,
+  onClose,
+  customer,
+  onSuccess,
+}: Props) {
+  const formatDateInput = (date?: string) => {
+    if (!date) return "";
+    return new Date(date).toISOString().split("T")[0];
+  };
+
+  const [form, setForm] = useState({
+    ...customer,
+    dob: formatDateInput(customer.dob),
+  });
 
   if (!open) return null;
 
@@ -35,6 +49,7 @@ export default function EditCustomerModal({ open, onClose, customer }: Props) {
 
       toast.success("Cập nhật thành công");
       onClose();
+      onSuccess?.();
     } catch (err) {
       toast.error("Có lỗi xảy ra");
     }

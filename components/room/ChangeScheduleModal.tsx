@@ -6,33 +6,44 @@ import { toast } from "react-toastify";
 interface Props {
   open: boolean;
   onClose: () => void;
-  roomId: string;
+  maPhieu: string;
+  onSuccess: () => void;
 }
 
-export default function ChangeScheduleModal({ open, onClose, roomId }: Props) {
+export default function ChangeScheduleModal({
+  open,
+  onClose,
+  maPhieu,
+  onSuccess,
+}: Props) {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
 
   if (!open) return null;
 
-  const handleSubmit = async () => {
+  const handleSave = async () => {
     if (!date || !time) {
       toast.error("Vui lòng chọn ngày giờ");
       return;
     }
 
     try {
-      await fetch(`/api/change-schedule`, {
-        method: "POST",
+      await fetch("/api/schedule", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          roomId,
-          date,
-          time,
+          maPhieu: maPhieu,
+          ngay: date,
+          gio: time,
         }),
       });
 
       toast.success("Đổi lịch thành công");
+
       onClose();
+      onSuccess(); // 🔥 refresh lại UI
     } catch (err) {
       toast.error("Có lỗi xảy ra");
     }
@@ -64,7 +75,7 @@ export default function ChangeScheduleModal({ open, onClose, roomId }: Props) {
           </button>
 
           <button
-            onClick={handleSubmit}
+            onClick={handleSave}
             className="px-3 py-1 cursor-pointer bg-text2 text-white rounded"
           >
             Xác nhận

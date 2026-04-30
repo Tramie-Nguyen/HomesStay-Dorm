@@ -15,7 +15,7 @@ export default function ClientLayout({
     <>
       {!hideNav && <Nav />}
       <main
-        className={`${!hideNav ? "pt-20" : ""}
+        className={`${!hideNav ? "pt-15" : ""}
         }`.trim()}
       >
         {children}

@@ -17,7 +17,7 @@ export default function NavBar() {
       await signOut();
       updateUser();
       toast.success("Logout successfully!");
-      router.push("/auth/login");
+      router.push("/auth/signin");
     } catch (error) {
       toast.error("Error when logout!");
     }
@@ -74,9 +74,9 @@ export default function NavBar() {
         <div className="flex items-center justify-between h-15">
           <Link href="/" className="flex items-center space-x-3 group">
             <div className="relative w-12 h-12  flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
-              <HomeIcon className="w-6 h-6 text-text1" />
-              <div className="absolute text-text1 rounded-full opacity-50 animate-pulse">
-                Homestay Dorm
+              <HomeIcon className="absolute w-6 h-6 text-text1" />
+              <div className="ml-40 text-text1 rounded-full opacity-50 animate-pulse">
+                HomestayDorm
               </div>
             </div>
           </Link>

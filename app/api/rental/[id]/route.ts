@@ -1,0 +1,92 @@
+import { NextResponse } from "next/server";
+import { getPool } from "@/lib/db";
+
+export async function GET(
+  req: Request,
+  context: { params: Promise<{ id: string }> },
+) {
+  try {
+    const { id } = await context.params;
+    const pool = await getPool();
+
+    const result = await pool.request().input("id", id).query(`
+      SELECT
+        p.MA_PHONG,
+        p.TEN_PHONG,
+        p.IMAGE_URL,
+        p.SL_GIUONG,
+        p.SL_GIUONG_TRONG,
+        p.TRANG_THAI AS TRANG_THAI_PHONG,
+
+        p.GIA_DIEN,
+        p.GIA_NUOC,
+        p.WIFI,
+        p.GUI_XE,
+        p.DICH_VU,
+
+        l.MA_PHIEU,
+        l.NGAY,
+        l.GIO,
+        l.LOAI,
+        l.TRANG_THAI AS TRANG_THAI_LICH,
+
+        kh.MA_KH,
+        kh.TEN_KH,
+        kh.SDT,
+        kh.NGAY_SINH,
+        kh.CCCD,
+        kh.GIOI_TINH,
+        tk.EMAIL,
+
+        hd.MA_HOP_DONG,
+        hd.NGAY_BD,
+        hd.NGAY_KT,
+        hd.TRANG_THAI AS TRANG_THAI_HOP_DONG,
+        hd.IMAGE_URL AS HOP_DONG_IMAGE,
+        bb.IMAGE_URL AS BIEN_BAN_IMAGE,
+        (
+          SELECT SUM(GIA)
+          FROM GIUONG
+          WHERE MA_PHONG = p.MA_PHONG
+        ) AS TONG_TIEN
+
+      FROM LICH l
+      JOIN PHONG p ON l.MA_PHONG = p.MA_PHONG
+      JOIN PHIEU_DANG_KY_THUE pdk ON l.MA_PDK = pdk.MA_PDK
+      JOIN KHACH_HANG kh ON pdk.MA_KH = kh.MA_KH
+      LEFT JOIN TAI_KHOAN tk ON kh.MA_TK = tk.MA_TK
+      LEFT JOIN HOP_DONG_THUE hd ON hd.MA_PHIEU = l.MA_PHIEU
+      LEFT JOIN BIEN_BAN_BAN_GIAO bb ON bb.MA_HOP_DONG = hd.MA_HOP_DONG
+
+      WHERE l.MA_PHIEU = @id
+    `);
+
+    const main = result.recordset[0];
+
+    if (!main) {
+      return NextResponse.json(
+        { message: "Không tìm thấy dữ liệu" },
+        { status: 404 },
+      );
+    }
+
+    // ===== GET BEDS =====
+    const beds = await pool.request().input("roomId", main.MA_PHONG).query(`
+        SELECT MA_GIUONG
+        FROM GIUONG
+        WHERE MA_PHONG = @roomId
+      `);
+
+    const response = {
+      ...main,
+      GIUONGS: beds.recordset,
+      HOP_DONG_IMAGE: main.HOP_DONG_IMAGE,
+      BIEN_BAN_IMAGE: main.BIEN_BAN_IMAGE,
+    };
+
+    return NextResponse.json(response);
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ message: "Server error" }, { status: 500 });
+  }
+}
