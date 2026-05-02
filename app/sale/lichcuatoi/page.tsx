@@ -60,12 +60,10 @@ export default function CalendarPage() {
             <button onClick={prevMonth} className="hover:text-primary">
               <ChevronLeft size={20} />
             </button>
-            <button className="font-medium text-text1">
-              <MonthYearPicker
-                value={currentDate}
-                onChange={(date) => setCurrentDate(date)}
-              />
-            </button>
+            <MonthYearPicker
+              value={currentDate}
+              onChange={(date) => setCurrentDate(date)}
+            />
             <button onClick={nextMonth} className="hover:text-primary">
               <ChevronRight size={20} />
             </button>
