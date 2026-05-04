@@ -3,10 +3,10 @@ import { getPool } from "@/lib/db";
 
 export async function GET(
   _req: Request,
-  { params }: { params: { ma_kh: string } },
+  { params }: { params: Promise<{ ma_kh: string }> },
 ) {
   try {
-    const { ma_kh } = params;
+    const { ma_kh } = await params;
     if (!ma_kh)
       return NextResponse.json({ error: "Missing ma_kh" }, { status: 400 });
 
@@ -18,11 +18,18 @@ export async function GET(
     request.input("MA_KH", sql.VarChar(5), ma_kh);
     const result = await request.execute("sp_GetThongTinHoanCoc");
 
+    const recordsets = Array.isArray(result.recordsets)
+      ? result.recordsets
+      : [];
+    console.log(`Fetching hoancoc for ma_kh=${ma_kh}`, {
+      recordsetCount: recordsets.length,
+      customerCount: recordsets[0]?.length,
+      itemsCount: recordsets[1]?.length,
+    });
+
     // sp_GetThongTinHoanCoc returns two SELECTs: first = customer+room (TOP 1), second = items
-    const customer =
-      (result.recordsets && result.recordsets[0] && result.recordsets[0][0]) ||
-      null;
-    const items = (result.recordsets && result.recordsets[1]) || [];
+    const customer = recordsets[0]?.[0] || null;
+    const items = recordsets[1] || [];
 
     // fetch NOI_DUNG from BIEN_BAN_TRA_PHONG linked to MA_KH (if exists)
     const nnReq = pool.request();

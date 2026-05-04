@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import NavBar from "../../../components/layout/nav";
 
@@ -20,7 +20,6 @@ export default function QL_DanhSachHoanCocPage() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [data, setData] = useState<HoanCocRow[]>([]); // Khởi tạo mảng rỗng thay vì mock data
-  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   // Reusable fetch function so pages can reload after updates
@@ -51,27 +50,6 @@ export default function QL_DanhSachHoanCocPage() {
     fetchData();
   }, [fetchData]);
 
-  // 2. Xử lý đóng dropdown khi click ra ngoài
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setOpenDropdownId(null);
-      }
-    }
-    if (openDropdownId !== null) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [openDropdownId]);
-
   // 3. Lọc và sắp xếp dữ liệu ở Frontend (kết hợp với tìm kiếm)
   const filteredData = data
     .filter((item: HoanCocRow) => {
@@ -97,27 +75,33 @@ export default function QL_DanhSachHoanCocPage() {
       const item = data.find((d: HoanCocRow) => d.id === id);
       if (!item) return;
 
-      // Lưu ý: Thay API endpoint này khớp với backend của bạn
-      const response = await fetch(`/api/hoan-coc/${id}`, {
+      const response = await fetch(`/api/hoan-coc/${encodeURIComponent(id)}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
 
       if (response.ok) {
+        setData((prev) =>
+          prev.map((row) =>
+            row.id === id ? { ...row, status: newStatus } : row,
+          ),
+        );
         // Reload list from server to reflect DB update
         await fetchData();
+      } else {
+        const errorBody = await response.json().catch(() => null);
+        console.error("Update status failed:", errorBody);
       }
     } catch (error) {
       console.error("Error updating status:", error);
     }
-    setOpenDropdownId(null);
   };
 
   return (
     <>
       <NavBar />
-      <main className="min-h-screen bg-base font-sans p-6 pt-24">
+      <main className="min-h-screen bg-base font-sans p-6 pt-24 pb-24">
         <h1 className="mb-6 text-center text-2xl font-bold text-text1 uppercase tracking-wide">
           Quản lý - Danh sách hoàn cọc
         </h1>
@@ -163,7 +147,7 @@ export default function QL_DanhSachHoanCocPage() {
           </div>
 
           {/* Table hiển thị danh sách */}
-          <div className="overflow-x-auto rounded-md shadow-sm bg-white">
+          <div className="overflow-visible rounded-md shadow-sm bg-white">
             <table className="w-full border-collapse text-center">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
@@ -208,7 +192,7 @@ export default function QL_DanhSachHoanCocPage() {
                       className="cursor-pointer hover:bg-primary/10 transition-colors border-b border-gray-200 last:border-0"
                       onClick={() =>
                         router.push(
-                          `/QuanLy/ttHoanCoc?maKhachHang=${item.maKhachHang}`,
+                          `/QuanLy/ttHoanCoc?ma_kh=${encodeURIComponent(item.maKhachHang)}`,
                         )
                       }
                     >
@@ -227,53 +211,19 @@ export default function QL_DanhSachHoanCocPage() {
                         className="border-x border-gray-200 px-4 py-3 align-middle"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <div
-                          className="relative inline-block"
-                          ref={dropdownRef}
+                        <select
+                          value={item.status}
+                          className={`min-w-36 cursor-pointer rounded-full px-4 py-1.5 text-sm font-medium text-white shadow-sm outline-none transition-opacity hover:opacity-90 ${item.status === "Đã xử lí" ? "bg-green-600" : item.status === "Đang chờ xử lí" ? "bg-yellow-600" : "bg-accent"}`}
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={async (e) => {
+                            e.stopPropagation();
+                            await handleChangeStatus(item.id, e.target.value);
+                          }}
                         >
-                          <button
-                            className={`min-w-32 rounded-full px-4 py-1.5 text-sm font-medium text-white shadow-sm focus:outline-none transition-opacity hover:opacity-90 ${item.status === "Đã xử lí" ? "bg-green-600" : item.status === "Đang chờ xử lí" ? "bg-yellow-600" : "bg-accent"}`}
-                            onClick={() =>
-                              setOpenDropdownId(
-                                openDropdownId === item.id ? null : item.id,
-                              )
-                            }
-                          >
-                            {item.status}
-                          </button>
-
-                          {/* Menu Dropdown thay đổi trạng thái */}
-                          {openDropdownId === item.id && (
-                            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-10 overflow-hidden">
-                              <button
-                                className="block w-full text-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                                onClick={() =>
-                                  handleChangeStatus(item.id, "Đã hẹn")
-                                }
-                              >
-                                Đã hẹn
-                              </button>
-                              <div className="h-px w-full bg-gray-100"></div>
-                              <button
-                                className="block w-full text-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                                onClick={() =>
-                                  handleChangeStatus(item.id, "Đang chờ xử lí")
-                                }
-                              >
-                                Đang chờ xử lí
-                              </button>
-                              <div className="h-px w-full bg-gray-100"></div>
-                              <button
-                                className="block w-full text-center px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                                onClick={() =>
-                                  handleChangeStatus(item.id, "Đã xử lí")
-                                }
-                              >
-                                Đã xử lí
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                          <option value="Đã hẹn">Đã hẹn</option>
+                          <option value="Đang chờ xử lí">Đang chờ xử lí</option>
+                          <option value="Đã xử lí">Đã xử lí</option>
+                        </select>
                       </td>
                     </tr>
                   ))

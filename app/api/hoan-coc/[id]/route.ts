@@ -4,11 +4,12 @@ import sql from "mssql";
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { status } = (await req.json()) as { status?: string };
-    const id = params.id.trim();
+    const { id: rawId } = await params;
+    const id = rawId?.trim();
 
     if (!id) {
       return NextResponse.json({ error: "Invalid id" }, { status: 400 });
@@ -24,7 +25,7 @@ export async function PUT(
     const pool = await getPool();
     await pool
       .request()
-      .input("MA_BB_TRA_PHONG", sql.VarChar(5), id)
+      .input("ID", sql.VarChar(5), id)
       .input("TRANG_THAI", sql.NVarChar(50), status)
       .execute("SP_UpdateBienBanTraPhong");
 

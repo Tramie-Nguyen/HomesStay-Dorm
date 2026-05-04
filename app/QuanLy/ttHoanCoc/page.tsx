@@ -148,7 +148,7 @@ export default function TT_HoanCocPage() {
                 </div>
                 <div className="p-6">
                   {/* Hình ảnh phòng */}
-                  <div className="mb-6 flex justify-center gap-3">
+                  <div className="mb-6 flex justify-center gap-4">
                     {mockRoomInfo.images.map(
                       (
                         src: string | Blob | undefined,
@@ -158,7 +158,7 @@ export default function TT_HoanCocPage() {
                           key={String(idx)}
                           src={src || "/placeholder.png"}
                           alt={`Room img ${String(idx)}`}
-                          className="h-24 w-24 object-cover border border-gray-300 rounded shadow-sm"
+                          className="h-50 w-70 object-cover rounded border border-gray-300 shadow-sm"
                         />
                       ),
                     )}
