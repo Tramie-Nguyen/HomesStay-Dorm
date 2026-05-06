@@ -13,6 +13,10 @@
     "@prisma/client": "^7.8.0",
     "lucide-react": "^1.8.0",
     "mssql": "^12.5.0",
+<<<<<<< HEAD
+=======
+    "mysql2": "^3.22.3",
+>>>>>>> origin/xuan
     "next": "16.2.4",
     "prisma": "^7.8.0",
     "react": "19.2.4",
@@ -23,7 +27,7 @@
     "@tailwindcss/postcss": "^4",
     "@types/mssql": "^12.3.0",
     "@types/node": "^20",
-    "@types/react": "^19",
+    "@types/react": "^19.2.14",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",

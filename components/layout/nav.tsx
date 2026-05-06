@@ -70,7 +70,7 @@ export default function NavBar() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-primary`}
     >
-      <div className="container mx-auto px-6">
+      <div className="max-w-[1360px] mx-auto px-6">
         <div className="flex items-center justify-between h-15">
           <Link href="/" className="flex items-center space-x-3 group">
             <div className="relative w-12 h-12  flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
