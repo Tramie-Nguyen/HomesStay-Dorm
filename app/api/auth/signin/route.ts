@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
         WHERE tk.EMAIL = @email AND tk.MAT_KHAU = @password
       `);
 
-    if (result.recordset.length === 0) {
+    if (!result.recordset || result.recordset.length === 0) {
       return NextResponse.json(
         { message: "Sai email hoặc mật khẩu" },
         { status: 401 },
@@ -95,8 +95,17 @@ export async function POST(req: NextRequest) {
     };
 
     return NextResponse.json(response);
-  } catch (error) {
-    console.error("LOGIN ERROR:", error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("LOGIN ERROR:", error.message);
+      return NextResponse.json({ message: error.message }, { status: 500 });
+    }
+
+    console.error("LOGIN ERROR (unknown):", error);
+    return NextResponse.json(
+      { message: "Lỗi server không xác định" },
+      { status: 500 },
+    );
 
     return NextResponse.json({ message: "Lỗi server" }, { status: 500 });
   }
