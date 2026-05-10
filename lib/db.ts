@@ -3,7 +3,7 @@ import sql from "mssql";
 const config: sql.config = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  server: process.env.DB_SERVER || "localhost",
+  server: process.env.DB_SERVER || "localhost\\SQLEXPRESS",
   database: process.env.DB_NAME,
   options: {
     encrypt: false,

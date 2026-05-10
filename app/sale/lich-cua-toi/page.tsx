@@ -1,21 +1,60 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import DayCell from "../../../components/sale/lichcuatoi/daycell";
+import DayCell from "./daycell";
 import MonthYearPicker from "../../../components/common/monthyearpicker";
-
-// Mock Data
-const mockTasks = [
-  { id: "KH001", khachHang: "Hình Diễm Xuân", sdt: "123456789", ngay: 26, gio: "08:30", loai: "Xem phòng", trangThai: "Chưa xử lý", maPhong: "101", ktx: "Chợ Quán", hinhAnh: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&q=80&w=400" },
-  { id: "KH002", khachHang: "Khưu Ngọc Ý Vy", sdt: "0987654321", ngay: 21, gio: "08:30", loai: "Nhận phòng", trangThai: "Đã xử lý", maPhong: "201", ktx: "Chợ Quán", hinhAnh: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&q=80&w=400" },
-];
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [maNv, setMaNv] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Thay 'userInfo' bằng đúng cái tên Key mà bạn đang lưu trong tab Application > Local Storage nhé
+    const storedData = localStorage.getItem("auth"); 
+
+    if (storedData) {
+      try {
+        // Biến chuỗi JSON thành Object trong Javascript
+        const parsedData = JSON.parse(storedData);
+        
+        // Chui vào trong object lấy đúng cái MA_NV
+        const maNv = parsedData.user.MA_NV; 
+        
+        if (maNv) {
+          setMaNv(maNv);
+        }
+      } catch (error) {
+        console.error("Lỗi khi đọc dữ liệu user:", error);
+      }
+    } else {
+      console.warn("Không tìm thấy thông tin đăng nhập trong localStorage");
+    }
+  }, []);
+
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
+
+  const fetchLich = useCallback(async() => {
+    if (!maNv) return;
+
+    try {
+      const response = await fetch(`/api/lich?maNv=${maNv}&thang=${month + 1}&nam=${year}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setTasks(data);
+    } catch (error) {
+      console.error("Lỗi khi fetch lịch:", error);
+    }
+  }, [maNv, month, year]);
+
+  useEffect(() => {
+    fetchLich();
+  }, [fetchLich]);
 
   // số ngày trong tháng
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -99,7 +138,7 @@ export default function CalendarPage() {
                 key={`${month}-${day}`}
                 day={day}
                 isToday={isToday(day)}
-                dayTasks={mockTasks.filter((t) => t.ngay === day)}
+                dayTasks={tasks.filter((t) => t.ngay === day)}
                 currentDate={currentDate}
                 selectedTaskId={selectedTaskId}
                 onSelectTask={(task) =>

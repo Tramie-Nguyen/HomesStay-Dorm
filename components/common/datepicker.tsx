@@ -44,7 +44,7 @@ export default function DatePicker({ value, onChange }: Props) {
             : ""
         }
         placeholder="Chọn ngày"
-        className="p-1 border border-primaryrounded w-full cursor-pointer"
+        className="p-1 border border-primary rounded w-full cursor-pointer"
       />
 
       {/* Popup */}
