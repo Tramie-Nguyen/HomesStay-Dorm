@@ -29,6 +29,17 @@ export async function POST(req: Request) {
         WHERE MA_HOP_DONG = @ma
       `);
 
+    // ===== UPDATE TRANG_THAI IN LICH =====
+    await pool.request().input("ma", maHopDong).query(`
+      UPDATE LICH
+      SET TRANG_THAI = N'Đã xử lý'
+      WHERE MA_PHIEU = (
+        SELECT MA_PHIEU
+        FROM HOP_DONG_THUE
+        WHERE MA_HOP_DONG = @ma
+      )
+    `);
+
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error(err);
