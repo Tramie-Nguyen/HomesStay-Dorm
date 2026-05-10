@@ -12,7 +12,7 @@ interface Room {
   code: string;
   availableBeds: number;
   totalBeds: number;
-  status: "Còn chỗ" | "Hết chỗ";
+  status: "Trống" | "Đã thuê";
   imageUrl: string | null;
   ktxName: string;
   giaMin: number; // ← thay pricePerBed string bằng 2 số thô
@@ -66,7 +66,7 @@ export default function DanhSachPhongPage() {
   const [ward, setWard] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState<"Còn chỗ" | "Hết chỗ" | "">(
+  const [statusFilter, setStatusFilter] = useState<"Trống" | "Đã thuê" | "">(
     "",
   );
   const [gioiTinh, setGioiTinh] = useState("");
@@ -93,7 +93,7 @@ export default function DanhSachPhongPage() {
   }, [searchQuery, statusFilter, sortOrder, currentPage, ward, gioiTinh]);
 
   // Reset về trang 1 khi đổi filter
-  const handleStatusFilter = (val: "Còn chỗ" | "Hết chỗ") => {
+  const handleStatusFilter = (val: "Trống" | "Đã thuê") => {
     setStatusFilter((prev) => (prev === val ? "" : val));
     setCurrentPage(1);
   };
@@ -172,7 +172,7 @@ export default function DanhSachPhongPage() {
 
           <div className="flex items-center gap-2">
             <span className=" font-semibold text-text1">Trạng thái:</span>
-            {(["Còn chỗ", "Hết chỗ"] as const).map((val) => (
+            {(["Trống", "Đã thuê"] as const).map((val) => (
               <button
                 key={val}
                 onClick={() => handleStatusFilter(val)}
@@ -231,7 +231,7 @@ export default function DanhSachPhongPage() {
                         Trạng thái:{" "}
                         <span
                           className={
-                            room.status === "Còn chỗ"
+                            room.status === "Trống"
                               ? "font-semibold text-accent"
                               : "font-semibold text-grey"
                           }

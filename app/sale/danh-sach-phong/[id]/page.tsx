@@ -15,17 +15,28 @@ interface Bed {
 interface RoomDetail {
   id: string;
   code: string;
+
   totalBeds: number;
   availableBeds: number;
   status: "Còn chỗ" | "Hết chỗ";
+
   imageUrl: string | null;
+
   ktxName: string;
   address: string;
   quyDinh: string;
-  moTaPhong: string; // Mô tả từ table PHONG
-  thongTinChiPhi: string; // Từ table KY_TUC_XA
+
+  moTaPhong: string;
+
   giaMin: number;
   giaMax: number;
+
+  giaDien: number;
+  giaNuoc: number;
+  wifi: number;
+  guiXe: number;
+  dichVu: number;
+
   beds: Bed[];
 }
 
@@ -54,13 +65,6 @@ export default function ChiTietPhongPage() {
     // Chỉ lấy thông tin cơ bản: Số giường, vệ sinh, vị trí, tiện nghi
     return room.moTaPhong ? room.moTaPhong.split(/\r?\n/).filter(Boolean) : [];
   }, [room]);
-  // Xử lý danh sách Chi phí (Điện, Nước, Xe...)
-  const chiPhiItems = useMemo(() => {
-    if (!room?.thongTinChiPhi) return [];
-    return room.thongTinChiPhi
-      .split(/\r?\n/)
-      .filter((item) => item.trim() && item.includes(":"));
-  }, [room]);
 
   if (loading) return <p className="py-20 text-center">Đang tải...</p>;
   if (!room) return <p className="py-20 text-center">Không tìm thấy phòng</p>;
@@ -84,7 +88,7 @@ export default function ChiTietPhongPage() {
           <div className="relative rounded-3xl bg-base p-8 flex items-center justify-center">
             <div className="relative w-full aspect-[4/3] overflow-hidden rounded-lg shadow-sm">
               <Image
-                src={room.imageUrl ?? "/room.png"}
+                src={room.imageUrl ? `/${room.imageUrl}` : "/room.png"}
                 alt="Room"
                 fill
                 className="object-cover"
@@ -181,9 +185,7 @@ export default function ChiTietPhongPage() {
                                 : "text-accent font-medium"
                             }
                           >
-                            (
-                            {bed.status === "Đã thuê" ? "Đã thuê" : "Còn trống"}
-                            )
+                            ({bed.status === "Đã thuê" ? "Đã thuê" : "Trống"})
                           </span>
                         </div>
                       ))}
@@ -192,45 +194,45 @@ export default function ChiTietPhongPage() {
                 </li>
 
                 {/* 3. HIỂN THỊ CHI PHÍ DỊCH VỤ (Lấy từ thongTinChiPhi) */}
-                {room.thongTinChiPhi
-                  ?.split(/\r?\n/)
-                  .filter(Boolean)
-                  .map((item, index) => {
-                    const isHeader = item.includes("bao gồm"); // Ví dụ: "Dịch vụ bao gồm:"
-                    const isSubItem = item.trim().startsWith("-"); // Các dòng có dấu gạch ngang
-                    const hasColon = item.includes(":"); // Các dòng Giá điện, Giá nước...
+                <li className="flex items-start gap-2">
+                  <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
+                  <span>
+                    <span className="underline font-semibold">Giá điện</span>:{" "}
+                    {formatGia(room.giaDien)}/kWh
+                  </span>
+                </li>
 
-                    return (
-                      <li
-                        key={`cp-${index}`}
-                        className="flex items-start gap-2"
-                      >
-                        {/* Chỉ hiển thị dấu chấm tròn cho các dòng chính, dòng con (dấu -) thì thụt lề */}
-                        {!isSubItem && (
-                          <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
-                        )}
+                <li className="flex items-start gap-2">
+                  <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
+                  <span>
+                    <span className="underline font-semibold">Giá nước</span>:{" "}
+                    {formatGia(room.giaNuoc)}/m³
+                  </span>
+                </li>
 
-                        <span className={isSubItem ? "ml-6" : ""}>
-                          {hasColon ? (
-                            <>
-                              <span className="underline font-semibold">
-                                {item.split(":")[0]}
-                              </span>
-                              :{item.split(":")[1]}
-                            </>
-                          ) : (
-                            <span
-                              className={
-                                isHeader ? "font-bold text-slate-900" : ""
-                              }
-                            >
-                              {item}
-                            </span>
-                          )}
-                        </span>
-                      </li>
-                    );
-                  })}
+                <li className="flex items-start gap-2">
+                  <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
+                  <span>
+                    <span className="underline font-semibold">Wifi</span>:{" "}
+                    {formatGia(room.wifi)}/tháng
+                  </span>
+                </li>
+
+                <li className="flex items-start gap-2">
+                  <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
+                  <span>
+                    <span className="underline font-semibold">Gửi xe</span>:{" "}
+                    {formatGia(room.guiXe)}/tháng
+                  </span>
+                </li>
+
+                <li className="flex items-start gap-2">
+                  <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
+                  <span>
+                    <span className="underline font-semibold">Dịch vụ</span>:{" "}
+                    {formatGia(room.dichVu)}/tháng
+                  </span>
+                </li>
               </ul>
             </ul>
           </div>
