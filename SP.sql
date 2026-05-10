@@ -1,3 +1,37 @@
+USE DORM
+GO
+
+CREATE OR ALTER PROCEDURE SP_LOGIN
+    @EMAIL VARCHAR(100),
+    @MAT_KHAU VARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        tk.MA_TK,
+        tk.EMAIL,
+        tk.ROLE,
+
+        nv.MA_NV,
+        nv.TEN_NV,
+
+        kh.MA_KH,
+        kh.TEN_KH
+
+    FROM TAI_KHOAN tk
+    LEFT JOIN NHAN_VIEN nv 
+        ON tk.MA_TK = nv.MA_TK
+
+    LEFT JOIN KHACH_HANG kh 
+        ON tk.MA_TK = kh.MA_TK
+
+    WHERE tk.EMAIL = @EMAIL
+      AND tk.MAT_KHAU = @MAT_KHAU
+END
+GO
+
+
 -- ============================================
 -- XUANXUANXUANXUANXUANXUANXUANXUANXUANXUANXUAN 
 -- ============================================
@@ -18,7 +52,7 @@
 
 
 
-CREATE PROC SP_GetBienBanTraPhong
+CREATE OR ALTER PROC SP_GetBienBanTraPhong
     @TrangThai NVARCHAR(50) = '',
     @SortDir VARCHAR(4) = 'DESC'
 AS
@@ -413,40 +447,8 @@ GO
 -- ============================================
 -- XUANXUANXUANXUANXUANXUANXUANXUANXUANXUANXUAN
 -- ============================================
-USE DORM
-GO
 
-CREATE PROCEDURE SP_LOGIN
-    @EMAIL VARCHAR(100),
-    @MAT_KHAU VARCHAR(100)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    SELECT 
-        tk.MA_TK,
-        tk.EMAIL,
-        tk.ROLE,
-
-        nv.MA_NV,
-        nv.TEN_NV,
-
-        kh.MA_KH,
-        kh.TEN_KH
-
-    FROM TAI_KHOAN tk
-    LEFT JOIN NHAN_VIEN nv 
-        ON tk.MA_TK = nv.MA_TK
-
-    LEFT JOIN KHACH_HANG kh 
-        ON tk.MA_TK = kh.MA_TK
-
-    WHERE tk.EMAIL = @EMAIL
-      AND tk.MAT_KHAU = @MAT_KHAU
-END
-GO
-
-CREATE PROCEDURE SP_UPDATE_KHACH_HANG
+CREATE OR ALTER PROCEDURE SP_UPDATE_KHACH_HANG
     @MA_KH VARCHAR(5),
     @TEN_KH NVARCHAR(250),
     @SDT VARCHAR(11),
@@ -477,10 +479,6 @@ BEGIN
 END
 GO
 
-
-----------------------------
-MYMYMYMYMYMYMYMYMYMYMYMYMYMY
-----------------------------
 -- ── SP 1: Danh sách phòng ────────────────────────────────────────────────────
 CREATE OR ALTER PROCEDURE SP_GetDanhSachPhong
     @Search     NVARCHAR(100) = '',
@@ -838,12 +836,9 @@ BEGIN
         @LOAI = @LOAI, @TRANG_THAI = @TRANG_THAI,
         @MA_KTX = @MA_KTX, @MA_PHONG = @MA_PHONG, @DS_MA_GIUONG = @DS_MA_GIUONG;
 END;
-
-IF OBJECT_ID('SP_GetLichByNhanVien', 'P') IS NOT NULL
-    DROP PROCEDURE SP_GetLichByNhanVien
 GO
 
-CREATE PROCEDURE SP_GetLichByNhanVien
+CREATE OR ALTER PROCEDURE SP_GetLichByNhanVien
     @MaNV VARCHAR(5),
     @Thang INT,
     @Nam INT
@@ -870,14 +865,10 @@ BEGIN
     WHERE l.MA_NV = @MaNV 
       AND MONTH(l.NGAY_GIO) = @Thang 
       AND YEAR(l.NGAY_GIO) = @Nam;
-END
+END;
 GO
 
-IF OBJECT_ID('SP_DoiLich', 'P') IS NOT NULL
-    DROP PROCEDURE SP_DoiLich
-GO
-
-CREATE PROCEDURE SP_DoiLich
+CREATE OR ALTER PROCEDURE SP_DoiLich
     @MaPhieu VARCHAR(10),
     @NgayGioMoi DATETIME
 AS
@@ -894,14 +885,10 @@ BEGIN
     BEGIN
         RAISERROR(N'Không thể dời lịch. Lịch này đã được xử lý hoặc không tồn tại.', 16, 1);
     END
-END
+END;
 GO
 
-IF OBJECT_ID('SP_HuyLich', 'P') IS NOT NULL
-    DROP PROCEDURE SP_HuyLich
-GO
-
-CREATE PROCEDURE SP_HuyLich
+CREATE OR ALTER PROCEDURE SP_HuyLich
     @MaPhieu VARCHAR(10)
 AS
 BEGIN
@@ -928,9 +915,5 @@ BEGIN
     BEGIN
         RAISERROR(N'Lỗi: Chỉ có thể hủy lịch "Xem phòng" và đang ở trạng thái "Chưa xử lý".', 16, 1);
     END
-END
-
+END;
 GO
-----------------------------
-MYMYMYMYMYMYMYMYMYMYMYMYMYMY
-----------------------------
