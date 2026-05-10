@@ -71,6 +71,12 @@ export default function RentalDetail() {
 
   const canHandover = !!data.MA_HOP_DONG;
   const beds = Array.isArray(data.GIUONGS) ? data.GIUONGS : [];
+  const contractStatus =
+    data.HOP_DONG_IMAGE && data.BIEN_BAN_IMAGE ? "Đã ký" : "Chưa ký";
+  const roomStatus =
+    data.HOP_DONG_IMAGE && data.BIEN_BAN_IMAGE
+      ? "Đã bàn giao"
+      : "Đang chờ bàn giao";
 
   return (
     <div className="min-h-screen bg-background px-20">
@@ -102,7 +108,7 @@ export default function RentalDetail() {
           checkinTime={
             data.NGAY_GIO ? new Date(data.NGAY_GIO).toLocaleString("vi-VN") : ""
           }
-          status={data.TRANG_THAI_PHONG}
+          status={roomStatus}
           imageUrl="/room.png"
           onRefresh={fetchData}
         />
@@ -123,7 +129,7 @@ export default function RentalDetail() {
           email={data.EMAIL ?? "—"}
           startDate={data.NGAY_BD}
           endDate={data.NGAY_KT}
-          contractStatus={data.TRANG_THAI_HOP_DONG}
+          contractStatus={contractStatus}
           onRefresh={fetchData}
           disableEdit={!!data.HOP_DONG_IMAGE && !!data.BIEN_BAN_IMAGE}
         />

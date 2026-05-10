@@ -27,7 +27,7 @@ export async function GET(
         l.MA_PHIEU,
         l.NGAY_GIO,
         l.LOAI,
-        l.TRANG_THAI AS TRANG_THAI_LICH,
+        l.TRANG_THAI,
 
         kh.MA_KH,
         kh.TEN_KH,
