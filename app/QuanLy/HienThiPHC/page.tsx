@@ -213,7 +213,7 @@ export default function HienThiPHCPage() {
                   </div>
                 </div>
 
-                <div className="mt-4 rounded-md bg-white/70 p-4">
+                <div className="mt-4 rounded-md bg-base/70 p-4">
                   <h3 className="text-lg font-bold leading-snug text-primary">
                     VUI LÒNG KIỂM TRA LẠI TOÀN BỘ THÔNG TIN TRƯỚC KHI THANH
                     TOÁN!!!
@@ -256,7 +256,7 @@ export default function HienThiPHCPage() {
 
         {isConfirmOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-            <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="mt-4 rounded-md bg-base p-6 shadow-2xl">
               <h2 className="text-center text-xl font-bold text-text1">
                 Xác nhận thanh toán
               </h2>
