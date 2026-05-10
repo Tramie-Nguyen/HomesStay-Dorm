@@ -477,4 +477,368 @@ BEGIN
 END
 GO
 
-SELECT * FROM LICH;
+
+----------------------------
+MYMYMYMYMYMYMYMYMYMYMYMYMYMY
+----------------------------
+-- ── SP 1: Danh sách phòng ────────────────────────────────────────────────────
+CREATE OR ALTER PROCEDURE SP_GetDanhSachPhong
+    @Search     NVARCHAR(100) = '',
+    @TrangThai  NVARCHAR(10)  = '',
+    @SortDir    VARCHAR(4)    = 'ASC',
+    @Ward       NVARCHAR(100) = '',   
+    @GioiTinh   NVARCHAR(3)   = '',   
+    @Page       INT           = 1,
+    @PageSize   INT           = 6
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @Offset INT = (@Page - 1) * @PageSize;
+
+    -- 1. Đổ dữ liệu vào bảng tạm #KetQua
+    SELECT
+        p.MA_PHONG,
+        p.IMAGE_URL,
+        p.SL_GIUONG,
+        p.SL_GIUONG_TRONG,
+        p.TRANG_THAI,
+        p.MA_KTX,
+        k.TEN_KTX,
+        k.DIA_CHI,
+        k.QUY_DINH,
+        ISNULL(gp.GIA_MIN, 0) AS GIA_MIN,
+        ISNULL(gp.GIA_MAX, 0) AS GIA_MAX
+    INTO #KetQua
+    FROM PHONG p
+    LEFT JOIN KY_TUC_XA k  ON p.MA_KTX  = k.MA_KTX
+    LEFT JOIN (
+        SELECT MA_PHONG, MIN(GIA) AS GIA_MIN, MAX(GIA) AS GIA_MAX
+        FROM GIUONG GROUP BY MA_PHONG
+    ) gp ON p.MA_PHONG = gp.MA_PHONG
+    WHERE
+        (@Search    = '' OR p.MA_PHONG LIKE '%' + @Search + '%')
+        AND (@TrangThai = '' OR p.TRANG_THAI = @TrangThai)
+        AND (@Ward      = '' OR k.DIA_CHI  LIKE '%' + @Ward + '%')
+        AND (@GioiTinh  = '' OR k.QUY_DINH LIKE '%' + @GioiTinh + '%');
+
+    -- 2. Trả về tổng số bản ghi
+    SELECT COUNT(*) AS TONG_BAN_GHI FROM #KetQua;
+
+    -- 3. Trả về dữ liệu phân trang
+    SELECT *
+    FROM #KetQua
+    ORDER BY
+        CASE WHEN @SortDir = 'ASC'  THEN GIA_MIN END ASC,
+        CASE WHEN @SortDir = 'DESC' THEN GIA_MAX END DESC
+    OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
+
+    -- Xóa bảng tạm sau khi dùng
+    DROP TABLE #KetQua;
+END;
+GO
+
+-- ── SP 2: Chi tiết phòng ─────────────────────────────────────────────────────
+CREATE OR ALTER PROCEDURE SP_GetChiTietPhong
+    @MaPhong VARCHAR(10)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Thông tin phòng + KTX
+    SELECT
+        p.MA_PHONG,
+        p.IMAGE_URL,
+        p.SL_GIUONG,
+        p.SL_GIUONG_TRONG,
+        p.TRANG_THAI,
+        p.MA_KTX,
+        p.MO_TA AS MO_TA_PHONG,
+
+        k.TEN_KTX,
+        k.DIA_CHI,
+        k.QUY_DINH,
+        k.GIA_DIEN,
+        k.GIA_NUOC,
+        k.WIFI,
+        k.GUI_XE,
+        k.DICH_VU,
+
+        ISNULL(MIN(g.GIA), 0) AS GIA_MIN,
+        ISNULL(MAX(g.GIA), 0) AS GIA_MAX
+    FROM PHONG p
+    LEFT JOIN KY_TUC_XA k
+        ON p.MA_KTX = k.MA_KTX
+    LEFT JOIN GIUONG g
+        ON p.MA_KTX = g.MA_KTX
+        AND p.MA_PHONG = g.MA_PHONG
+    WHERE p.MA_PHONG = @MaPhong
+    GROUP BY
+        p.MA_PHONG,
+        p.IMAGE_URL,
+        p.SL_GIUONG,
+        p.SL_GIUONG_TRONG,
+        p.TRANG_THAI,
+        p.MA_KTX,
+        p.MO_TA,
+        k.TEN_KTX,
+        k.DIA_CHI,
+        k.QUY_DINH,
+        k.GIA_DIEN,
+        k.GIA_NUOC,
+        k.WIFI,
+        k.GUI_XE,
+        k.DICH_VU;
+
+    -- Danh sách giường
+    SELECT
+        MA_GIUONG,
+        TRANG_THAI,
+        GIA
+    FROM GIUONG
+    WHERE MA_PHONG = @MaPhong
+    ORDER BY MA_GIUONG;
+END;
+GO
+
+
+--SP3
+CREATE OR ALTER PROCEDURE SP_GetThongTinKhachHang
+@SDT VARCHAR(11)
+AS
+BEGIN
+	SELECT K.*, TK.EMAIL 
+	FROM KHACH_HANG K JOIN TAI_KHOAN TK
+	ON TK.MA_TK = K.MA_TK
+	WHERE SDT = @SDT;
+END;
+GO
+
+--SP4
+CREATE OR ALTER PROCEDURE SP_ThemKhachHang
+    @HoTen NVARCHAR(150),
+    @SDT VARCHAR(15),
+    @NgaySinh DATE,
+    @Email VARCHAR(100),
+    @CCCD VARCHAR(20),
+    @GioiTinh NVARCHAR(10),
+    @MA_KH_MOI VARCHAR(5) OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @MA_KH VARCHAR(5);
+    DECLARE @MA_TK VARCHAR(5);
+    DECLARE @MAT_KHAU VARCHAR(20);
+
+    -- kiểm tra khách hàng đã tồn tại chưa
+    SELECT @MA_KH = MA_KH
+    FROM KHACH_HANG
+    WHERE SDT = @SDT;
+
+    IF @MA_KH IS NOT NULL
+    BEGIN
+        SET @MA_KH_MOI = @MA_KH;
+        RETURN;
+    END
+
+    -- tạo mã tài khoản mới
+    SELECT @MA_TK =
+        'TK' + RIGHT('000' + CAST(ISNULL(MAX(CAST(SUBSTRING(MA_TK, 3, 3) AS INT)), 0) + 1 AS VARCHAR), 3)
+    FROM TAI_KHOAN
+    WHERE MA_TK LIKE 'TK%';
+
+    -- tạo mã khách hàng mới
+    SELECT @MA_KH =
+        'KH' + RIGHT('000' + CAST(ISNULL(MAX(CAST(SUBSTRING(MA_KH, 3, 3) AS INT)), 0) + 1 AS VARCHAR), 3)
+    FROM KHACH_HANG
+    WHERE MA_KH LIKE 'KH%';
+
+    -- mật khẩu = ddMMyyyy từ ngày sinh
+    SET @MAT_KHAU =
+        RIGHT('0' + CAST(DAY(@NgaySinh) AS VARCHAR), 2) +
+        RIGHT('0' + CAST(MONTH(@NgaySinh) AS VARCHAR), 2) +
+        CAST(YEAR(@NgaySinh) AS VARCHAR);
+
+    INSERT INTO TAI_KHOAN (MA_TK, MAT_KHAU, EMAIL, ROLE)
+    VALUES (@MA_TK, @MAT_KHAU, @Email, 'CUSTOMER');
+
+    INSERT INTO KHACH_HANG
+    (
+        MA_KH,
+        TEN_KH,
+        NGAY_SINH,
+        CCCD,
+        SDT,
+        GIOI_TINH,
+        MA_TK
+    )
+    VALUES
+    (
+        @MA_KH,
+        @HoTen,
+        @NgaySinh,
+        @CCCD,
+        @SDT,
+        @GioiTinh,
+        @MA_TK
+    );
+
+    SET @MA_KH_MOI = @MA_KH;
+END;
+GO
+
+CREATE OR ALTER PROCEDURE SP_XuLyDatLichXemPhongKH
+    @NGAY_DANG_KY DATE,
+    @MA_NV VARCHAR(5),
+    @MA_KH VARCHAR(5),
+    @HINH_THUC_THUE NVARCHAR(25),
+    @NGAY_HEN DATETIME,
+    @LOAI NVARCHAR(14),
+    @TRANG_THAI NVARCHAR(20),
+    @MA_KTX VARCHAR(6),
+    @MA_PHONG VARCHAR(10),
+    @DS_MA_GIUONG NVARCHAR(MAX)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @MA_PDK VARCHAR(5);
+    DECLARE @MA_PHIEU VARCHAR(10);
+
+    BEGIN TRY
+        BEGIN TRAN;
+
+        -- Sinh mã phiếu đăng ký: PD001, PD002...
+        SELECT @MA_PDK =
+            'PD' + RIGHT(
+                '000' + CAST(
+                    ISNULL(
+                        MAX(
+                            CAST(
+                                SUBSTRING(MA_PDK, 3, 3) AS INT
+                            )
+                        ),
+                        0
+                    ) + 1
+                    AS VARCHAR
+                ),
+                3
+            )
+        FROM PHIEU_DANG_KY_THUE
+        WHERE MA_PDK LIKE 'PD[0-9][0-9][0-9]';
+
+        -- Sinh mã lịch: L000001, L000002...
+        SELECT @MA_PHIEU =
+            'L' + RIGHT(
+                '000000' + CAST(
+                    ISNULL(
+                        MAX(
+                            CAST(
+                                SUBSTRING(MA_PHIEU, 2, 6) AS INT
+                            )
+                        ),
+                        0
+                    ) + 1
+                    AS VARCHAR
+                ),
+                6
+            )
+        FROM LICH
+        WHERE MA_PHIEU LIKE 'L[0-9][0-9][0-9][0-9][0-9][0-9]';
+
+        INSERT INTO PHIEU_DANG_KY_THUE
+        (
+            MA_PDK,
+            NGAY_DANG_KY,
+            MA_NV,
+            MA_KH,
+            HINH_THUC_THUE
+        )
+        VALUES
+        (
+            @MA_PDK,
+            @NGAY_DANG_KY,
+            @MA_NV,
+            @MA_KH,
+            @HINH_THUC_THUE
+        );
+
+        INSERT INTO LICH
+        (
+            MA_PHIEU,
+            NGAY_GIO,
+            LOAI,
+            TRANG_THAI,
+            MA_PDK,
+            MA_KTX,
+            MA_PHONG,
+            MA_NV
+        )
+        VALUES
+        (
+            @MA_PHIEU,
+            @NGAY_HEN,
+            @LOAI,
+            @TRANG_THAI,
+            @MA_PDK,
+            @MA_KTX,
+            @MA_PHONG,
+            @MA_NV
+        );
+
+        INSERT INTO LICH_GIUONG
+        (
+            MA_PHIEU,
+            MA_GIUONG
+        )
+        SELECT
+            @MA_PHIEU,
+            LTRIM(RTRIM(value))
+        FROM STRING_SPLIT(@DS_MA_GIUONG, ',')
+        WHERE LTRIM(RTRIM(value)) <> '';
+
+        COMMIT TRAN;
+    END TRY
+    BEGIN CATCH
+        ROLLBACK TRAN;
+        THROW;
+    END CATCH
+END;
+GO
+
+CREATE OR ALTER PROCEDURE SP_XuLyDatLichXemPhongVL
+    @NGAY_DANG_KY DATE,
+    @MA_NV VARCHAR(5),
+    @TEN_KH NVARCHAR(250),
+    @NGAY_SINH DATE,
+    @CCCD VARCHAR(12),
+    @SDT VARCHAR(11),
+    @GIOI_TINH NVARCHAR(3),
+    @EMAIL VARCHAR(100),
+    @HINH_THUC_THUE NVARCHAR(25),
+    @NGAY_HEN DATETIME,        
+    @LOAI NVARCHAR(14),
+    @TRANG_THAI NVARCHAR(20),
+    @MA_KTX VARCHAR(6),
+    @MA_PHONG VARCHAR(10),
+    @DS_MA_GIUONG NVARCHAR(MAX)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @MA_KH VARCHAR(5);
+
+    EXEC SP_ThemKhachHang
+        @HoTen = @TEN_KH, @SDT = @SDT, @NgaySinh = @NGAY_SINH,
+        @Email = @EMAIL, @CCCD = @CCCD, @GioiTinh = @GIOI_TINH,
+        @MA_KH_MOI = @MA_KH OUTPUT;
+
+    EXEC SP_XuLyDatLichXemPhongKH
+        @NGAY_DANG_KY = @NGAY_DANG_KY, @MA_NV = @MA_NV, @MA_KH = @MA_KH,
+        @HINH_THUC_THUE = @HINH_THUC_THUE, @NGAY_HEN = @NGAY_HEN,
+        @LOAI = @LOAI, @TRANG_THAI = @TRANG_THAI,
+        @MA_KTX = @MA_KTX, @MA_PHONG = @MA_PHONG, @DS_MA_GIUONG = @DS_MA_GIUONG;
+END;
+GO
+----------------------------
+MYMYMYMYMYMYMYMYMYMYMYMYMYMY
+----------------------------
