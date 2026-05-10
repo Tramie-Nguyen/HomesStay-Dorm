@@ -237,6 +237,193 @@ INSERT INTO BIEN_BAN_TRA_PHONG VALUES
  'TT002',
  'HD002',
  N'Đang chờ xử lí');
+
+
+ /* =========================================================
+   THÊM LỊCH CHƯA KÝ HỢP ĐỒNG
+   (chỉ xem phòng / đặt cọc, chưa tạo hợp đồng)
+========================================================= */
+
+/* --- Phiếu đăng ký mới --- */
+INSERT INTO PHIEU_DANG_KY_THUE VALUES
+('PDK03', '2026-05-09', 'NV001', 'KH001', N'Cá nhân'),
+
+('PDK04', '2026-05-10', 'NV001', 'KH002', N'Nhóm');
+
+/* --- Phiếu đặt cọc mới --- */
+INSERT INTO PHIEU_DAT_COC VALUES
+('PDC03', GETDATE(), 2500000,
+ N'Đã đặt cọc', 'KH001', 'NV001'),
+
+('PDC04', GETDATE(), 1800000,
+ N'Chưa đặt cọc', 'KH002', 'NV001');
+
+/* =========================================================
+   LỊCH CHƯA KÝ HỢP ĐỒNG
+   -> KHÔNG có bản ghi trong HOP_DONG_THUE
+========================================================= */
+
+INSERT INTO LICH VALUES
+(
+    'LICH0003',
+    DATEADD(DAY, 3, GETDATE()),
+    N'Xem phòng',
+    N'Chưa xử lý',
+    'PDK03',
+    NULL,
+    'KTX002',
+    'P201',
+    'NV001'
+),
+
+(
+    'LICH0004',
+    DATEADD(DAY, 4, GETDATE()),
+    N'Nhận phòng',
+    N'Chưa xử lý',
+    NULL,
+    'PDC03',
+    'KTX001',
+    'P101',
+    'NV002'
+),
+
+(
+    'LICH0005',
+    DATEADD(DAY, 5, GETDATE()),
+    N'Xem phòng',
+    N'Chưa xử lý',
+    'PDK04',
+    NULL,
+    'KTX001',
+    'P102',
+    'NV001'
+),
+
+(
+    'LICH0006',
+    DATEADD(DAY, 6, GETDATE()),
+    N'Nhận phòng',
+    N'Chưa xử lý',
+    NULL,
+    'PDC04',
+    'KTX002',
+    'P201',
+    'NV002'
+);
+
+/* =========================================================
+   GIƯỜNG CHO CÁC LỊCH
+========================================================= */
+
+INSERT INTO LICH_GIUONG VALUES
+('LICH0003', 'G1'),
+('LICH0004', 'G2'),
+('LICH0005', 'G1'),
+('LICH0006', 'G2');
+
+/* =========================================================
+   KIỂM TRA:
+   Các lịch này chưa có hợp đồng
+========================================================= */
+
+SELECT l.*
+FROM LICH l
+LEFT JOIN HOP_DONG_THUE h
+    ON l.MA_PHIEU = h.MA_PHIEU
+WHERE h.MA_HOP_DONG IS NULL;
+/* =========================================================
+   THÊM LỊCH ĐÃ XỬ LÝ
+   (đã xử lý nhưng chưa ký hợp đồng)
+========================================================= */
+
+/* --- Phiếu đăng ký --- */
+INSERT INTO PHIEU_DANG_KY_THUE VALUES
+('PDK05', '2026-05-11', 'NV002', 'KH001', N'Cá nhân'),
+
+('PDK06', '2026-05-12', 'NV001', 'KH002', N'Nhóm');
+
+/* --- Phiếu đặt cọc --- */
+INSERT INTO PHIEU_DAT_COC VALUES
+('PDC05', GETDATE(), 3000000,
+ N'Đã đặt cọc', 'KH001', 'NV002'),
+
+('PDC06', GETDATE(), 2200000,
+ N'Đã đặt cọc', 'KH002', 'NV001');
+
+/* =========================================================
+   LỊCH ĐÃ XỬ LÝ
+========================================================= */
+
+INSERT INTO LICH VALUES
+(
+    'LICH0007',
+    DATEADD(DAY, 7, GETDATE()),
+    N'Xem phòng',
+    N'Đã xử lý',
+    'PDK05',
+    NULL,
+    'KTX001',
+    'P101',
+    'NV002'
+),
+
+(
+    'LICH0008',
+    DATEADD(DAY, 8, GETDATE()),
+    N'Nhận phòng',
+    N'Đã xử lý',
+    NULL,
+    'PDC05',
+    'KTX002',
+    'P201',
+    'NV001'
+),
+
+(
+    'LICH0009',
+    DATEADD(DAY, 9, GETDATE()),
+    N'Xem phòng',
+    N'Đã xử lý',
+    'PDK06',
+    NULL,
+    'KTX001',
+    'P102',
+    'NV001'
+),
+
+(
+    'LICH0010',
+    DATEADD(DAY, 10, GETDATE()),
+    N'Nhận phòng',
+    N'Đã xử lý',
+    NULL,
+    'PDC06',
+    'KTX002',
+    'P201',
+    'NV002'
+);
+
+/* =========================================================
+   GIƯỜNG
+========================================================= */
+
+INSERT INTO LICH_GIUONG VALUES
+('LICH0007', 'G3'),
+('LICH0008', 'G1'),
+('LICH0009', 'G2'),
+('LICH0010', 'G2');
+
+/* =========================================================
+   KIỂM TRA LỊCH ĐÃ XỬ LÝ CHƯA CÓ HỢP ĐỒNG
+========================================================= */
+
+SELECT l.*
+FROM LICH l
+LEFT JOIN HOP_DONG_THUE h
+    ON l.MA_PHIEU = h.MA_PHIEU
+WHERE l.TRANG_THAI = N'Đã xử lý'
+  AND h.MA_HOP_DONG IS NULL;
 GO
 
 SELECT * FROM CHINH_SACH_THUE;

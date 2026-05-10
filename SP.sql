@@ -1,0 +1,65 @@
+USE DORM
+GO
+
+CREATE PROCEDURE SP_LOGIN
+    @EMAIL VARCHAR(100),
+    @MAT_KHAU VARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        tk.MA_TK,
+        tk.EMAIL,
+        tk.ROLE,
+
+        nv.MA_NV,
+        nv.TEN_NV,
+
+        kh.MA_KH,
+        kh.TEN_KH
+
+    FROM TAI_KHOAN tk
+    LEFT JOIN NHAN_VIEN nv 
+        ON tk.MA_TK = nv.MA_TK
+
+    LEFT JOIN KHACH_HANG kh 
+        ON tk.MA_TK = kh.MA_TK
+
+    WHERE tk.EMAIL = @EMAIL
+      AND tk.MAT_KHAU = @MAT_KHAU
+END
+GO
+
+CREATE PROCEDURE SP_UPDATE_KHACH_HANG
+    @MA_KH VARCHAR(5),
+    @TEN_KH NVARCHAR(250),
+    @SDT VARCHAR(11),
+    @CCCD VARCHAR(12),
+    @GIOI_TINH NVARCHAR(3),
+    @EMAIL VARCHAR(150)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE KHACH_HANG
+    SET TEN_KH = @TEN_KH,
+        SDT = @SDT,
+        CCCD = @CCCD,
+        GIOI_TINH = @GIOI_TINH
+    WHERE MA_KH = @MA_KH;
+
+    IF @EMAIL IS NOT NULL
+    BEGIN
+        UPDATE TAI_KHOAN
+        SET EMAIL = @EMAIL
+        WHERE MA_TK = (
+            SELECT MA_TK
+            FROM KHACH_HANG
+            WHERE MA_KH = @MA_KH
+        );
+    END
+END
+GO
+
+SELECT * FROM LICH;
