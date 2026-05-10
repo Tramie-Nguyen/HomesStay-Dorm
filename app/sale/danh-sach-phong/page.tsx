@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { formatGiaRange } from "@/lib/format";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 interface Room {
@@ -16,19 +17,7 @@ interface Room {
   ktxName: string;
   giaMin: number; // ← thay pricePerBed string bằng 2 số thô
   giaMax: number;
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function formatGia(gia: number): string {
-  const trieu = gia / 1_000_000;
-  const nguyen = Math.floor(trieu);
-  const le = Math.round((trieu % 1) * 10);
-  return le === 0 ? `${nguyen}tr` : `${nguyen}tr${le}`;
-}
-
-function formatGiaRange(min: number, max: number): string {
-  if (min === max || max === 0) return `${formatGia(min)}/giường`;
-  return `${formatGia(min)} - ${formatGia(max)}/giường`;
+  address: string;
 }
 
 async function fetchRooms(params: {
@@ -37,6 +26,7 @@ async function fetchRooms(params: {
   sort: string;
   page: number;
   ward: string;
+  gioiTinh: string;
 }) {
   const qs = new URLSearchParams({
     search: params.search,
@@ -44,9 +34,22 @@ async function fetchRooms(params: {
     sort: params.sort,
     page: String(params.page),
     ward: params.ward,
+    gioiTinh: params.gioiTinh,
   });
-  const res = await fetch(`/api/phong?${qs}`);
-  if (!res.ok) throw new Error("Fetch thất bại");
+
+  const res = await fetch(`/api/phong?${qs}`, {
+    cache: "no-store", // Thêm dòng này để ép fetch mới hoàn toàn
+    headers: {
+      "Cache-Control": "no-cache",
+    },
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    // Log rõ status + nội dung lỗi từ server
+    console.error(`[fetchRooms] HTTP ${res.status}:`, body);
+    throw new Error(`Fetch thất bại: ${res.status} - ${body}`);
+  }
+
   return res.json() as Promise<{
     rooms: Room[];
     totalPages: number;
@@ -66,16 +69,20 @@ export default function DanhSachPhongPage() {
   const [statusFilter, setStatusFilter] = useState<"Còn chỗ" | "Hết chỗ" | "">(
     "",
   );
+  const [gioiTinh, setGioiTinh] = useState("");
+  const [error, setError] = useState("");
 
   // Gọi API mỗi khi filter/sort/page thay đổi
   useEffect(() => {
     setLoading(true);
+    setError("");
     fetchRooms({
       search: searchQuery,
       status: statusFilter,
       sort: sortOrder,
       page: currentPage,
       ward: ward,
+      gioiTinh: gioiTinh,
     })
       .then(({ rooms, totalPages }) => {
         setRooms(rooms);
@@ -83,7 +90,7 @@ export default function DanhSachPhongPage() {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [searchQuery, statusFilter, sortOrder, currentPage]);
+  }, [searchQuery, statusFilter, sortOrder, currentPage, ward, gioiTinh]);
 
   // Reset về trang 1 khi đổi filter
   const handleStatusFilter = (val: "Còn chỗ" | "Hết chỗ") => {
@@ -114,23 +121,35 @@ export default function DanhSachPhongPage() {
 
           <select
             value={ward}
-            onChange={(e) => setWard(e.target.value)}
+            onChange={(e) => {
+              setWard(e.target.value);
+              setCurrentPage(1);
+            }}
             className="border border-grey/40 rounded-lg px-4 py-2 text-text1 bg-white focus:outline-none focus:ring-2 focus:ring-primary min-w-[160px]"
           >
             <option value="">Phường</option>
-            <option value="p1">Phường Tân Sơn Hòa</option>
-            <option value="p2">Phường Tân Sơn Nhất</option>
-            <option value="p3">Phường Tân Hòa</option>
-            <option value="p4">Phường Sài Gòn</option>
-            <option value="p5">Phường Tân Định</option>
-            <option value="p6">Phường Bến Thành</option>
-            <option value="p7">Phường Bình Phú</option>
+            {/* value = tên thật → SP sẽ LIKE '%Tân Sơn Hòa%' trong DIA_CHI */}
+            <option value="Tân Sơn Hòa">Phường Tân Sơn Hòa</option>
+            <option value="Tân Sơn Nhất">Phường Tân Sơn Nhất</option>
+            <option value="Tân Hòa">Phường Tân Hòa</option>
+            <option value="Sài Gòn">Phường Sài Gòn</option>
+            <option value="Tân Định">Phường Tân Định</option>
+            <option value="Bến Thành">Phường Bến Thành</option>
+            <option value="Bình Phú">Phường Bình Phú</option>
           </select>
 
-          <select className="border border-grey/40 rounded-lg px-4 py-2  text-text1 bg-white focus:outline-none focus:ring-2 focus:ring-primary min-w-[120px]">
+          <select
+            value={gioiTinh}
+            onChange={(e) => {
+              setGioiTinh(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="border border-grey/40 rounded-lg px-4 py-2 text-text1 bg-white focus:outline-none focus:ring-2 focus:ring-primary min-w-[120px]"
+          >
             <option value="">Giới tính</option>
             <option value="Nam">Nam</option>
-            <option value="Nu">Nữ</option>
+            <option value="Nữ">Nữ</option>{" "}
+            {/* ← phải khớp với chuỗi trong QUY_DINH của DB */}
           </select>
 
           {/* Tìm kiếm — dùng onBlur + Enter để tránh gọi API mỗi keystroke */}
@@ -219,6 +238,12 @@ export default function DanhSachPhongPage() {
                         >
                           {room.status}
                         </span>
+                      </p>
+                      <p className="text-text1 ">
+                        Vị trí:{" "}
+                        <span className="font-semibold">{room.address}</span> (
+                        {""}
+                        <span className="font-semibold">{room.ktxName}</span>)
                       </p>
                     </div>
                   </article>
