@@ -103,6 +103,8 @@ export default function RentalDetail() {
             data.NGAY_GIO ? new Date(data.NGAY_GIO).toLocaleString("vi-VN") : ""
           }
           status={data.TRANG_THAI_PHONG}
+          scheduleType={data.LOAI}
+          scheduleStatus={data.TRANG_THAI_LICH}
           imageUrl="/room.png"
           onRefresh={fetchData}
         />
@@ -126,6 +128,7 @@ export default function RentalDetail() {
           contractStatus={data.TRANG_THAI_HOP_DONG}
           onRefresh={fetchData}
           disableEdit={!!data.HOP_DONG_IMAGE && !!data.BIEN_BAN_IMAGE}
+          scheduleType={data.LOAI}
         />
       </div>
 

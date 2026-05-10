@@ -106,9 +106,9 @@ export default function Popup({ task, currentDate, onClose, onRefresh }: PopupPr
       }`}
       // Bấm vào bất kỳ đâu trên thẻ div này sẽ chuyển trang
       onClick={() => {
-        if (task.loai === 'Xem phòng') {
+        if (task.loai === "Xem phòng") {
           router.push(`/sale/lich-cua-toi/xem-phong/${task.id}`);
-        } else if (task.loai === 'Nhận phòng') {
+        } else if (task.loai?.trim().normalize() === "Nhận phòng".normalize()) {
           router.push(`/sale/lich-cua-toi/nhan-phong/${task.id}`);
         }
         else {
