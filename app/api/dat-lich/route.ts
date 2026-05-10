@@ -6,11 +6,14 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const sdt = searchParams.get("sdt");
 
+  if (!sdt)
+    return NextResponse.json({ error: "Thiếu số điện thoại" }, { status: 400 });
+
   try {
     const pool = await getPool();
     const result = await pool
       .request()
-      .input("SDT", sql.VarChar(15), sdt)
+      .input("SDT", sql.VarChar(11), sdt)
       .execute("SP_GetThongTinKhachHang");
 
     if (result.recordset.length > 0) {
@@ -26,50 +29,91 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const {
-      type, // 'khach' hoặc 'vanglai'
-      hoTen,
+      type,
+      tenKh,
       sdt,
       ngaySinh,
       email,
       cccd,
       gioiTinh,
       maPhong,
-      selectedBeds, // Mảng các ID giường: ['G01', 'G02']
-      ngayXem, // Date object hoặc string ISO
+      maKtx,
+      hinhThucThue,
+      selectedBeds,
+      ngayXem,
     } = body;
 
     const pool = await getPool();
+    const maNv = "NV001";
+    const ngayDangKy = new Date();
+    const loaiLich = "Xem phòng";
+    const trangThai = "Chưa xử lý";
+    const dsGiuong = Array.isArray(selectedBeds) ? selectedBeds.join(",") : "";
+    const ngayHen = new Date(ngayXem); // DATETIME - giữ nguyên giờ từ DatePicker
 
-    // Thực thi Stored Procedure tổng hợp
-    // SP này sẽ:
-    // 1. Kiểm tra nếu là vãng lai thì INSERT vào KHACH_HANG
-    // 2. INSERT vào bảng LICH_HEN
-    // 3. INSERT vào bảng CHI_TIET_LICH_HEN (để lưu các giường khách muốn xem)
-    const result = await pool
-      .request()
-      .input("Type", sql.NVarChar(20), type)
-      .input("HoTen", sql.NVarChar(150), hoTen)
-      .input("SDT", sql.VarChar(15), sdt)
-      .input("NgaySinh", sql.Date, ngaySinh)
-      .input("Email", sql.VarChar(100), email)
-      .input("CCCD", sql.VarChar(20), cccd)
-      .input("GioiTinh", sql.NVarChar(10), gioiTinh)
-      .input("MaPhong", sql.VarChar(10), maPhong)
-      .input("SelectedBeds", sql.NVarChar(sql.MAX), selectedBeds.join(",")) // Gửi chuỗi ID cách nhau dấu phẩy
-      .input("NgayXem", sql.DateTime, ngayXem)
-      .execute("SP_XuLyDatLichXemPhong");
+    if (type === "khach") {
+      const customerCheck = await pool
+        .request()
+        .input("SDT", sql.VarChar(11), sdt)
+        .execute("SP_GetThongTinKhachHang");
+
+      if (customerCheck.recordset.length === 0) {
+        return NextResponse.json(
+          { error: "Không tìm thấy khách hàng với SĐT này" },
+          { status: 400 },
+        );
+      }
+      const maKh = customerCheck.recordset[0].MA_KH;
+
+      await pool
+        .request()
+        .input("NGAY_DANG_KY", sql.Date, ngayDangKy)
+        .input("MA_NV", sql.VarChar(5), maNv)
+        .input("MA_KH", sql.VarChar(5), maKh)
+        .input("HINH_THUC_THUE", sql.NVarChar(25), hinhThucThue)
+        .input("NGAY_HEN", sql.DateTime, ngayHen) // ✅ DateTime
+        .input("LOAI", sql.NVarChar(14), loaiLich)
+        .input("TRANG_THAI", sql.NVarChar(20), trangThai)
+        .input("MA_KTX", sql.VarChar(6), maKtx)
+        .input("MA_PHONG", sql.VarChar(10), maPhong)
+        .input("DS_MA_GIUONG", sql.NVarChar(sql.MAX), dsGiuong)
+        .execute("SP_XuLyDatLichXemPhongKH");
+    } else {
+      if (!tenKh || !sdt || !ngaySinh || !email || !cccd || !gioiTinh) {
+        return NextResponse.json(
+          { error: "Thiếu thông tin khách vãng lai" },
+          { status: 400 },
+        );
+      }
+
+      await pool
+        .request()
+        .input("NGAY_DANG_KY", sql.Date, ngayDangKy)
+        .input("MA_NV", sql.VarChar(5), maNv)
+        .input("TEN_KH", sql.NVarChar(250), tenKh)
+        .input("NGAY_SINH", sql.Date, new Date(ngaySinh))
+        .input("CCCD", sql.VarChar(12), cccd)
+        .input("SDT", sql.VarChar(11), sdt)
+        .input("GIOI_TINH", sql.NVarChar(3), gioiTinh.substring(0, 3))
+        .input("EMAIL", sql.VarChar(100), email)
+        .input("HINH_THUC_THUE", sql.NVarChar(25), hinhThucThue)
+        .input("NGAY_HEN", sql.DateTime, ngayHen)
+        .input("LOAI", sql.NVarChar(14), loaiLich)
+        .input("TRANG_THAI", sql.NVarChar(20), trangThai)
+        .input("MA_KTX", sql.VarChar(6), maKtx)
+        .input("MA_PHONG", sql.VarChar(10), maPhong)
+        .input("DS_MA_GIUONG", sql.NVarChar(sql.MAX), dsGiuong)
+        .execute("SP_XuLyDatLichXemPhongVL");
+    }
 
     return NextResponse.json({
       success: true,
       message: "Đặt lịch thành công!",
     });
   } catch (err: any) {
-    console.error("Lỗi đặt lịch:", err);
+    console.error("=== LOI DAT LICH ===", err);
     return NextResponse.json(
-      {
-        error: "Không thể lưu lịch hẹn",
-        details: err.message,
-      },
+      { error: "Lỗi xử lý dữ liệu", details: err.message },
       { status: 500 },
     );
   }
