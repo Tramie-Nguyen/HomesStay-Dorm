@@ -11,7 +11,8 @@ interface RoomCardProps {
   roomId: string;
   name: string;
 
-  bedCode: string;
+  beds?: { MA_GIUONG: string; GIA: number }[];
+  bedCode?: string;
   totalPrice?: number;
 
   electricity: number;
@@ -34,6 +35,7 @@ export default function RoomCard({
   maPhieu,
   roomId,
   name,
+  beds,
   bedCode,
   totalPrice,
   electricity,
@@ -50,6 +52,8 @@ export default function RoomCard({
 }: RoomCardProps) {
   const router = useRouter();
   const [openModal, setOpenModal] = useState(false);
+
+  console.log("RoomCard beds prop:", beds);
 
   const formatMoney = (value?: number) =>
     value ? value.toLocaleString("vi-VN") + "đ" : "—";
@@ -81,14 +85,34 @@ export default function RoomCard({
 
           <div className="flex justify-between mt-2">
             <div>
-              <p>Mã giường: {bedCode}</p>
-
-              <p>
-                Giá:{" "}
-                <span className="text-accent font-semibold">
-                  {formatMoney(totalPrice)}
-                </span>
-              </p>
+              {beds && beds.length > 0 ? (
+                <>
+                  <p className="mb-1">
+                    <span className="font-semibold">Giường:</span>
+                  </p>
+                  {beds.map((bed) => (
+                    <p key={bed.MA_GIUONG} className="text-xs text-text2">
+                      {bed.MA_GIUONG} - {formatMoney(bed.GIA)}
+                    </p>
+                  ))}
+                  <p className="mt-2">
+                    Tổng giá:{" "}
+                    <span className="text-accent font-semibold">
+                      {formatMoney(totalPrice)}
+                    </span>
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p>Mã giường: {bedCode || "—"}</p>
+                  <p>
+                    Giá:{" "}
+                    <span className="text-accent font-semibold">
+                      {formatMoney(totalPrice)}
+                    </span>
+                  </p>
+                </>
+              )}
               <p>Điện: {formatMoney(electricity)}/kWh</p>
               <p>Nước: {formatMoney(water)}/m³</p>
             </div>

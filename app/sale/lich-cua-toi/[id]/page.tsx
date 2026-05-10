@@ -69,6 +69,9 @@ export default function RentalDetail() {
 
   if (!data) return <div>Loading...</div>;
 
+  console.log("Rental data received:", data);
+  console.log("GIUONGS data:", data.GIUONGS);
+
   const canHandover = !!data.MA_HOP_DONG;
   const beds = Array.isArray(data.GIUONGS) ? data.GIUONGS : [];
   const contractStatus =
@@ -98,7 +101,7 @@ export default function RentalDetail() {
           maPhieu={data.MA_PHIEU}
           roomId={data.MA_PHONG}
           name={data.TEN_PHONG}
-          bedCode={beds.map((g) => g.MA_GIUONG).join(", ")}
+          beds={beds}
           totalPrice={data.TONG_TIEN}
           electricity={data.GIA_DIEN}
           water={data.GIA_NUOC}
@@ -178,13 +181,7 @@ export default function RentalDetail() {
       )}
 
       {/* ===== ACTION ===== */}
-      <div className="flex flex-col items-center mt-6 gap-2">
-        {!canHandover && (
-          <p className="text-red-500 text-sm">
-            Chưa có hợp đồng → không thể bàn giao
-          </p>
-        )}
-
+      <div className="flex flex-col items-center mt-6 gap-2 pb-6">
         {data.HOP_DONG_IMAGE && data.BIEN_BAN_IMAGE ? (
           <button
             onClick={() => setOpenHandover(true)}
@@ -200,16 +197,14 @@ export default function RentalDetail() {
             Bàn giao phòng
           </button>
         )}
-
-        {canHandover && (
-          <HandoverModal
-            open={openHandover}
-            onClose={() => setOpenHandover(false)}
-            maHopDong={data.MA_HOP_DONG!}
-            onSuccess={fetchData}
-          />
-        )}
       </div>
+
+      {/* ===== HANDOVER MODAL ===== */}
+      <HandoverModal
+        open={openHandover}
+        onClose={() => setOpenHandover(false)}
+        rentalId={data.MA_PHIEU}
+      />
     </div>
   );
 }

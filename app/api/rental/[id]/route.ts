@@ -11,6 +11,7 @@ export async function GET(
 
     const result = await pool.request().input("id", id).query(`
       SELECT
+        p.MA_KTX,
         p.MA_PHONG,
         p.MA_PHONG AS TEN_PHONG,
         p.IMAGE_URL,
@@ -42,13 +43,7 @@ export async function GET(
         hd.NGAY_KT,
         hd.TRANG_THAI AS TRANG_THAI_HOP_DONG,
         hd.IMAGE_URL AS HOP_DONG_IMAGE,
-        bb.IMAGE_URL AS BIEN_BAN_IMAGE,
-        (
-          SELECT SUM(GIA)
-          FROM GIUONG g
-          WHERE g.MA_PHONG = p.MA_PHONG
-            AND g.MA_KTX = p.MA_KTX
-        ) AS TONG_TIEN
+        bb.IMAGE_URL AS BIEN_BAN_IMAGE
 
       FROM LICH l
       JOIN PHONG p ON l.MA_KTX = p.MA_KTX
@@ -72,20 +67,60 @@ export async function GET(
       );
     }
 
-    // ===== GET BEDS =====
-    const beds = await pool
+    // ===== GET BEDS OF THIS RENTAL =====
+    let beds = await pool
       .request()
+      .input("id", id)
       .input("roomId", main.MA_PHONG)
       .input("ktxId", main.MA_KTX).query(`
-          SELECT MA_GIUONG
-          FROM GIUONG
-          WHERE MA_PHONG = @roomId
-            AND MA_KTX = @ktxId
+        SELECT lg.MA_GIUONG, g.GIA
+        FROM LICH_GIUONG lg
+        INNER JOIN GIUONG g ON g.MA_KTX = @ktxId
+                           AND g.MA_PHONG = @roomId
+                           AND g.MA_GIUONG = lg.MA_GIUONG
+        WHERE lg.MA_PHIEU = @id
       `);
+
+    console.log(
+      "Beds query result:",
+      beds.recordset,
+      "Count:",
+      beds.recordset.length,
+    );
+    console.log(
+      "Query params - id:",
+      id,
+      "roomId:",
+      main.MA_PHONG,
+      "ktxId:",
+      main.MA_KTX,
+    );
+
+    // Fallback: if no beds found via LICH_GIUONG, get all beds from this room
+    if (beds.recordset.length === 0) {
+      console.log("No beds in LICH_GIUONG, fetching all room beds as fallback");
+      beds = await pool
+        .request()
+        .input("roomId", main.MA_PHONG)
+        .input("ktxId", main.MA_KTX).query(`
+          SELECT MA_GIUONG, GIA
+          FROM GIUONG
+          WHERE MA_PHONG = @roomId AND MA_KTX = @ktxId
+        `);
+    }
+
+    const totalPrice = beds.recordset.reduce(
+      (sum, bed) => sum + (Number(bed.GIA) || 0),
+      0,
+    );
 
     const response = {
       ...main,
-      GIUONGS: beds.recordset,
+      GIUONGS: beds.recordset.map((bed) => ({
+        MA_GIUONG: bed.MA_GIUONG,
+        GIA: Number(bed.GIA) || 0,
+      })),
+      TONG_TIEN: totalPrice,
       HOP_DONG_IMAGE: main.HOP_DONG_IMAGE,
       BIEN_BAN_IMAGE: main.BIEN_BAN_IMAGE,
     };
