@@ -129,6 +129,7 @@ export default function RentalDetail() {
           onRefresh={fetchData}
           disableEdit={!!data.HOP_DONG_IMAGE && !!data.BIEN_BAN_IMAGE}
           scheduleType={data.LOAI}
+          onRefresh={fetchData}
         />
       </div>
 

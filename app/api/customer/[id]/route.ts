@@ -18,6 +18,7 @@ export async function PUT(
       .input("id", id)
       .input("name", name)
       .input("phone", phone)
+      .input("ngsinh", new Date(body.dob))
       .input("cccd", cccd)
       .input("gender", gender)
       .input("email", email).query(`
@@ -25,7 +26,8 @@ export async function PUT(
         SET TEN_KH = @name,
             SDT = @phone,
             CCCD = @cccd,
-            GIOI_TINH = @gender
+            GIOI_TINH = @gender,
+            NGAY_SINH = @ngsinh
         WHERE MA_KH = @id
       `);
 

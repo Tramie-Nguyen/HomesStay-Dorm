@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { MapPin } from "lucide-react";
 import { useState } from "react";
 import ChangeScheduleModal from "../room/ChangeScheduleModal";
+import CancelScheduleModal from "./CancelScheduleModal";
 import Image from "next/image";
 
 interface RoomCardProps {
@@ -54,6 +55,7 @@ export default function RoomCard({
 }: RoomCardProps) {
   const router = useRouter();
   const [openModal, setOpenModal] = useState(false);
+  const [openCancelModal, setOpenCancelModal] = useState(false);
 
   const formatMoney = (value?: number) =>
     value ? value.toLocaleString("vi-VN") + "đ" : "—";
@@ -135,6 +137,7 @@ export default function RoomCard({
 
                 {isXemPhong && (
                   <button
+                    onClick={() => setOpenCancelModal(true)}
                     className="bg-text1 hover:bg-opacity-90 transition cursor-pointer text-white px-4 py-1.5 rounded-md text-sm"
                   >
                     Hủy lịch
@@ -153,12 +156,21 @@ export default function RoomCard({
         </div>
       </div>
 
+      <CancelScheduleModal
+        open={openCancelModal}
+        onClose={() => setOpenCancelModal(false)}
+        maPhieu={maPhieu}
+        onSuccess={onRefresh ?? (() => {})}
+      />
+
       <ChangeScheduleModal
         open={openModal}
         onClose={() => setOpenModal(false)}
         maPhieu={maPhieu}
         onSuccess={onRefresh ?? (() => {})}
       />
+
+      
     </>
   );
 }
