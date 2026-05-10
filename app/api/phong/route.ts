@@ -4,7 +4,7 @@ import sql from "mssql";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-
+  const minBeds = parseInt(searchParams.get("minBeds") || "1");
   const search = searchParams.get("search") ?? "";
   const status = searchParams.get("status") ?? "";
   const sort = searchParams.get("sort") ?? "ASC";
@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
       .input("GioiTinh", sql.NVarChar(3), gioiTinh)
       .input("Page", sql.Int, page)
       .input("PageSize", sql.Int, pageSize)
+      .input("MinBeds", sql.Int, minBeds)
       .execute("SP_GetDanhSachPhong");
 
     const recordsets = result.recordsets as any[];
@@ -46,6 +47,7 @@ export async function GET(req: NextRequest) {
       address: row.DIA_CHI,
       giaMin: row.GIA_MIN,
       giaMax: row.GIA_MAX,
+      gte: minBeds,
     }));
 
     return NextResponse.json({ rooms, totalPages, total: tongBanGhi });

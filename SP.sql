@@ -486,6 +486,7 @@ CREATE OR ALTER PROCEDURE SP_GetDanhSachPhong
     @SortDir    VARCHAR(4)    = 'ASC',
     @Ward       NVARCHAR(100) = '',   
     @GioiTinh   NVARCHAR(3)   = '',   
+    @MinBeds    INT           = 1,
     @Page       INT           = 1,
     @PageSize   INT           = 6
 AS
@@ -517,7 +518,8 @@ BEGIN
         (@Search    = '' OR p.MA_PHONG LIKE '%' + @Search + '%')
         AND (@TrangThai = '' OR p.TRANG_THAI = @TrangThai)
         AND (@Ward      = '' OR k.DIA_CHI  LIKE '%' + @Ward + '%')
-        AND (@GioiTinh  = '' OR k.QUY_DINH LIKE '%' + @GioiTinh + '%');
+        AND (@GioiTinh  = '' OR k.QUY_DINH LIKE '%' + @GioiTinh + '%')
+        AND (@MinBeds <= p.SL_GIUONG_TRONG);
 
     -- 2. Trả về tổng số bản ghi
     SELECT COUNT(*) AS TONG_BAN_GHI FROM #KetQua;

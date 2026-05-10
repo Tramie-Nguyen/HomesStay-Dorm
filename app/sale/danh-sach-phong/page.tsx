@@ -5,6 +5,7 @@ import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { formatGiaRange } from "@/lib/format";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 interface Room {
@@ -27,6 +28,7 @@ async function fetchRooms(params: {
   page: number;
   ward: string;
   gioiTinh: string;
+  minBeds: number;
 }) {
   const qs = new URLSearchParams({
     search: params.search,
@@ -35,6 +37,7 @@ async function fetchRooms(params: {
     page: String(params.page),
     ward: params.ward,
     gioiTinh: params.gioiTinh,
+    minBeds: String(params.minBeds),
   });
 
   const res = await fetch(`/api/phong?${qs}`, {
@@ -59,6 +62,10 @@ async function fetchRooms(params: {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function DanhSachPhongPage() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [rooms, setRooms] = useState<Room[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -71,6 +78,18 @@ export default function DanhSachPhongPage() {
   );
   const [gioiTinh, setGioiTinh] = useState("");
   const [error, setError] = useState("");
+  const [minBeds, setMinBeds] = useState(
+    Number(searchParams.get("minBeds")) || 1,
+  );
+
+  const updateUrl = (newParams: Record<string, string | number>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value) params.set(key, String(value));
+      else params.delete(key);
+    });
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   // Gọi API mỗi khi filter/sort/page thay đổi
   useEffect(() => {
@@ -83,6 +102,7 @@ export default function DanhSachPhongPage() {
       page: currentPage,
       ward: ward,
       gioiTinh: gioiTinh,
+      minBeds: minBeds,
     })
       .then(({ rooms, totalPages }) => {
         setRooms(rooms);
@@ -90,7 +110,15 @@ export default function DanhSachPhongPage() {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [searchQuery, statusFilter, sortOrder, currentPage, ward, gioiTinh]);
+  }, [
+    searchQuery,
+    statusFilter,
+    sortOrder,
+    currentPage,
+    ward,
+    gioiTinh,
+    minBeds,
+  ]);
 
   // Reset về trang 1 khi đổi filter
   const handleStatusFilter = (val: "Trống" | "Đã thuê") => {
@@ -122,8 +150,10 @@ export default function DanhSachPhongPage() {
           <select
             value={ward}
             onChange={(e) => {
+              const val = e.target.value;
               setWard(e.target.value);
               setCurrentPage(1);
+              updateUrl({ ward: val, page: 1 });
             }}
             className="border border-grey/40 rounded-lg px-4 py-2 text-text1 bg-white focus:outline-none focus:ring-2 focus:ring-primary min-w-[160px]"
           >
@@ -151,15 +181,40 @@ export default function DanhSachPhongPage() {
             <option value="Nữ">Nữ</option>{" "}
             {/* ← phải khớp với chuỗi trong QUY_DINH của DB */}
           </select>
+          {/* TRƯỜNG NUMERIC UPDOWN MỚI THÊM */}
+          <div className="flex items-center gap-2 bg-white border border-grey/40 rounded-lg px-3 py-1">
+            <span className="text-sm font-medium text-grey">Số giường:</span>
+            <input
+              type="number"
+              min="1"
+              value={minBeds}
+              onChange={(e) => {
+                const val = parseInt(e.target.value);
 
+                if (!isNaN(val) && val >= 1) {
+                  setMinBeds(val);
+                  setCurrentPage(1);
+                  updateUrl({ minBeds: val, page: 1 });
+                } else if (e.target.value === "") {
+                  setMinBeds(1);
+                  updateUrl({ minBeds: 1, page: 1 });
+                }
+              }}
+              className="w-12 text-center text-text2 font-bold outline-none bg-transparent"
+            />
+          </div>
           {/* Tìm kiếm — dùng onBlur + Enter để tránh gọi API mỗi keystroke */}
           <div className="flex-1 min-w-[200px] relative">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onBlur={() => updateUrl({ search: searchQuery, page: 1 })}
               onKeyDown={(e) => {
-                if (e.key === "Enter") setCurrentPage(1);
+                if (e.key === "Enter") {
+                  setCurrentPage(1);
+                  updateUrl({ search: searchQuery, page: 1 });
+                }
               }}
               placeholder="Tìm kiếm phòng"
               className="w-full border border-grey/40 rounded-lg pl-4 pr-10 py-2  text-text1 focus:outline-none focus:ring-2 focus:ring-primary placeholder:text-grey bg-white"
