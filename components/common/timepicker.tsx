@@ -24,16 +24,15 @@ export default function TimePicker({ value, onChange }: Props) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const hours = Array.from({ length: 24 }, (_, i) =>
-    i.toString().padStart(2, "0")
+  const hours = Array.from({ length: 13 }, (_, i) =>
+    // Chỉ cho phép chọn giờ từ 08 đến 20
+    (i + 8).toString().padStart(2, "0")
   );
 
-  // 👉 bạn có thể đổi step phút ở đây
+  
   const minutes = Array.from({ length: 60 }, (_, i) =>
     i.toString().padStart(2, "0")
   );
-  // nếu muốn nhẹ hơn:
-  // const minutes = ["00","05","10","15","20","25","30","35","40","45","50","55"];
 
   const selectHour = (h: string) => {
     const newTime = `${h}:${minute || "00"}`;
