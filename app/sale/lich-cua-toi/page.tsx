@@ -144,6 +144,7 @@ export default function CalendarPage() {
                 onSelectTask={(task) =>
                   setSelectedTaskId(task ? task.id : null)
                 }
+                onRefresh={fetchLich} // Truyền hàm fetchLich xuống để load lại data khi dời/hủy lịch thành công
               />
             ))}
 
