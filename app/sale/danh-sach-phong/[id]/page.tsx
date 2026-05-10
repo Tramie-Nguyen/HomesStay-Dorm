@@ -75,9 +75,9 @@ export default function ChiTietPhongPage() {
      px-6 py-8"
     >
       <div className="mx-auto max-w-5xl">
-        <button onClick={() => router.back()} className="mb-4 text-pink-500">
+        {/* <button onClick={() => router.back()} className="mb-4 text-pink-500">
           <ChevronLeft size={40} />
-        </button>
+        </button> */}
 
         <h1 className="mb-6 text-2xl font-bold text-text1">
           {room.ktxName.toUpperCase()} - PHÒNG {room.code}
@@ -118,9 +118,14 @@ export default function ChiTietPhongPage() {
             </p>
             <button
               onClick={handleBookingRedirect}
-              className="w-full rounded-xl bg-pink-500 py-3 text-xl font-bold text-white shadow-sm hover:bg-pink-600 transition-colors"
+              disabled={room.availableBeds === 0}
+              className={`w-full rounded-xl py-3 text-xl font-bold text-white shadow-sm transition-colors
+    ${
+      room.availableBeds === 0
+        ? "bg-grey cursor-not-allowed"
+        : "bg-accent hover:bg-pink-600"
+    }`}
             >
-              {" "}
               ĐẶT LỊCH XEM PHÒNG
             </button>
           </div>

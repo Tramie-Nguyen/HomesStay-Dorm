@@ -6,6 +6,8 @@ import Image from "next/image";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Calendar, Clock, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 function Field({
   label,
@@ -39,6 +41,7 @@ const readonlyStyle = {
 };
 
 export default function DatLichPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const roomId = searchParams.get("roomId");
 
@@ -109,6 +112,14 @@ export default function DatLichPage() {
   const handleSearchCustomer = async () => {
     if (searchSdt.trim().length < 10) {
       setSearchError("Vui lòng nhập số điện thoại hợp lệ (ít nhất 10 số).");
+      setForm({
+        tenKh: "",
+        ngaySinh: "",
+        sdt: "",
+        email: "",
+        cccd: "",
+        gioiTinh: "Nữ",
+      });
       return;
     }
     setIsSearching(true);
@@ -176,7 +187,10 @@ export default function DatLichPage() {
 
       const result = await res.json();
       if (res.ok) {
-        alert("Đặt lịch thành công!");
+        toast.success("Đặt lịch thành công");
+        setTimeout(() => {
+          router.push("/sale/lich-hen");
+        }, 1500);
       } else {
         alert(
           `Lỗi: ${result.error}${result.details ? "\n" + result.details : ""}`,

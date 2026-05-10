@@ -224,7 +224,7 @@ export default function DanhSachPhongPage() {
                       <p className="text-text1 ">
                         Giá:{" "}
                         <span className="font-medium">
-                          {formatGiaRange(room.giaMin, room.giaMax)}
+                          {formatGiaRange(room.giaMin, room.giaMax)}/tháng
                         </span>
                       </p>
                       <p className="">

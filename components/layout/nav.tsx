@@ -38,7 +38,6 @@ export default function NavBar() {
   ];
 
   const saleItems = [
-    { href: "/", label: "Trang chủ" },
     { href: "/sale/danh-sach-phong", label: "Danh sách phòng" },
     { href: "/sale/lich-hen", label: "Lịch hẹn" },
     { href: "/sale/lich-cua-toi", label: "Lịch của tôi" },
