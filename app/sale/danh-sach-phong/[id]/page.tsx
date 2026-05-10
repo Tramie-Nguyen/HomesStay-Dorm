@@ -254,7 +254,13 @@ export default function ChiTietPhongPage() {
                 .map((item, index) => (
                   <li key={index} className="flex items-start gap-2 text-text1">
                     <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
-                    <span className={item.includes("nữ") ? "font-bold" : ""}>
+                    <span
+                      className={
+                        item.includes("nữ") || item.includes("nam")
+                          ? "font-bold"
+                          : ""
+                      }
+                    >
                       {item}
                     </span>
                   </li>

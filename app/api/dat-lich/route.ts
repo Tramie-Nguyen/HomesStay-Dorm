@@ -44,7 +44,6 @@ export async function POST(req: NextRequest) {
     } = body;
 
     const pool = await getPool();
-    const maNv = "NV001";
     const ngayDangKy = new Date();
     const loaiLich = "Xem phòng";
     const trangThai = "Chưa xử lý";
@@ -68,10 +67,9 @@ export async function POST(req: NextRequest) {
       await pool
         .request()
         .input("NGAY_DANG_KY", sql.Date, ngayDangKy)
-        .input("MA_NV", sql.VarChar(5), maNv)
         .input("MA_KH", sql.VarChar(5), maKh)
         .input("HINH_THUC_THUE", sql.NVarChar(25), hinhThucThue)
-        .input("NGAY_HEN", sql.DateTime, ngayHen) // ✅ DateTime
+        .input("NGAY_HEN", sql.DateTime, ngayHen)
         .input("LOAI", sql.NVarChar(14), loaiLich)
         .input("TRANG_THAI", sql.NVarChar(20), trangThai)
         .input("MA_KTX", sql.VarChar(6), maKtx)
@@ -89,7 +87,6 @@ export async function POST(req: NextRequest) {
       await pool
         .request()
         .input("NGAY_DANG_KY", sql.Date, ngayDangKy)
-        .input("MA_NV", sql.VarChar(5), maNv)
         .input("TEN_KH", sql.NVarChar(250), tenKh)
         .input("NGAY_SINH", sql.Date, new Date(ngaySinh))
         .input("CCCD", sql.VarChar(12), cccd)

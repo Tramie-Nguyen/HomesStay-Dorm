@@ -689,7 +689,6 @@ GO
 
 CREATE OR ALTER PROCEDURE SP_XuLyDatLichXemPhongKH
     @NGAY_DANG_KY DATE,
-    @MA_NV VARCHAR(5),
     @MA_KH VARCHAR(5),
     @HINH_THUC_THUE NVARCHAR(25),
     @NGAY_HEN DATETIME,
@@ -750,7 +749,6 @@ BEGIN
         (
             MA_PDK,
             NGAY_DANG_KY,
-            MA_NV,
             MA_KH,
             HINH_THUC_THUE
         )
@@ -758,7 +756,6 @@ BEGIN
         (
             @MA_PDK,
             @NGAY_DANG_KY,
-            @MA_NV,
             @MA_KH,
             @HINH_THUC_THUE
         );
@@ -783,7 +780,7 @@ BEGIN
             @MA_PDK,
             @MA_KTX,
             @MA_PHONG,
-            @MA_NV
+            NULL
         );
 
         INSERT INTO LICH_GIUONG
@@ -808,7 +805,6 @@ GO
 
 CREATE OR ALTER PROCEDURE SP_XuLyDatLichXemPhongVL
     @NGAY_DANG_KY DATE,
-    @MA_NV VARCHAR(5),
     @TEN_KH NVARCHAR(250),
     @NGAY_SINH DATE,
     @CCCD VARCHAR(12),
@@ -833,7 +829,7 @@ BEGIN
         @MA_KH_MOI = @MA_KH OUTPUT;
 
     EXEC SP_XuLyDatLichXemPhongKH
-        @NGAY_DANG_KY = @NGAY_DANG_KY, @MA_NV = @MA_NV, @MA_KH = @MA_KH,
+        @NGAY_DANG_KY = @NGAY_DANG_KY, @MA_KH = @MA_KH,
         @HINH_THUC_THUE = @HINH_THUC_THUE, @NGAY_HEN = @NGAY_HEN,
         @LOAI = @LOAI, @TRANG_THAI = @TRANG_THAI,
         @MA_KTX = @MA_KTX, @MA_PHONG = @MA_PHONG, @DS_MA_GIUONG = @DS_MA_GIUONG;

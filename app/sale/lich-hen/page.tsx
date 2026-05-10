@@ -103,7 +103,7 @@ export default function SaleLichHenPage() {
       const authData = getAuthData();
       const maNv = authData?.user?.MA_NV;
 
-      if (action === "accept" && !maNv) {
+      if (!maNv) {
         throw new Error("Không tìm thấy mã nhân viên. Vui lòng đăng nhập lại.");
       }
 
@@ -113,7 +113,7 @@ export default function SaleLichHenPage() {
         body: JSON.stringify({
           action,
           maPhieu: appointment.MA_PHIEU,
-          maNv,
+          maNv: maNv,
         }),
       });
 
