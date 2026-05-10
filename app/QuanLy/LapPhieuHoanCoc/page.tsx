@@ -156,14 +156,14 @@ export default function LapPhieuHoanCocPage() {
   return (
     <>
       <NavBar />
-      <main className="min-h-screen bg-[#e6f7fa] font-sans p-6 pt-24">
-        <div className="mx-auto max-w-3xl bg-white/80 rounded-xl shadow p-6">
+      <main className="min-h-screen bg-background font-sans p-6 pt-24">
+        <div className="mx-auto max-w-3xl bg-base/80 rounded-xl shadow p-6">
           <h2 className="text-center text-2xl font-bold text-text1 uppercase mb-6">
             Danh sách vật dụng
           </h2>
 
           {error && (
-            <div className="mb-3 rounded-md border border-red-300 bg-red-50 px-4 py-2 text-sm text-red-700">
+            <div className="mb-3 rounded-md border border-accent/50 bg-accent/10 px-4 py-2 text-sm text-accent">
               {error}
             </div>
           )}
@@ -177,20 +177,19 @@ export default function LapPhieuHoanCocPage() {
               <table className="w-full border mb-6">
                 <thead>
                   <tr className="bg-primary/10">
-                    <th className="border px-2 py-1">Tên vật dụng</th>
-                    <th className="border px-2 py-1">Giá trị</th>
-                    <th className="border px-2 py-1">Số lượng</th>
-                    <th className="border px-2 py-1">Đồ hư hỏng</th>
-                    <th className="border px-2 py-1">Ghi chú</th>
+                    <th className="border border-base px-2 py-1">
+                      Tên vật dụng
+                    </th>
+                    <th className="border border-base px-2 py-1">Giá trị</th>
+                    <th className="border border-base px-2 py-1">Số lượng</th>
+                    <th className="border border-base px-2 py-1">Đồ hư hỏng</th>
+                    <th className="border border-base px-2 py-1">Ghi chú</th>
                   </tr>
                 </thead>
                 <tbody>
                   {items.length === 0 ? (
                     <tr>
-                      <td
-                        colSpan={5}
-                        className="text-center py-4 text-gray-500"
-                      >
+                      <td colSpan={5} className="text-center py-4 text-text2">
                         Không có dữ liệu
                       </td>
                     </tr>
@@ -213,7 +212,7 @@ export default function LapPhieuHoanCocPage() {
                         <td className="border px-2 py-1">
                           <input
                             type="text"
-                            className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+                            className="w-full rounded border border-base px-2 py-1 text-sm"
                             placeholder="Ghi chú..."
                             value={item.note || ""}
                             onChange={(e) =>

@@ -115,12 +115,17 @@ CREATE TABLE GIUONG
    3. TÀI KHOẢN → NHÂN VIÊN / KHÁCH HÀNG
 ========================================================= */
 
-CREATE TABLE TAI_KHOAN (
+CREATE TABLE TAI_KHOAN
+(
     MA_TK VARCHAR(5) PRIMARY KEY,
     MAT_KHAU VARCHAR(20) NOT NULL,
     EMAIL VARCHAR(150),
 
+
     ROLE VARCHAR(20)
+        CHECK (ROLE IN ('SALE', 'BRANCH_MANAGER', 'CUSTOMER')),
+
+    MA_HOP_DONG VARCHAR(5) NULL
         CHECK (ROLE IN ('SALE', 'BRANCH_MANAGER', 'CUSTOMER')),
 
     MA_HOP_DONG VARCHAR(5) NULL
@@ -128,6 +133,29 @@ CREATE TABLE TAI_KHOAN (
 
 CREATE TABLE NHAN_VIEN
 (
+    MA_NV VARCHAR(5) PRIMARY KEY,
+    TEN_NV NVARCHAR(250) NOT NULL,
+
+    NGAY_SINH DATE CHECK (NGAY_SINH < GETDATE()),
+    NGAY_BD_LAM DATE CHECK (NGAY_BD_LAM <= GETDATE()),
+
+    CCCD VARCHAR(12) NOT NULL,
+    SDT VARCHAR(11) NOT NULL,
+
+    MA_TK VARCHAR(5) NULL UNIQUE,
+
+    GIOI_TINH NVARCHAR(3)
+        CHECK (GIOI_TINH IN (N'Nữ', N'Nam')),
+
+    CHUC_VU NVARCHAR(100)
+        CHECK (CHUC_VU IN (N'Quản lý', N'Sale')),
+
+    CONSTRAINT CHK_LOGIC_NGAY_NV
+        CHECK (NGAY_SINH < NGAY_BD_LAM),
+
+    CONSTRAINT FK_NHANVIEN_MATK
+        FOREIGN KEY (MA_TK)
+        REFERENCES TAI_KHOAN(MA_TK)
     MA_NV VARCHAR(5) PRIMARY KEY,
     TEN_NV NVARCHAR(250) NOT NULL,
 
@@ -171,14 +199,50 @@ CREATE TABLE KHACH_HANG
     CONSTRAINT FK_KHACHHANG_MATK
         FOREIGN KEY (MA_TK)
         REFERENCES TAI_KHOAN(MA_TK)
+    MA_KH VARCHAR(5) PRIMARY KEY,
+    TEN_KH NVARCHAR(250) NOT NULL,
+
+    NGAY_SINH DATE CHECK (NGAY_SINH < GETDATE()),
+
+    CCCD VARCHAR(12) NOT NULL,
+    SDT VARCHAR(11) NOT NULL,
+
+    GIOI_TINH NVARCHAR(3)
+        CHECK (GIOI_TINH IN (N'Nữ', N'Nam')),
+
+    MA_TK VARCHAR(5) NULL,
+
+    CONSTRAINT FK_KHACHHANG_MATK
+        FOREIGN KEY (MA_TK)
+        REFERENCES TAI_KHOAN(MA_TK)
 );
 
+/* =========================================================
+   4. PHIẾU ĐĂNG KÝ / ĐẶT CỌC
+========================================================= */
 /* =========================================================
    4. PHIẾU ĐĂNG KÝ / ĐẶT CỌC
 ========================================================= */
 
 CREATE TABLE PHIEU_DANG_KY_THUE
 (
+    MA_PDK VARCHAR(5) PRIMARY KEY,
+    NGAY_DANG_KY DATE
+        CHECK (NGAY_DANG_KY <= GETDATE()),
+
+    MA_NV VARCHAR(5),
+    MA_KH VARCHAR(5),
+
+    HINH_THUC_THUE NVARCHAR(25)
+        CHECK (HINH_THUC_THUE IN (N'Nhóm', N'Cá nhân')),
+
+    CONSTRAINT FK_PDKT_MANV
+        FOREIGN KEY (MA_NV)
+        REFERENCES NHAN_VIEN(MA_NV),
+
+    CONSTRAINT FK_PDKT_MAKH
+        FOREIGN KEY (MA_KH)
+        REFERENCES KHACH_HANG(MA_KH)
     MA_PDK VARCHAR(5) PRIMARY KEY,
     NGAY_DANG_KY DATE
         CHECK (NGAY_DANG_KY <= GETDATE()),
@@ -223,9 +287,76 @@ CREATE TABLE PHIEU_DAT_COC
 /* =========================================================
    5. LỊCH
 ========================================================= */
+    MA_PDC VARCHAR(5) PRIMARY KEY,
+    NGAY DATETIME NOT NULL DEFAULT GETDATE(),
+
+    SO_TIEN INT CHECK (SO_TIEN > 0),
+
+    TRANG_THAI NVARCHAR(100)
+        CHECK (TRANG_THAI IN (N'Đã đặt cọc', N'Chưa đặt cọc')),
+
+    MA_KH VARCHAR(5),
+    MA_NV VARCHAR(5),
+
+    CONSTRAINT FK_PDC_MANV
+        FOREIGN KEY (MA_NV)
+        REFERENCES NHAN_VIEN(MA_NV),
+
+    CONSTRAINT FK_PDC_MAKH
+        FOREIGN KEY (MA_KH)
+        REFERENCES KHACH_HANG(MA_KH)
+);
+
+/* =========================================================
+   5. LỊCH
+========================================================= */
 
 CREATE TABLE LICH
 (
+    MA_PHIEU VARCHAR(10) PRIMARY KEY,
+
+    NGAY_GIO DATETIME
+        CHECK (NGAY_GIO > GETDATE()),
+
+    LOAI NVARCHAR(50)
+        CHECK (LOAI IN (
+            N'Xem phòng',
+            N'Nhận phòng',
+            N'Bàn giao phòng'
+        )),
+
+    TRANG_THAI NVARCHAR(20)
+        CHECK (TRANG_THAI IN (
+            N'Đã xử lý',
+            N'Chưa xử lý'
+        )),
+
+    MA_PDK VARCHAR(5) NULL,
+    MA_PDC VARCHAR(5) NULL,
+
+    MA_KTX VARCHAR(6),
+    MA_PHONG VARCHAR(10),
+    MA_NV VARCHAR(5) NULL,
+
+    CONSTRAINT FK_LICH_MAPDK
+        FOREIGN KEY (MA_PDK)
+        REFERENCES PHIEU_DANG_KY_THUE(MA_PDK),
+
+    CONSTRAINT FK_LICH_MAPDC
+        FOREIGN KEY (MA_PDC)
+        REFERENCES PHIEU_DAT_COC(MA_PDC),
+
+    CONSTRAINT FK_LICH_MAKTX
+        FOREIGN KEY (MA_KTX)
+        REFERENCES KY_TUC_XA(MA_KTX),
+
+    CONSTRAINT FK_LICH_MAPHONG
+        FOREIGN KEY (MA_KTX, MA_PHONG)
+        REFERENCES PHONG(MA_KTX, MA_PHONG),
+
+    CONSTRAINT FK_LICH_MANV
+        FOREIGN KEY (MA_NV)
+        REFERENCES NHAN_VIEN(MA_NV)
     MA_PHIEU VARCHAR(10) PRIMARY KEY,
 
     NGAY_GIO DATETIME
@@ -301,17 +432,54 @@ REFERENCES HOP_DONG_THUE(MA_HOP_DONG);
 /* =========================================================
    7. CÁC BẢNG SAU HỢP ĐỒNG
 ========================================================= */
+    MA_PHIEU VARCHAR(10),
+    MA_GIUONG VARCHAR(10),
 
+    PRIMARY KEY (MA_PHIEU, MA_GIUONG),
+
+    CONSTRAINT FK_LICHGIUONG_LICH
+        FOREIGN KEY (MA_PHIEU)
+        REFERENCES LICH(MA_PHIEU)
+);
+
+/* =========================================================
+   6. FK thêm cho HỢP ĐỒNG + TÀI KHOẢN
+========================================================= */
+
+ALTER TABLE HOP_DONG_THUE
+ADD CONSTRAINT FK_HOPDONGTHUE_MAPHIEU
+FOREIGN KEY (MA_PHIEU)
+REFERENCES LICH(MA_PHIEU);
+
+ALTER TABLE TAI_KHOAN
+ADD CONSTRAINT FK_TK_MA_HOP_DONG
+FOREIGN KEY (MA_HOP_DONG)
+REFERENCES HOP_DONG_THUE(MA_HOP_DONG);
+
+/* =========================================================
+   7. CÁC BẢNG SAU HỢP ĐỒNG
+========================================================= */
+
+CREATE TABLE BIEN_BAN_BAN_GIAO
+(
 CREATE TABLE BIEN_BAN_BAN_GIAO
 (
     MA_BAN_GIAO VARCHAR(5) PRIMARY KEY,
     NGAY DATE CHECK (NGAY <= GETDATE()),
+
 
     MA_HOP_DONG VARCHAR(5),
     MA_NV VARCHAR(5),
 
     IMAGE_URL VARCHAR(255),
 
+    CONSTRAINT FK_BIENBANBANGIAO_MAHOPDONG
+        FOREIGN KEY (MA_HOP_DONG)
+        REFERENCES HOP_DONG_THUE(MA_HOP_DONG),
+
+    CONSTRAINT FK_BIENBANBANGIAO_MANV
+        FOREIGN KEY (MA_NV)
+        REFERENCES NHAN_VIEN(MA_NV)
     CONSTRAINT FK_BIENBANBANGIAO_MAHOPDONG
         FOREIGN KEY (MA_HOP_DONG)
         REFERENCES HOP_DONG_THUE(MA_HOP_DONG),
@@ -334,10 +502,46 @@ CREATE TABLE BB_BG_CHI_TIET
     CONSTRAINT FK_BBBGCHITIET_MABANGIAO
         FOREIGN KEY (MA_BAN_GIAO)
         REFERENCES BIEN_BAN_BAN_GIAO(MA_BAN_GIAO)
+    MA_VT VARCHAR(5) PRIMARY KEY,
+    TEN_VAT_TU NVARCHAR(100) NOT NULL,
+
+    SO_LUONG INT CHECK (SO_LUONG > 0),
+    GIA_TRI INT CHECK (GIA_TRI > 0),
+
+    MA_BAN_GIAO VARCHAR(5),
+
+    CONSTRAINT FK_BBBGCHITIET_MABANGIAO
+        FOREIGN KEY (MA_BAN_GIAO)
+        REFERENCES BIEN_BAN_BAN_GIAO(MA_BAN_GIAO)
 );
 
 CREATE TABLE PHIEU_THANH_TOAN
 (
+    MA_THANH_TOAN VARCHAR(5) PRIMARY KEY,
+
+    HINH_THUC NVARCHAR(50)
+        CHECK (HINH_THUC IN (N'Tiền mặt', N'QR')),
+
+    NGAY DATE CHECK (NGAY <= GETDATE()),
+
+    SO_TIEN INT CHECK (SO_TIEN > 0),
+
+    TRANG_THAI NVARCHAR(20)
+        CHECK (TRANG_THAI IN (
+            N'Đã thanh toán',
+            N'Chưa thanh toán'
+        )),
+
+    MA_HOP_DONG VARCHAR(5) NULL,
+    MA_PDC VARCHAR(5) NULL,
+
+    CONSTRAINT FK_PHIEUTHANHTOAN_MAHOPDONG
+        FOREIGN KEY (MA_HOP_DONG)
+        REFERENCES HOP_DONG_THUE(MA_HOP_DONG),
+
+    CONSTRAINT FK_PHIEUTHANHTOAN_MAPDC
+        FOREIGN KEY (MA_PDC)
+        REFERENCES PHIEU_DAT_COC(MA_PDC)
     MA_THANH_TOAN VARCHAR(5) PRIMARY KEY,
 
     HINH_THUC NVARCHAR(50)
@@ -394,9 +598,41 @@ CREATE TABLE BIEN_BAN_TRA_PHONG
     CONSTRAINT FK_BIENBANTRAPHONG_MAHOPDONG
         FOREIGN KEY (MA_HOP_DONG)
         REFERENCES HOP_DONG_THUE(MA_HOP_DONG)
+    MA_BB_TRA_PHONG VARCHAR(5) PRIMARY KEY,
+
+    NGAY DATE CHECK (NGAY <= GETDATE()),
+    NOI_DUNG NVARCHAR(500),
+
+    MA_NV VARCHAR(5),
+    MA_THANH_TOAN VARCHAR(5),
+    MA_HOP_DONG VARCHAR(5),
+
+    TRANG_THAI NVARCHAR(20)
+        CHECK (TRANG_THAI IN (
+            N'Đã hẹn',
+            N'Đang chờ xử lí',
+            N'Đã xử lí'
+        )),
+
+    CONSTRAINT FK_BIENBANTRAPHONG_MANV
+        FOREIGN KEY (MA_NV)
+        REFERENCES NHAN_VIEN(MA_NV),
+
+    CONSTRAINT FK_BIENBANTRAPHONG_MATHANHTOAN
+        FOREIGN KEY (MA_THANH_TOAN)
+        REFERENCES PHIEU_THANH_TOAN(MA_THANH_TOAN),
+
+    CONSTRAINT FK_BIENBANTRAPHONG_MAHOPDONG
+        FOREIGN KEY (MA_HOP_DONG)
+        REFERENCES HOP_DONG_THUE(MA_HOP_DONG)
 );
 
 GO
+
+/* =========================================================
+   8. TRIGGER
+========================================================= */
+
 
 /* =========================================================
    8. TRIGGER
@@ -409,8 +645,15 @@ AS
 BEGIN
     IF EXISTS
     (
+    IF EXISTS
+    (
         SELECT 1
         FROM inserted i
+        JOIN LICH l
+            ON i.MA_PHIEU = l.MA_PHIEU
+        JOIN PHONG p
+            ON l.MA_KTX = p.MA_KTX
+           AND l.MA_PHONG = p.MA_PHONG
         JOIN LICH l
             ON i.MA_PHIEU = l.MA_PHIEU
         JOIN PHONG p
@@ -419,6 +662,13 @@ BEGIN
         WHERE i.SL_NGUOI_THUE > p.SL_GIUONG
     )
     BEGIN
+        RAISERROR
+        (
+            N'Lỗi: Số lượng người thuê vượt quá tổng số giường của phòng!',
+            16,
+            1
+        );
+
         RAISERROR
         (
             N'Lỗi: Số lượng người thuê vượt quá tổng số giường của phòng!',

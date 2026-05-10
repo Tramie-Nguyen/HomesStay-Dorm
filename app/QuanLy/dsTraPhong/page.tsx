@@ -90,7 +90,7 @@ export default function QL_dsTraPhongPage() {
   return (
     <>
       <NavBar />
-      <main className="min-h-screen bg-base font-sans p-6 pt-24 pb-24">
+      <main className="min-h-screen bg-background font-sans p-6 pt-24 pb-24">
         <h1 className="mb-6 text-center text-2xl font-bold text-text1 uppercase tracking-wide">
           Quản lý - Danh sách khách trả phòng
         </h1>
@@ -115,14 +115,14 @@ export default function QL_dsTraPhongPage() {
             </div>
             <div className="flex items-center gap-4">
               <input
-                className="rounded-md border border-base px-3 py-1.5 text-sm"
+                className="rounded-md border border-base px-3 py-1.5 text-sm bg-white"
                 type="text"
                 placeholder="Tìm kiếm phòng..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
               <select
-                className="rounded-md border border-base px-3 py-1.5 text-sm"
+                className="rounded-md border border-base px-3 py-1.5 text-sm bg-white"
                 value={filterStatus ?? ""}
                 onChange={(e) => setFilterStatus(e.target.value || null)}
               >
@@ -134,19 +134,19 @@ export default function QL_dsTraPhongPage() {
             </div>
           </div>
 
-          <table className="w-full border-collapse bg-white shadow-md">
+          <table className="w-full border-collapse bg-base/50 shadow-md">
             <thead>
               <tr>
-                <th className="border-x border-gray-200 px-4 py-3 align-middle font-bold text-gray-700">
+                <th className="border-x border-base px-4 py-3 align-middle font-bold text-text1">
                   Họ tên
                 </th>
-                <th className="border-x border-gray-200 px-4 py-3 align-middle font-bold text-gray-700">
+                <th className="border-x border-base px-4 py-3 align-middle font-bold text-text1">
                   Phòng
                 </th>
-                <th className="border-x border-gray-200 px-4 py-3 align-middle font-bold text-gray-700">
+                <th className="border-x border-base px-4 py-3 align-middle font-bold text-text1">
                   Ngày trả
                 </th>
-                <th className="border-x border-gray-200 px-4 py-3 align-middle font-bold text-gray-700">
+                <th className="border-x border-base px-4 py-3 align-middle font-bold text-text1">
                   Trạng thái
                 </th>
               </tr>
@@ -156,7 +156,7 @@ export default function QL_dsTraPhongPage() {
                 <tr>
                   <td
                     colSpan={4}
-                    className="text-center py-8 text-gray-500 align-middle"
+                    className="text-center py-8 text-text2 align-middle"
                   >
                     Đang tải dữ liệu...
                   </td>
@@ -181,13 +181,13 @@ export default function QL_dsTraPhongPage() {
                       )
                     }
                   >
-                    <td className="border-x border-gray-200 px-4 py-3 align-middle text-gray-800">
+                    <td className="border-x border-base px-4 py-3 align-middle text-text1">
                       {item.fullName}
                     </td>
-                    <td className="border-x border-gray-200 px-4 py-3 align-middle text-gray-800">
+                    <td className="border-x border-base px-4 py-3 align-middle text-text1">
                       {item.roomCode}
                     </td>
-                    <td className="border-x border-gray-200 px-4 py-3 align-middle text-gray-800">
+                    <td className="border-x border-base px-4 py-3 align-middle text-text1">
                       {item.checkoutDate}
                     </td>
 
@@ -198,7 +198,7 @@ export default function QL_dsTraPhongPage() {
                     >
                       <select
                         value={item.status}
-                        className={`min-w-36 cursor-pointer rounded-full px-4 py-1.5 text-sm font-medium text-white shadow-sm outline-none transition-opacity hover:opacity-90 ${item.status === "Đã xử lí" ? "bg-green-600" : item.status === "Đang chờ xử lí" ? "bg-yellow-600" : "bg-accent"}`}
+                        className={`min-w-36 cursor-pointer rounded-full px-4 py-1.5 text-sm font-medium text-white shadow-sm outline-none transition-opacity hover:opacity-90 ${item.status === "Đã xử lí" ? "bg-primary" : item.status === "Đang chờ xử lí" ? "bg-base" : "bg-accent"}`}
                         onClick={(e) => e.stopPropagation()}
                         onChange={async (e) => {
                           e.stopPropagation();
