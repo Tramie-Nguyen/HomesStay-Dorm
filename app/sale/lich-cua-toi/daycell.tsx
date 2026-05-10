@@ -1,21 +1,25 @@
 "use client";
 import Popup from "./popup";
 
+interface DayCellProps {
+  day: number;
+  isToday: boolean;
+  dayTasks: any[];
+  currentDate: Date;
+  selectedTaskId: string | null;
+  onSelectTask: (task: any | null) => void;
+  onRefresh: () => void; // Thêm hàm này để load lại data khi dời/hủy lịch thành công
+}
+
 export default function DayCell({ 
   day, 
   isToday, 
   dayTasks, 
   currentDate, 
   selectedTaskId, 
-  onSelectTask 
-}: { 
-  day: number, 
-  isToday: boolean, 
-  dayTasks: any[], 
-  currentDate: Date,
-  selectedTaskId: string | null,
-  onSelectTask: (task: any | null) => void 
-}) {
+  onSelectTask,
+  onRefresh
+}: DayCellProps) {
   return (
     <div className="relative min-h-[120px] border-b border-r border-gray-400 p-1">
       <div className={`text-center text-sm mb-1 ${isToday ? 'w-6 h-6 mx-auto bg-primary text-white rounded-full flex items-center justify-center' : 'text-text1'}`}>
@@ -41,6 +45,7 @@ export default function DayCell({
                   task={task} 
                   currentDate={currentDate} 
                   onClose={() => onSelectTask(null)} 
+                  onRefresh={onRefresh} // Truyền xuống popup
                 />
               )}
             </div>
