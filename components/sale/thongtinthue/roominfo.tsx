@@ -20,7 +20,7 @@ export default function RoomAndScheduleInfo({ scheduleData }: { scheduleData: an
               <button className="border border-text2 text-text2 px-3 py-1 rounded-full text-sm hover:bg-text2 hover:text-white transition">Xem chi tiết</button>
             </div>
 
-            <div className="grid grid-cols-2 gap-y-2 text-sm text-text1 font-medium">
+            <div className="grid grid-cols-2 gap-y-2 text-sm text-text1">
               <p>Giá: <span className="text-accent">1tr2/tháng</span></p>
               <p>Wifi: free</p>
               <p>Điện: 4k/kWh</p>
@@ -37,12 +37,12 @@ export default function RoomAndScheduleInfo({ scheduleData }: { scheduleData: an
             </div>
             
             {scheduleData.loaiLich !== 'Nhận phòng' && (
-              <button className="bg-[#1a2f4c] text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-black transition">
-                HỦY LỊCH
+              <button className="bg-text1 text-white px-6 py-2 rounded-lg text-sm hover:bg-black transition">
+                Hủy lịch
               </button>
             )}
-            <button className="bg-text2 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-text1 transition">
-              DỜI LỊCH
+            <button className="bg-text2 text-white px-6 py-2 rounded-lg text-sm hover:bg-text1 transition">
+              Dời lịch
             </button>
           </div>
         </div>

@@ -4,18 +4,38 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import DayCell from "../../../components/sale/lichcuatoi/daycell";
 import MonthYearPicker from "../../../components/common/monthyearpicker";
 
-// Mock Data
-const mockTasks = [
-  { id: "KH001", khachHang: "Hình Diễm Xuân", sdt: "123456789", ngay: 26, gio: "08:30", loai: "Xem phòng", trangThai: "Chưa xử lý", maPhong: "101", ktx: "Chợ Quán", hinhAnh: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&q=80&w=400" },
-  { id: "KH002", khachHang: "Khưu Ngọc Ý Vy", sdt: "0987654321", ngay: 21, gio: "08:30", loai: "Nhận phòng", trangThai: "Đã xử lý", maPhong: "201", ktx: "Chợ Quán", hinhAnh: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&q=80&w=400" },
-];
-
-export default function CalendarPage() {
+export default function LichCuaToiPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
+  // 1. Thêm State để chứa dữ liệu Lịch từ Database
+  const [tasks, setTasks] = useState<any[]>([]);
+
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
+
+  // 2. Thêm useEffect để gọi API mỗi khi tháng hoặc năm thay đổi
+  useEffect(() => {
+    const fetchLich = async () => {
+      try {
+        const thangTruyenXuongAPI = month + 1; 
+        
+        // Gọi API bạn vừa tạo (nhớ đổi đường dẫn cho đúng với route của bạn)
+        const res = await fetch(`/api/lichcuatoi?thang=${thangTruyenXuongAPI}&nam=${year}`);
+        
+        if (res.ok) {
+          const data = await res.json();
+          setTasks(data);
+        } else {
+          console.error("Lỗi khi gọi API Lịch");
+        }
+      } catch (error) {
+        console.error("Lỗi kết nối:", error);
+      }
+    };
+
+    fetchLich();
+  }, [month, year]); // Mảng dependency: Gọi lại hàm khi month hoặc year đổi
 
   // số ngày trong tháng
   const daysInMonth = new Date(year, month + 1, 0).getDate();

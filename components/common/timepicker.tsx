@@ -28,12 +28,9 @@ export default function TimePicker({ value, onChange }: Props) {
     i.toString().padStart(2, "0")
   );
 
-  // 👉 bạn có thể đổi step phút ở đây
   const minutes = Array.from({ length: 60 }, (_, i) =>
     i.toString().padStart(2, "0")
   );
-  // nếu muốn nhẹ hơn:
-  // const minutes = ["00","05","10","15","20","25","30","35","40","45","50","55"];
 
   const selectHour = (h: string) => {
     const newTime = `${h}:${minute || "00"}`;
