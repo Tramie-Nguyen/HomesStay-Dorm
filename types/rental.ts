@@ -6,6 +6,7 @@ export interface RentalData {
 
   GIUONGS: {
     MA_GIUONG: string;
+    GIA: number;
   }[];
 
   SL_GIUONG: number;

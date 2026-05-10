@@ -29,48 +29,54 @@ export default function CustomerCard(props: Props) {
   };
 
   return (
-    <div className="bg-base p-6 rounded-2xl mt-4 flex gap-6 items-center">
-      <div className="w-32 h-32 bg-gray-300 rounded-full flex items-center justify-center">
-        👤
-      </div>
+    <div className="bg-base p-6 rounded-2xl mt-4">
+      <div className="flex gap-6 items-start mb-4">
+        <div className="w-32 h-32 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+          👤
+        </div>
 
-      <div className="text-sm text-text1 space-y-1">
-        <p className="font-semibold text-lg">{props.name}</p>
-        <p>Mã KH: {props.code}</p>
-        <p>Số điện thoại: {props.phone}</p>
-        <p>Ngày sinh: {formatDate(props.dob)}</p>
-        <p>CCCD: {props.cccd}</p>
-        <p>Giới tính: {props.gender}</p>
-        <p>Email: {props.email}</p>
+        <div className="text-sm text-text1 space-y-1">
+          <p className="font-semibold text-lg">{props.name}</p>
+          <p>Mã KH: {props.code}</p>
+          <p>Số điện thoại: {props.phone}</p>
+          <p>Ngày sinh: {formatDate(props.dob)}</p>
+          <p>CCCD: {props.cccd}</p>
+          <p>Giới tính: {props.gender}</p>
+          <p>Email: {props.email}</p>
 
-        {props.startDate && props.endDate && (
-          <p>
-            Thời hạn: {formatDate(props.startDate)} -{" "}
-            {formatDate(props.endDate)}
-          </p>
-        )}
+          {props.startDate && props.endDate && (
+            <p>
+              Thời hạn: {formatDate(props.startDate)} -{" "}
+              {formatDate(props.endDate)}
+            </p>
+          )}
 
-        {props.contractStatus && (
-          <p className="font-medium">
-            Trạng thái hợp đồng:{" "}
-            <span
-              className={
-                props.contractStatus === "Đã ký" ? "text-text2" : "text-red-500"
-              }
-            >
-              {props.contractStatus}
-            </span>
-          </p>
-        )}
+          {props.contractStatus && (
+            <p className="font-medium">
+              Trạng thái hợp đồng:{" "}
+              <span
+                className={
+                  props.contractStatus === "Đã ký"
+                    ? "text-text2"
+                    : "text-red-500"
+                }
+              >
+                {props.contractStatus}
+              </span>
+            </p>
+          )}
+        </div>
       </div>
 
       {!props.disableEdit && (
-        <button
-          className="cursor-pointer bg-text2 text-white px-4 py-2 rounded-lg"
-          onClick={() => setOpenEdit(true)}
-        >
-          Chỉnh sửa thông tin
-        </button>
+        <div className="flex justify-end">
+          <button
+            className="cursor-pointer bg-text2 text-white px-4 py-2 rounded-lg"
+            onClick={() => setOpenEdit(true)}
+          >
+            Chỉnh sửa thông tin
+          </button>
+        </div>
       )}
       <EditCustomerModal
         open={openEdit}
