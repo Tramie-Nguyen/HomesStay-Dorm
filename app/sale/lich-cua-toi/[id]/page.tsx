@@ -17,30 +17,60 @@ export default function RentalDetail() {
   const [openHandover, setOpenHandover] = useState(false);
 
   const fetchData = async () => {
-    const res = await fetch(`/api/rental/${id}`);
-    const json = await res.json();
-    setData(json);
+    try {
+      const res = await fetch(`/api/rental/${id}`, {
+        cache: "no-store",
+      });
+
+      if (!res.ok) {
+        setData(null);
+        return;
+      }
+
+      const json = await res.json();
+
+      setData({
+        ...json,
+        GIUONGS: Array.isArray(json?.GIUONGS) ? json.GIUONGS : [],
+      });
+    } catch (err) {
+      console.error("Fetch error:", err);
+      setData(null);
+    }
   };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const loadInitialData = async () => {
+      if (!id) return;
+
       try {
         const res = await fetch(`/api/rental/${id}`, {
           cache: "no-store",
         });
+
+        if (!res.ok) {
+          setData(null);
+          return;
+        }
+
         const json = await res.json();
-        setData(json);
+        setData({
+          ...json,
+          GIUONGS: Array.isArray(json?.GIUONGS) ? json.GIUONGS : [],
+        });
       } catch (err) {
         console.error("Fetch error:", err);
+        setData(null);
       }
     };
 
-    if (id) fetchData();
+    loadInitialData();
   }, [id]);
 
   if (!data) return <div>Loading...</div>;
 
   const canHandover = !!data.MA_HOP_DONG;
+  const beds = Array.isArray(data.GIUONGS) ? data.GIUONGS : [];
 
   return (
     <div className="min-h-screen bg-background px-20">
@@ -62,16 +92,16 @@ export default function RentalDetail() {
           maPhieu={data.MA_PHIEU}
           roomId={data.MA_PHONG}
           name={data.TEN_PHONG}
-          bedCode={data.GIUONGS.map((g) => g.MA_GIUONG).join(", ")}
+          bedCode={beds.map((g) => g.MA_GIUONG).join(", ")}
           totalPrice={data.TONG_TIEN}
           electricity={data.GIA_DIEN}
           water={data.GIA_NUOC}
           wifi={data.WIFI}
           vehicle={data.GUI_XE}
           service={data.DICH_VU}
-          checkinTime={`${new Date(data.NGAY).toLocaleDateString("vi-VN")}${
-            data.GIO ? ` ${data.GIO}` : ""
-          }`}
+          checkinTime={
+            data.NGAY_GIO ? new Date(data.NGAY_GIO).toLocaleString("vi-VN") : ""
+          }
           status={data.TRANG_THAI_PHONG}
           imageUrl="/room.png"
           onRefresh={fetchData}
@@ -108,7 +138,11 @@ export default function RentalDetail() {
               <div>
                 <p className="text-sm mb-1">Hợp đồng</p>
                 <Image
-                  src={data.HOP_DONG_IMAGE}
+                  src={
+                    data.HOP_DONG_IMAGE?.startsWith("/")
+                      ? data.HOP_DONG_IMAGE
+                      : `/${data.HOP_DONG_IMAGE}`
+                  }
                   alt="Hợp đồng"
                   width={160}
                   height={112}
@@ -121,7 +155,11 @@ export default function RentalDetail() {
               <div>
                 <p className="text-sm mb-1">Biên bản</p>
                 <Image
-                  src={data.BIEN_BAN_IMAGE}
+                  src={
+                    data.BIEN_BAN_IMAGE?.startsWith("/")
+                      ? data.BIEN_BAN_IMAGE
+                      : `/${data.BIEN_BAN_IMAGE}`
+                  }
                   alt="Biên bản"
                   width={160}
                   height={112}

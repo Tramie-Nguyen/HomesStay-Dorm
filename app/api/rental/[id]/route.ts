@@ -12,21 +12,20 @@ export async function GET(
     const result = await pool.request().input("id", id).query(`
       SELECT
         p.MA_PHONG,
-        p.TEN_PHONG,
+        p.MA_PHONG AS TEN_PHONG,
         p.IMAGE_URL,
         p.SL_GIUONG,
         p.SL_GIUONG_TRONG,
         p.TRANG_THAI AS TRANG_THAI_PHONG,
 
-        p.GIA_DIEN,
-        p.GIA_NUOC,
-        p.WIFI,
-        p.GUI_XE,
-        p.DICH_VU,
+        ktx.GIA_DIEN,
+        ktx.GIA_NUOC,
+        ktx.WIFI,
+        ktx.GUI_XE,
+        ktx.DICH_VU,
 
         l.MA_PHIEU,
-        l.NGAY,
-        l.GIO,
+        l.NGAY_GIO,
         l.LOAI,
         l.TRANG_THAI AS TRANG_THAI_LICH,
 
@@ -46,12 +45,15 @@ export async function GET(
         bb.IMAGE_URL AS BIEN_BAN_IMAGE,
         (
           SELECT SUM(GIA)
-          FROM GIUONG
-          WHERE MA_PHONG = p.MA_PHONG
+          FROM GIUONG g
+          WHERE g.MA_PHONG = p.MA_PHONG
+            AND g.MA_KTX = p.MA_KTX
         ) AS TONG_TIEN
 
       FROM LICH l
-      JOIN PHONG p ON l.MA_PHONG = p.MA_PHONG
+      JOIN PHONG p ON l.MA_KTX = p.MA_KTX
+          AND l.MA_PHONG = p.MA_PHONG
+      JOIN KY_TUC_XA ktx ON p.MA_KTX = ktx.MA_KTX 
       JOIN PHIEU_DANG_KY_THUE pdk ON l.MA_PDK = pdk.MA_PDK
       JOIN KHACH_HANG kh ON pdk.MA_KH = kh.MA_KH
       LEFT JOIN TAI_KHOAN tk ON kh.MA_TK = tk.MA_TK
@@ -71,10 +73,14 @@ export async function GET(
     }
 
     // ===== GET BEDS =====
-    const beds = await pool.request().input("roomId", main.MA_PHONG).query(`
-        SELECT MA_GIUONG
-        FROM GIUONG
-        WHERE MA_PHONG = @roomId
+    const beds = await pool
+      .request()
+      .input("roomId", main.MA_PHONG)
+      .input("ktxId", main.MA_KTX).query(`
+          SELECT MA_GIUONG
+          FROM GIUONG
+          WHERE MA_PHONG = @roomId
+            AND MA_KTX = @ktxId
       `);
 
     const response = {

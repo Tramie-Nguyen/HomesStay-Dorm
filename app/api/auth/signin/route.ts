@@ -29,24 +29,9 @@ export async function POST(req: NextRequest) {
 
     const result = await pool
       .request()
-      .input("email", email)
-      .input("password", password).query(`
-        SELECT 
-          tk.MA_TK,
-          tk.EMAIL,
-          tk.ROLE,
-
-          nv.MA_NV,
-          nv.TEN_NV,
-
-          kh.MA_KH,
-          kh.TEN_KH
-
-        FROM TAI_KHOAN tk
-        LEFT JOIN NHAN_VIEN nv ON tk.MA_TK = nv.MA_TK
-        LEFT JOIN KHACH_HANG kh ON tk.MA_TK = kh.MA_TK
-        WHERE tk.EMAIL = @email AND tk.MAT_KHAU = @password
-      `);
+      .input("EMAIL", email)
+      .input("MAT_KHAU", password)
+      .execute("SP_LOGIN");
 
     if (!result.recordset || result.recordset.length === 0) {
       return NextResponse.json(

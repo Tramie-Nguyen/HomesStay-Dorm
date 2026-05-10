@@ -30,8 +30,7 @@ export interface RentalData {
 
   // ===== LICH =====
   MA_PHIEU: string;
-  NGAY: string;
-  GIO: string | null;
+  NGAY_GIO: string | null;
   LOAI: string;
   TRANG_THAI_LICH: string;
 
