@@ -30,9 +30,7 @@ export default function QL_dsTraPhongPage() {
       if (filterStatus) params.append("status", filterStatus);
       params.append("sort", sortOrder === "desc" ? "DESC" : "ASC");
 
-      const response = await fetch(
-        `/api/bien-ban-tra-phong?${params.toString()}`,
-      );
+      const response = await fetch(`/api/ds-tra-phong?${params.toString()}`);
       if (response.ok) {
         const result = (await response.json()) as { data?: TraPhongRow[] };
         setData(result.data ?? initialData);
@@ -70,10 +68,10 @@ export default function QL_dsTraPhongPage() {
       const item = data.find((d) => d.id === id);
       if (!item) return;
 
-      const response = await fetch(`/api/bien-ban-tra-phong/${id}`, {
+      const response = await fetch(`/api/ds-tra-phong`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({ id, status: newStatus }),
       });
 
       if (response.ok) {
@@ -175,11 +173,18 @@ export default function QL_dsTraPhongPage() {
                   <tr
                     key={item.id}
                     className="cursor-pointer hover:bg-primary/10 transition-colors border-b border-gray-200 last:border-0"
-                    onClick={() =>
+                    onClick={() => {
+                      const targetKh = String(item.maKhachHang ?? "").trim();
+                      if (!targetKh || targetKh.toUpperCase() === "N/A") {
+                        window.alert(
+                          "Mã khách hàng không tồn tại — không thể xem thông tin hoàn cọc.",
+                        );
+                        return;
+                      }
                       router.push(
-                        `/QuanLy/ttHoanCoc?ma_kh=${encodeURIComponent(item.maKhachHang)}`,
-                      )
-                    }
+                        `/bm/ttHoanCoc?ma_kh=${encodeURIComponent(targetKh)}`,
+                      );
+                    }}
                   >
                     <td className="border-x border-base px-4 py-3 align-middle text-text1">
                       {item.fullName}
@@ -198,7 +203,7 @@ export default function QL_dsTraPhongPage() {
                     >
                       <select
                         value={item.status}
-                        className={`min-w-36 cursor-pointer rounded-full px-4 py-1.5 text-sm font-medium text-white shadow-sm outline-none transition-opacity hover:opacity-90 ${item.status === "Đã xử lí" ? "bg-primary" : item.status === "Đang chờ xử lí" ? "bg-base" : "bg-accent"}`}
+                        className={`min-w-36 cursor-pointer rounded-full px-4 py-1.5 text-sm font-medium text-white shadow-sm outline-none transition-opacity hover:opacity-90 ${item.status === "Đã xử lí" ? "bg-primary" : item.status === "Đang chờ xử lí" ? "bg-text2" : "bg-accent"}`}
                         onClick={(e) => e.stopPropagation()}
                         onChange={async (e) => {
                           e.stopPropagation();

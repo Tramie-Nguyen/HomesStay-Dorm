@@ -9,6 +9,7 @@ interface Item {
   TEN_VAT_TU: string;
   VALUE: number;
   QUANTITY: number;
+  lineTotal: number;
   damaged: boolean;
   note?: string;
 }
@@ -60,8 +61,9 @@ export default function LapPhieuHoanCocPage() {
           id: String(idx + 1),
           MA_VT: r.MA_VT || "",
           TEN_VAT_TU: r.TEN_VAT_TU || "",
-          VALUE: r.VALUE || 0,
-          QUANTITY: r.QUANTITY || 0,
+          VALUE: Number(r.VALUE) || 0,
+          QUANTITY: Number(r.QUANTITY) || 0,
+          lineTotal: (Number(r.VALUE) || 0) * (Number(r.QUANTITY) || 0),
           damaged: false, // User decides via checkbox
           note: "",
         }));
@@ -87,7 +89,7 @@ export default function LapPhieuHoanCocPage() {
   // Calculate total damaged amount
   const damagedAmount = items
     .filter((item) => item.damaged)
-    .reduce((sum, item) => sum + item.VALUE, 0);
+    .reduce((sum, item) => sum + item.lineTotal, 0);
 
   const total = tieuCoc - damagedAmount - (extraCost || 0);
 
@@ -146,7 +148,7 @@ export default function LapPhieuHoanCocPage() {
       const query = phieuId
         ? `?ma_phieu=${encodeURIComponent(phieuId)}&total=${encodeURIComponent(String(total))}`
         : `?total=${encodeURIComponent(String(total))}`;
-      router.push(`/QuanLy/HienThiPHc${query}`);
+      router.push(`/bm/HienThiPHC${query}`);
     } catch (err) {
       console.error(err);
       alert("Lỗi khi xác nhận");
@@ -271,7 +273,7 @@ export default function LapPhieuHoanCocPage() {
                         <tr key={item.id}>
                           <td className="py-1">{item.TEN_VAT_TU}</td>
                           <td className="py-1 text-right text-red-600">
-                            - {item.VALUE.toLocaleString()}đ
+                            - {item.lineTotal.toLocaleString()}đ
                           </td>
                         </tr>
                       ))}
@@ -297,7 +299,7 @@ export default function LapPhieuHoanCocPage() {
               <div className="flex justify-end">
                 <button
                   onClick={handleConfirm}
-                  className="rounded-full bg-accent px-8 py-2.5 text-base font-bold text-white shadow-md hover:bg-primary transition-colors"
+                  className="rounded-full bg-accent px-8 py-2.5 font-bold text-white shadow-md hover:bg-primary transition-colors"
                 >
                   Xác nhận
                 </button>

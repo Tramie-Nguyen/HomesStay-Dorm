@@ -331,7 +331,7 @@ BEGIN
     
     SELECT 
         b.MA_BB_TRA_PHONG AS ID,
-        ISNULL(kh.MA_KH, 'N/A') AS MA_KHACH_HANG,
+        COALESCE(kh.MA_KH, pdc.MA_KH, pdk.MA_KH, 'N/A') AS MA_KHACH_HANG,
         ISNULL(kh.TEN_KH, N'Khách hàng') AS HO_TEN,
         ISNULL(l.MA_PHONG, 'N/A') AS MA_PHONG,
         CONVERT(VARCHAR(10), b.NGAY, 23) AS NGAY_TRA,
@@ -340,7 +340,8 @@ BEGIN
     LEFT JOIN HOP_DONG_THUE hd ON b.MA_HOP_DONG = hd.MA_HOP_DONG
     LEFT JOIN LICH l ON hd.MA_PHIEU = l.MA_PHIEU
     LEFT JOIN PHIEU_DAT_COC pdc ON l.MA_PDC = pdc.MA_PDC
-    LEFT JOIN KHACH_HANG kh ON pdc.MA_KH = kh.MA_KH
+    LEFT JOIN PHIEU_DANG_KY_THUE pdk ON l.MA_PDK = pdk.MA_PDK
+    LEFT JOIN KHACH_HANG kh ON ISNULL(pdc.MA_KH, pdk.MA_KH) = kh.MA_KH
     WHERE (@TrangThai = '' OR b.TRANG_THAI = @TrangThai)
     ORDER BY 
         CASE WHEN @SortDir = 'ASC' THEN b.NGAY END ASC,
@@ -348,13 +349,7 @@ BEGIN
 END
 GO
 
--- Test SP trực tiếp
-EXEC SP_GetBienBanTraPhong @TrangThai = '', @SortDir = 'DESC'
-GO
-SELECT * FROM BIEN_BAN_TRA_PHONG;
--- Hoặc kiểm tra xem BIEN_BAN_TRA_PHONG có dữ liệu không
-SELECT TOP 10 * FROM BIEN_BAN_TRA_PHONG ORDER BY NGAY DESC
-GO
+
 
 --=============================
 -- SP_UpdateBienBanTraPhong
@@ -363,7 +358,7 @@ DROP PROC IF EXISTS SP_UpdateBienBanTraPhong
 GO
 
 CREATE PROCEDURE SP_UpdateBienBanTraPhong
-    @MA_BB_TRA_PHONG VARCHAR(5),
+    @MA_BB_TRA_PHONG VARCHAR(6),
     @TRANG_THAI NVARCHAR(50)
 AS
 BEGIN
@@ -467,7 +462,7 @@ GO
 --====================
 -- Trang lập phiếu hoàn cọc
 CREATE OR ALTER PROCEDURE sp_GetLapPhieuHoanCoc
-    @MA_HOP_DONG VARCHAR(5)
+    @MA_HOP_DONG VARCHAR(10)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -495,7 +490,7 @@ GO
 -- Trang hiển thị phiếu hoàn cọc
 
 CREATE OR ALTER PROCEDURE sp_GetHienThiPHC
-    @MA_HOP_DONG VARCHAR(5)
+    @MA_HOP_DONG VARCHAR(10)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -537,7 +532,7 @@ GO
 
 -- Procedure: Thanh toán hoàn cọc (ghi phiếu thanh toán và liên kết)
 CREATE OR ALTER PROCEDURE sp_ThanhToanHoanCoc
-    @MA_HOP_DONG VARCHAR(5),
+    @MA_HOP_DONG VARCHAR(10),
     @HINH_THUC NVARCHAR(50),
     @SO_TIEN INT
 AS

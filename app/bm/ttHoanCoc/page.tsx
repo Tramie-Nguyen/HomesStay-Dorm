@@ -28,7 +28,9 @@ export default function TT_HoanCocPage() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/hoancoc/${encodeURIComponent(ma_kh)}`);
+        const res = await fetch(
+          `/api/hoancoc?ma_kh=${encodeURIComponent(ma_kh)}`,
+        );
         const json = await res.json();
         console.debug("/api/hoancoc response:", json);
         if (!res.ok) {
@@ -41,6 +43,10 @@ export default function TT_HoanCocPage() {
         const customer = json.customer || null;
         const itemsArr = json.items || [];
         const reasonText = json.reason || null;
+
+        console.log("Customer data:", customer);
+        console.log("Image URL:", customer?.IMAGE_URL);
+
         if (!customer) {
           setError("Không tìm thấy dữ liệu khách hàng cho mã này.");
           setUserInfo(null);
@@ -108,7 +114,10 @@ export default function TT_HoanCocPage() {
         <div className="mx-auto max-w-5xl bg-base/40 p-6 rounded-xl shadow-sm border border-base">
           {/* Header: Nút Back & Tiêu đề */}
           <div className="relative mb-8 flex items-center justify-center">
-            <button className="absolute left-0 text-accent hover:opacity-80 transition-opacity">
+            <button
+              onClick={() => router.back()}
+              className="absolute left-0 text-accent hover:opacity-80 transition-opacity cursor-pointer"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="28"
@@ -149,18 +158,29 @@ export default function TT_HoanCocPage() {
                 <div className="p-6">
                   {/* Hình ảnh phòng */}
                   <div className="mb-6 flex justify-center gap-4">
-                    {mockRoomInfo.images.map(
-                      (
-                        src: string | Blob | undefined,
-                        idx: Key | null | undefined,
-                      ) => (
-                        <img
-                          key={String(idx)}
-                          src={src || "/placeholder.png"}
-                          alt={`Room img ${String(idx)}`}
-                          className="h-50 w-70 object-cover rounded border border-gray-300 shadow-sm"
-                        />
-                      ),
+                    {mockRoomInfo.images.length > 0 ? (
+                      mockRoomInfo.images.map(
+                        (
+                          src: string | Blob | undefined,
+                          idx: Key | null | undefined,
+                        ) => (
+                          <img
+                            key={String(idx)}
+                            src={String(src) || "/room.png"}
+                            alt={`Room img ${String(idx)}`}
+                            className="h-[250px] w-[450px] object-cover rounded border border-gray-300 shadow-sm"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "/room.png";
+                            }}
+                          />
+                        ),
+                      )
+                    ) : (
+                      <img
+                        src="/room.png"
+                        alt="No room"
+                        className="h-50 w-70 object-cover rounded border border-gray-300 shadow-sm"
+                      />
                     )}
                   </div>
                   {/* Chi tiết phòng */}
@@ -279,7 +299,7 @@ export default function TT_HoanCocPage() {
               className="rounded-full bg-accent px-8 py-2.5 text-base font-bold text-white shadow-md hover:bg-primary transition-colors"
               onClick={() =>
                 router.push(
-                  `/QuanLy/LapPhieuHoanCoc${ma_kh ? `?ma_kh=${encodeURIComponent(ma_kh)}` : ""}`,
+                  `/bm/LapPhieuHoanCoc${ma_kh ? `?ma_kh=${encodeURIComponent(ma_kh)}` : ""}`,
                 )
               }
             >
