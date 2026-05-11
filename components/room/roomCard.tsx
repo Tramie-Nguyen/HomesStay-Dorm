@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { MapPin } from "lucide-react";
 import { useState } from "react";
 import ChangeScheduleModal from "../room/ChangeScheduleModal";
+import CancelScheduleModal from "./CancelScheduleModal";
 import Image from "next/image";
 
 interface RoomCardProps {
@@ -29,6 +30,8 @@ interface RoomCardProps {
   mapLink?: string;
   onRefresh?: () => void;
   canChangeSchedule?: boolean;
+  scheduleType?: string; // Thêm loại lịch (Xem phòng / Nhận phòng)
+  scheduleStatus?: string; // Thêm trạng thái lịch
 }
 
 export default function RoomCard({
@@ -49,14 +52,20 @@ export default function RoomCard({
   mapLink,
   onRefresh,
   canChangeSchedule,
+  scheduleType,
+  scheduleStatus,
 }: RoomCardProps) {
   const router = useRouter();
   const [openModal, setOpenModal] = useState(false);
+  const [openCancelModal, setOpenCancelModal] = useState(false);
 
   console.log("RoomCard beds prop:", beds);
 
   const formatMoney = (value?: number) =>
     value ? value.toLocaleString("vi-VN") + "đ" : "—";
+
+  const isChuaXuLy = scheduleStatus?.trim().normalize() === "Chưa xử lý".normalize();
+  const isXemPhong = scheduleType?.trim().normalize() === "Xem phòng".normalize();
 
   return (
     <>
@@ -143,23 +152,40 @@ export default function RoomCard({
               </span>
             )}
 
-            {canChangeSchedule && (
-              <>
-                <span className="bg-text2 text-white px-4 py-2 rounded-full text-xs">
-                  Lịch nhận phòng: {checkinTime}
+            {/* CẬP NHẬT LOGIC BUTTON Ở ĐÂY */}
+            {(isChuaXuLy || canChangeSchedule) && (
+              <div className="flex items-center gap-2">
+                <span className="bg-text2 text-white px-3 py-1.5 rounded-md font-medium text-sm">
+                  Lịch {isXemPhong ? "xem" : "nhận"} phòng: {checkinTime}
                 </span>
+
+                {isXemPhong && (
+                  <button
+                    onClick={() => setOpenCancelModal(true)}
+                    className="bg-text1 hover:bg-opacity-90 transition cursor-pointer text-white px-4 py-1.5 rounded-md text-sm"
+                  >
+                    Hủy lịch
+                  </button>
+                )}
 
                 <button
                   onClick={() => setOpenModal(true)}
-                  className="bg-text2 cursor-pointer text-white px-4 py-2 rounded-lg"
+                  className="bg-text2 hover:bg-opacity-90 transition cursor-pointer text-white px-4 py-1.5 rounded-md text-sm"
                 >
-                  Đổi lịch
+                  Dời lịch
                 </button>
-              </>
+              </div>
             )}
           </div>
         </div>
       </div>
+
+      <CancelScheduleModal
+        open={openCancelModal}
+        onClose={() => setOpenCancelModal(false)}
+        maPhieu={maPhieu}
+        onSuccess={onRefresh ?? (() => {})}
+      />
 
       <ChangeScheduleModal
         open={openModal}
@@ -167,6 +193,8 @@ export default function RoomCard({
         maPhieu={maPhieu}
         onSuccess={onRefresh ?? (() => {})}
       />
+
+      
     </>
   );
 }

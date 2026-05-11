@@ -60,10 +60,12 @@ export default function Popup({ task, currentDate, onClose, onRefresh }: PopupPr
       alert("Vui lòng chọn cả ngày và giờ mới!");
       return;
     }
-
+    
+    // Kết hợp ngày và giờ mới thành một đối tượng Date duy nhất
+    // theo múi giờ hiện tại của người dùng
     const [hours, minutes] = newTime.split(':').map(Number);
     const combinedDateTime = new Date(newDate);
-    combinedDateTime.setHours(hours, minutes, 0, 0);
+    combinedDateTime.setHours(hours+7, minutes, 0, 0);
 
     if (combinedDateTime <= new Date()) {
       alert("Ngày giờ mới phải lớn hơn thời gian hiện tại!");
@@ -103,7 +105,16 @@ export default function Popup({ task, currentDate, onClose, onRefresh }: PopupPr
         isTooltipFlipped ? "bottom-full mb-2" : "top-full mt-2"
       }`}
       // Bấm vào bất kỳ đâu trên thẻ div này sẽ chuyển trang
-      onClick={() => router.push(`/sale/thongtinthue/${task.id}`)}
+      onClick={() => {
+        if (task.loai === "Xem phòng") {
+          router.push(`/sale/lich-cua-toi/xem-phong/${task.id}`);
+        } else if (task.loai?.trim().normalize() === "Nhận phòng".normalize()) {
+          router.push(`/sale/lich-cua-toi/nhan-phong/${task.id}`);
+        }
+        else {
+          alert("Chưa có trang chi tiết cho loại lịch này.");
+        }
+      }}
     >
       <img src={task.hinhAnh || '/placeholder.jpg'} alt="Room" className="w-full h-32 object-cover rounded-t-xl" />
       

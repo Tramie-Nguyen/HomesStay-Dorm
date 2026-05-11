@@ -17,8 +17,8 @@ interface Props {
   contractStatus?: string | null;
 
   onRefresh?: () => void;
-
   disableEdit?: boolean;
+  scheduleType?: string;
 }
 
 export default function CustomerCard(props: Props) {
@@ -28,13 +28,16 @@ export default function CustomerCard(props: Props) {
     return new Date(date).toLocaleDateString("vi-VN");
   };
 
-  return (
-    <div className="bg-base p-6 rounded-2xl mt-4">
-      <div className="flex gap-6 items-start mb-4">
-        <div className="w-32 h-32 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
-          👤
-        </div>
+  // Kiểm tra xem lịch có phải là "Nhận phòng" không
+  const isNhanPhong = props.scheduleType?.toLowerCase().includes("nhận");
 
+  return (
+    <div className="bg-base p-6 rounded-2xl flex gap-6">
+      <div className="w-32 h-32 shrink-0 bg-gray-300 rounded-full flex items-center justify-center">
+        👤
+      </div>
+
+      <div className="flex-1 flex flex-col justify-between">
         <div className="text-sm text-text1 space-y-1">
           <p className="font-semibold text-lg">{props.name}</p>
           <p>Mã KH: {props.code}</p>
@@ -44,14 +47,15 @@ export default function CustomerCard(props: Props) {
           <p>Giới tính: {props.gender}</p>
           <p>Email: {props.email}</p>
 
-          {props.startDate && props.endDate && (
+          {/* Chỉ hiển thị Thời hạn và Trạng thái hợp đồng nếu là Nhận phòng */}
+          {isNhanPhong && props.startDate && props.endDate && (
             <p>
               Thời hạn: {formatDate(props.startDate)} -{" "}
               {formatDate(props.endDate)}
             </p>
           )}
 
-          {props.contractStatus && (
+          {isNhanPhong && props.contractStatus && (
             <p className="font-medium">
               Trạng thái hợp đồng:{" "}
               <span
@@ -66,18 +70,20 @@ export default function CustomerCard(props: Props) {
             </p>
           )}
         </div>
+
+        {/* Căn chỉnh nút xuống góc dưới bên phải */}
+        {!props.disableEdit && (
+          <div className="flex justify-end mt-4">
+            <button
+              className="cursor-pointer bg-text2 hover:bg-opacity-90 transition text-white px-4 py-1.5 rounded-md text-sm"
+              onClick={() => setOpenEdit(true)}
+            >
+              Chỉnh sửa thông tin
+            </button>
+          </div>
+        )}
       </div>
 
-      {!props.disableEdit && (
-        <div className="flex justify-end">
-          <button
-            className="cursor-pointer bg-text2 text-white px-4 py-2 rounded-lg"
-            onClick={() => setOpenEdit(true)}
-          >
-            Chỉnh sửa thông tin
-          </button>
-        </div>
-      )}
       <EditCustomerModal
         open={openEdit}
         onClose={() => setOpenEdit(false)}
