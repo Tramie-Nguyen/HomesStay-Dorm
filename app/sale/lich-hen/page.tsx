@@ -170,7 +170,7 @@ export default function SaleLichHenPage() {
                         </div>
 
                         <div>
-                          <p>Wifi: {formatCurrency(item.WIFI)}</p>
+                          <p>Wifi: {item.WIFI}</p>
                           <p>Xe: {formatFee(item.GUI_XE, "/xe")}</p>
                           <p>Phí DV: {formatFee(item.DICH_VU, "/ph")}</p>
                         </div>
