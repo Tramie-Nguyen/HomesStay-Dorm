@@ -2,443 +2,648 @@
 GO
 
 /* =========================================================
-   SAMPLE DATA
+   DATA TỐI THIỂU ĐỂ TEST SP + UI
 ========================================================= */
 
 /* =========================================================
-   1. CHINH_SACH_THUE
+   1. CHÍNH SÁCH
 ========================================================= */
 
-INSERT INTO CHINH_SACH_THUE VALUES
-('DK001', N'Không gây ồn', N'Không gây ồn sau 22h'),
-('DK002', N'Không nuôi thú cưng', N'Cấm nuôi chó mèo'),
-('DK003', N'Đóng tiền đúng hạn', N'Đóng trước ngày 5 hàng tháng');
+INSERT INTO CHINH_SACH_THUE
+(
+    MA_DIEU_KHOAN,
+    TEN_DIEU_KHOAN,
+    NOI_DUNG
+)
+VALUES
+(
+    'DK001',
+    N'Nội quy cơ bản',
+    N'Không gây ồn'
+);
+GO
 
 /* =========================================================
-   2. KY_TUC_XA
+   2. KTX
 ========================================================= */
 
-INSERT INTO KY_TUC_XA VALUES
-('KTX001', N'KTX Quận 7', N'123 Nguyễn Văn Linh', N'Nội quy cơ bản',
- 'DK001', 3500, 15000, N'Có', 100000, 200000),
-
-('KTX002', N'KTX Thủ Đức', N'456 Võ Văn Ngân', N'Nội quy nghiêm',
- 'DK002', 4000, 16000, N'Có', 120000, 250000);
+INSERT INTO KY_TUC_XA
+(
+    MA_KTX,
+    TEN_KTX,
+    DIA_CHI,
+    QUY_DINH,
+    MA_DIEU_KHOAN,
+    GIA_DIEN,
+    GIA_NUOC,
+    WIFI,
+    GUI_XE,
+    DICH_VU
+)
+VALUES
+(
+    'KTX001',
+    N'KTX A',
+    N'Quận 1',
+    N'Không hút thuốc',
+    'DK001',
+    3500,
+    15000,
+    N'Có',
+    100000,
+    200000
+);
+GO
 
 /* =========================================================
-   3. PHONG
+   3. PHÒNG
 ========================================================= */
 
-INSERT INTO PHONG VALUES
-('KTX001', 'P101', 'room1.jpg', 4, 2, N'Trống',
- 100, 150, N'Phòng máy lạnh'),
-
-('KTX001', 'P102', 'room2.jpg', 6, 1, N'Đã thuê',
- 200, 260, N'Phòng thường'),
-
-('KTX002', 'P201', 'room3.jpg', 4, 4, N'Trống',
- 120, 140, N'View đẹp');
+INSERT INTO PHONG
+(
+    MA_KTX,
+    MA_PHONG,
+    IMAGE_URL,
+    SL_GIUONG,
+    SL_GIUONG_TRONG,
+    TRANG_THAI,
+    SO_DIEN_CU,
+    SO_DIEN_MOI,
+    MO_TA
+)
+VALUES
+(
+    'KTX001',
+    'P101',
+    'room.jpg',
+    4,
+    2,
+    N'Trống',
+    100,
+    120,
+    N'Phòng máy lạnh'
+);
+GO
 
 /* =========================================================
-   4. GIUONG
+   4. GIƯỜNG
 ========================================================= */
 
-INSERT INTO GIUONG VALUES
-('KTX001','P101','G1',N'Đã thuê',1500000),
-('KTX001','P101','G2',N'Trống',1500000),
-('KTX001','P101','G3',N'Trống',1500000),
-('KTX001','P101','G4',N'Đã thuê',1500000),
-
-('KTX001','P102','G1',N'Đã thuê',1200000),
-('KTX001','P102','G2',N'Đã thuê',1200000),
-
-('KTX002','P201','G1',N'Trống',1800000),
-('KTX002','P201','G2',N'Trống',1800000);
+INSERT INTO GIUONG
+(
+    MA_KTX,
+    MA_PHONG,
+    MA_GIUONG,
+    TRANG_THAI,
+    GIA
+)
+VALUES
+('KTX001', 'P101', 'G101', N'Trống', 1500000),
+('KTX001', 'P101', 'G102', N'Đã thuê', 1500000),
+('KTX001', 'P101', 'G103', N'Trống', 1500000);
+GO
 
 /* =========================================================
-   5. HOP_DONG_THUE
+   5. HỢP ĐỒNG
 ========================================================= */
 
 INSERT INTO HOP_DONG_THUE
-(MA_HOP_DONG, NGAY_BD, NGAY_KT, SL_NGUOI_THUE,
- NOI_DUNG, TRANG_THAI, MA_PHIEU, IMAGE_URL)
+(
+    MA_HOP_DONG,
+    NGAY_BD,
+    NGAY_KT,
+    SL_NGUOI_THUE,
+    NOI_DUNG,
+    TRANG_THAI,
+    MA_PHIEU,
+    IMAGE_URL
+)
 VALUES
-('HD001', '2026-05-01', '2026-12-01', 2,
- N'Hợp đồng thuê phòng 101',
- N'Đã ký', NULL, 'hd1.jpg'),
-
-('HD002', '2026-05-02', '2026-11-02', 1,
- N'Hợp đồng thuê phòng 102',
- N'Chưa ký', NULL, 'hd2.jpg');
-
-/* =========================================================
-   6. TAI_KHOAN
-========================================================= */
-
-INSERT INTO TAI_KHOAN VALUES
-('TK001', '123456', 'sale1@gmail.com', 'SALE', NULL),
-('TK002', '123456', 'manager@gmail.com', 'BRANCH_MANAGER', NULL),
-('TK003', '123456', 'kh1@gmail.com', 'CUSTOMER', 'HD001'),
-('TK004', '123456', 'kh2@gmail.com', 'CUSTOMER', 'HD002');
-
-/* =========================================================
-   7. NHAN_VIEN
-========================================================= */
-
-INSERT INTO NHAN_VIEN VALUES
-('NV001', N'Nguyễn Văn A',
- '1998-05-01', '2023-01-01',
- '123456789001', '0901111111',
- 'TK001', N'Nam', N'Sale'),
-
-('NV002', N'Trần Thị B',
- '1995-02-10', '2022-05-01',
- '123456789002', '0902222222',
- 'TK002', N'Nữ', N'Quản lý');
-
-/* =========================================================
-   8. KHACH_HANG
-========================================================= */
-
-INSERT INTO KHACH_HANG VALUES
-('KH001', N'Lê Minh C',
- '2003-08-01',
- '123456789101', '0911111111',
- N'Nam', 'TK003'),
-
-('KH002', N'Phạm Thị D',
- '2002-03-11',
- '123456789102', '0922222222',
- N'Nữ', 'TK004');
-
-/* =========================================================
-   9. PHIEU_DANG_KY_THUE
-========================================================= */
-
-INSERT INTO PHIEU_DANG_KY_THUE VALUES
-('PDK01', '2026-05-01', 'NV001', 'KH001', N'Cá nhân'),
-('PDK02', '2026-05-02', 'NV001', 'KH002', N'Nhóm');
-
-/* =========================================================
-   10. PHIEU_DAT_COC
-========================================================= */
-
-INSERT INTO PHIEU_DAT_COC VALUES
-('PDC01', GETDATE(), 2000000,
- N'Đã đặt cọc', 'KH001', 'NV001'),
-
-('PDC02', GETDATE(), 1500000,
- N'Chưa đặt cọc', 'KH002', 'NV001');
-
-/* =========================================================
-   11. LICH
-========================================================= */
-
-INSERT INTO LICH VALUES
-('LICH0001',
- DATEADD(DAY, 1, GETDATE()),
- N'Xem phòng',
- N'Chưa xử lý',
- 'PDK01',
- NULL,
- 'KTX001',
- 'P101',
- 'NV001'),
-
-('LICH0002',
- DATEADD(DAY, 2, GETDATE()),
- N'Nhận phòng',
- N'Đã xử lý',
- NULL,
- 'PDC01',
- 'KTX001',
- 'P102',
- 'NV002');
-
-/* =========================================================
-   12. UPDATE HỢP ĐỒNG THÊM MA_PHIEU
-========================================================= */
-
-UPDATE HOP_DONG_THUE
-SET MA_PHIEU = 'LICH0001'
-WHERE MA_HOP_DONG = 'HD001';
-
-UPDATE HOP_DONG_THUE
-SET MA_PHIEU = 'LICH0002'
-WHERE MA_HOP_DONG = 'HD002';
-
-/* =========================================================
-   13. LICH_GIUONG
-========================================================= */
-
-INSERT INTO LICH_GIUONG VALUES
-('LICH0001', 'G2'),
-('LICH0001', 'G3'),
-('LICH0002', 'G1');
-
-/* =========================================================
-   14. BIEN_BAN_BAN_GIAO
-========================================================= */
-
-INSERT INTO BIEN_BAN_BAN_GIAO VALUES
-('BB001', '2026-05-03',
- 'HD001', 'NV002',
- 'bbbg1.jpg'),
-
-('BB002', '2026-05-04',
- 'HD002', 'NV002',
- 'bbbg2.jpg');
-
-/* =========================================================
-   15. BB_BG_CHI_TIET
-========================================================= */
-
-INSERT INTO BB_BG_CHI_TIET VALUES
-('VT001', N'Bóng đèn', 2, 200000, 'BB001'),
-('VT002', N'Bàn học', 1, 500000, 'BB001'),
-('VT003', N'Quạt máy', 1, 700000, 'BB002');
-
-/* =========================================================
-   16. PHIEU_THANH_TOAN
-========================================================= */
-
-INSERT INTO PHIEU_THANH_TOAN VALUES
-('TT001', N'QR',
- '2026-05-05',
- 3000000,
- N'Đã thanh toán',
- 'HD001',
- NULL),
-
-('TT002', N'Tiền mặt',
- '2026-05-06',
- 1500000,
- N'Chưa thanh toán',
- NULL,
- 'PDC01');
-
-/* =========================================================
-   17. BIEN_BAN_TRA_PHONG
-========================================================= */
-
-INSERT INTO BIEN_BAN_TRA_PHONG VALUES
-('TP001',
- '2026-05-07',
- N'Phòng sạch sẽ',
- 'NV002',
- 'TT001',
- 'HD001',
- N'Đã xử lí'),
-
-('TP002',
- '2026-05-08',
- N'Chờ kiểm tra thiết bị',
- 'NV001',
- 'TT002',
- 'HD002',
- N'Đang chờ xử lí');
-
-
- /* =========================================================
-   THÊM LỊCH CHƯA KÝ HỢP ĐỒNG
-   (chỉ xem phòng / đặt cọc, chưa tạo hợp đồng)
-========================================================= */
-
-/* --- Phiếu đăng ký mới --- */
-INSERT INTO PHIEU_DANG_KY_THUE VALUES
-('PDK03', '2026-05-09', 'NV001', 'KH001', N'Cá nhân'),
-
-('PDK04', '2026-05-10', 'NV001', 'KH002', N'Nhóm');
-
-/* --- Phiếu đặt cọc mới --- */
-INSERT INTO PHIEU_DAT_COC VALUES
-('PDC03', GETDATE(), 2500000,
- N'Đã đặt cọc', 'KH001', 'NV001'),
-
-('PDC04', GETDATE(), 1800000,
- N'Chưa đặt cọc', 'KH002', 'NV001');
-
-/* =========================================================
-   LỊCH CHƯA KÝ HỢP ĐỒNG
-   -> KHÔNG có bản ghi trong HOP_DONG_THUE
-========================================================= */
-
-INSERT INTO LICH VALUES
 (
-    'LICH0003',
-    DATEADD(DAY, 3, GETDATE()),
-    N'Xem phòng',
-    N'Chưa xử lý',
-    'PDK03',
+    'HD001',
+    CAST(GETDATE() AS DATE),
+    DATEADD(MONTH, 6, GETDATE()),
+    1,
+    N'Hợp đồng thuê',
+    N'Đã ký',
     NULL,
-    'KTX002',
-    'P201',
-    'NV001'
-),
-
-(
-    'LICH0004',
-    DATEADD(DAY, 4, GETDATE()),
-    N'Nhận phòng',
-    N'Chưa xử lý',
-    NULL,
-    'PDC03',
-    'KTX001',
-    'P101',
-    'NV002'
-),
-
-(
-    'LICH0005',
-    DATEADD(DAY, 5, GETDATE()),
-    N'Xem phòng',
-    N'Chưa xử lý',
-    'PDK04',
-    NULL,
-    'KTX001',
-    'P102',
-    'NV001'
-),
-
-(
-    'LICH0006',
-    DATEADD(DAY, 6, GETDATE()),
-    N'Nhận phòng',
-    N'Chưa xử lý',
-    NULL,
-    'PDC04',
-    'KTX002',
-    'P201',
-    'NV002'
+    'contract.jpg'
 );
-
-/* =========================================================
-   GIƯỜNG CHO CÁC LỊCH
-========================================================= */
-
-INSERT INTO LICH_GIUONG VALUES
-('LICH0003', 'G1'),
-('LICH0004', 'G2'),
-('LICH0005', 'G1'),
-('LICH0006', 'G2');
-
-/* =========================================================
-   KIỂM TRA:
-   Các lịch này chưa có hợp đồng
-========================================================= */
-
-SELECT l.*
-FROM LICH l
-LEFT JOIN HOP_DONG_THUE h
-    ON l.MA_PHIEU = h.MA_PHIEU
-WHERE h.MA_HOP_DONG IS NULL;
-/* =========================================================
-   THÊM LỊCH ĐÃ XỬ LÝ
-   (đã xử lý nhưng chưa ký hợp đồng)
-========================================================= */
-
-/* --- Phiếu đăng ký --- */
-INSERT INTO PHIEU_DANG_KY_THUE VALUES
-('PDK05', '2026-05-11', 'NV002', 'KH001', N'Cá nhân'),
-
-('PDK06', '2026-05-12', 'NV001', 'KH002', N'Nhóm');
-
-/* --- Phiếu đặt cọc --- */
-INSERT INTO PHIEU_DAT_COC VALUES
-('PDC05', GETDATE(), 3000000,
- N'Đã đặt cọc', 'KH001', 'NV002'),
-
-('PDC06', GETDATE(), 2200000,
- N'Đã đặt cọc', 'KH002', 'NV001');
-
-/* =========================================================
-   LỊCH ĐÃ XỬ LÝ
-========================================================= */
-
-INSERT INTO LICH VALUES
-(
-    'LICH0007',
-    DATEADD(DAY, 7, GETDATE()),
-    N'Xem phòng',
-    N'Đã xử lý',
-    'PDK05',
-    NULL,
-    'KTX001',
-    'P101',
-    'NV002'
-),
-
-(
-    'LICH0008',
-    DATEADD(DAY, 8, GETDATE()),
-    N'Nhận phòng',
-    N'Đã xử lý',
-    NULL,
-    'PDC05',
-    'KTX002',
-    'P201',
-    'NV001'
-),
-
-(
-    'LICH0009',
-    DATEADD(DAY, 9, GETDATE()),
-    N'Xem phòng',
-    N'Đã xử lý',
-    'PDK06',
-    NULL,
-    'KTX001',
-    'P102',
-    'NV001'
-),
-
-(
-    'LICH0010',
-    DATEADD(DAY, 10, GETDATE()),
-    N'Nhận phòng',
-    N'Đã xử lý',
-    NULL,
-    'PDC06',
-    'KTX002',
-    'P201',
-    'NV002'
-);
-
-/* =========================================================
-   GIƯỜNG
-========================================================= */
-
-INSERT INTO LICH_GIUONG VALUES
-('LICH0007', 'G3'),
-('LICH0008', 'G1'),
-('LICH0009', 'G2'),
-('LICH0010', 'G2');
-
-/* =========================================================
-   KIỂM TRA LỊCH ĐÃ XỬ LÝ CHƯA CÓ HỢP ĐỒNG
-========================================================= */
-
-SELECT l.*
-FROM LICH l
-LEFT JOIN HOP_DONG_THUE h
-    ON l.MA_PHIEU = h.MA_PHIEU
-WHERE l.TRANG_THAI = N'Đã xử lý'
-  AND h.MA_HOP_DONG IS NULL;
 GO
 
-SELECT * FROM CHINH_SACH_THUE;
-SELECT * FROM KY_TUC_XA;
-SELECT * FROM PHONG;
-SELECT * FROM GIUONG;
-SELECT * FROM TAI_KHOAN;
-SELECT * FROM NHAN_VIEN;
-SELECT * FROM KHACH_HANG;
-SELECT * FROM PHIEU_DANG_KY_THUE;
-SELECT * FROM PHIEU_DAT_COC;
+/* =========================================================
+   6. TÀI KHOẢN
+========================================================= */
+
+INSERT INTO TAI_KHOAN
+(
+    MA_TK,
+    MAT_KHAU,
+    EMAIL,
+    ROLE,
+    MA_HOP_DONG
+)
+VALUES
+(
+    'TK001',
+    '123',
+    'sale@gmail.com',
+    'SALE',
+    NULL
+),
+(
+    'TK002',
+    '123',
+    'customer@gmail.com',
+    'CUSTOMER',
+    'HD001'
+);
+GO
+
+/* =========================================================
+   7. NHÂN VIÊN
+========================================================= */
+
+INSERT INTO NHAN_VIEN
+(
+    MA_NV,
+    TEN_NV,
+    NGAY_SINH,
+    NGAY_BD_LAM,
+    CCCD,
+    SDT,
+    MA_TK,
+    GIOI_TINH,
+    CHUC_VU
+)
+VALUES
+(
+    'NV001',
+    N'Nguyễn Văn A',
+    '1999-01-01',
+    '2024-01-01',
+    '123456789111',
+    '0901111111',
+    'TK001',
+    N'Nam',
+    N'Sale'
+);
+GO
+
+/* =========================================================
+   8. KHÁCH HÀNG
+========================================================= */
+
+INSERT INTO KHACH_HANG
+(
+    MA_KH,
+    TEN_KH,
+    NGAY_SINH,
+    CCCD,
+    SDT,
+    GIOI_TINH,
+    MA_TK
+)
+VALUES
+(
+    'KH001',
+    N'Lê Văn B',
+    '2003-05-01',
+    '123456789222',
+    '0911111111',
+    N'Nam',
+    'TK002'
+);
+GO
+
+/* =========================================================
+   9. PHIẾU ĐĂNG KÝ
+========================================================= */
+
+INSERT INTO PHIEU_DANG_KY_THUE
+(
+    MA_PDK,
+    NGAY_DANG_KY,
+    MA_KH,
+    HINH_THUC_THUE
+)
+VALUES
+(
+    'PDK001',
+    CAST(GETDATE() AS DATE),
+    'KH001',
+    N'Cá nhân'
+);
+GO
+
+/* =========================================================
+   10. PHIẾU ĐẶT CỌC
+========================================================= */
+
+INSERT INTO PHIEU_DAT_COC
+(
+    MA_PDC,
+    NGAY,
+    SO_TIEN,
+    TRANG_THAI,
+    MA_KH,
+    MA_NV
+)
+VALUES
+(
+    'PDC001',
+    GETDATE(),
+    2000000,
+    N'Đã đặt cọc',
+    'KH001',
+    'NV001'
+);
+GO
+
+/* =========================================================
+   11. LỊCH
+   PHẢI CÓ "Nhận phòng"
+========================================================= */
+
+INSERT INTO LICH
+(
+    MA_PHIEU,
+    NGAY_GIO,
+    LOAI,
+    TRANG_THAI,
+    MA_PDK,
+    MA_PDC,
+    MA_KTX,
+    MA_PHONG,
+    MA_NV
+)
+VALUES
+(
+    'LICH001',
+    GETDATE(),
+    N'Nhận phòng',
+    N'Đã xử lý',
+    'PDK001',
+    'PDC001',
+    'KTX001',
+    'P101',
+    'NV001'
+);
+GO
+
+/* =========================================================
+   12. UPDATE HỢP ĐỒNG -> LỊCH
+========================================================= */
+
+UPDATE HOP_DONG_THUE
+SET MA_PHIEU = 'LICH001'
+WHERE MA_HOP_DONG = 'HD001';
+GO
+
+/* =========================================================
+   13. LỊCH GIƯỜNG
+========================================================= */
+
+INSERT INTO LICH_GIUONG
+(
+    MA_PHIEU,
+    MA_GIUONG
+)
+VALUES
+(
+    'LICH001',
+    'G101'
+);
+GO
+
+/* =========================================================
+   14. BIÊN BẢN BÀN GIAO
+========================================================= */
+
+INSERT INTO BIEN_BAN_BAN_GIAO
+(
+    MA_BAN_GIAO,
+    NGAY,
+    MA_HOP_DONG,
+    MA_NV,
+    IMAGE_URL
+)
+VALUES
+(
+    'BB001',
+    CAST(GETDATE() AS DATE),
+    'HD001',
+    'NV001',
+    'handover.jpg'
+);
+GO
+
+/* =========================================================
+   TEST
+========================================================= */
+
 SELECT * FROM LICH;
-SELECT * FROM LICH_GIUONG;
+SELECT * FROM TAI_KHOAN;
 SELECT * FROM HOP_DONG_THUE;
 SELECT * FROM BIEN_BAN_BAN_GIAO;
-SELECT * FROM BB_BG_CHI_TIET;
-SELECT * FROM PHIEU_THANH_TOAN;
-SELECT * FROM BIEN_BAN_TRA_PHONG;
+
+/* =========================================================
+   THÊM 2 LỊCH CHƯA BÀN GIAO
+========================================================= */
+
+/* ---------- HỢP ĐỒNG 2 ---------- */
+
+INSERT INTO HOP_DONG_THUE
+(
+    MA_HOP_DONG,
+    NGAY_BD,
+    NGAY_KT,
+    SL_NGUOI_THUE,
+    NOI_DUNG,
+    TRANG_THAI,
+    MA_PHIEU,
+    IMAGE_URL
+)
+VALUES
+(
+    'HD002',
+    CAST(GETDATE() AS DATE),
+    DATEADD(MONTH, 12, GETDATE()),
+    1,
+    N'Hợp đồng thuê phòng 2',
+    N'Đã ký',
+    NULL,
+    'contract2.jpg'
+);
+GO
+
+/* ---------- TÀI KHOẢN + KHÁCH HÀNG 2 ---------- */
+
+INSERT INTO TAI_KHOAN
+(
+    MA_TK,
+    MAT_KHAU,
+    EMAIL,
+    ROLE,
+    MA_HOP_DONG
+)
+VALUES
+(
+    'TK003',
+    '123',
+    'customer2@gmail.com',
+    'CUSTOMER',
+    'HD002'
+);
+GO
+
+INSERT INTO KHACH_HANG
+(
+    MA_KH,
+    TEN_KH,
+    NGAY_SINH,
+    CCCD,
+    SDT,
+    GIOI_TINH,
+    MA_TK
+)
+VALUES
+(
+    'KH002',
+    N'Trần Văn C',
+    '2002-02-02',
+    '123456789333',
+    '0922222222',
+    N'Nam',
+    'TK003'
+);
+GO
+
+/* ---------- PHIẾU + LỊCH 2 ---------- */
+
+INSERT INTO PHIEU_DANG_KY_THUE
+(
+    MA_PDK,
+    NGAY_DANG_KY,
+    MA_KH,
+    HINH_THUC_THUE
+)
+VALUES
+(
+    'PDK002',
+    CAST(GETDATE() AS DATE),
+    'KH002',
+    N'Cá nhân'
+);
+GO
+
+INSERT INTO PHIEU_DAT_COC
+(
+    MA_PDC,
+    NGAY,
+    SO_TIEN,
+    TRANG_THAI,
+    MA_KH,
+    MA_NV
+)
+VALUES
+(
+    'PDC002',
+    GETDATE(),
+    2000000,
+    N'Đã đặt cọc',
+    'KH002',
+    'NV001'
+);
+GO
+
+INSERT INTO LICH
+(
+    MA_PHIEU,
+    NGAY_GIO,
+    LOAI,
+    TRANG_THAI,
+    MA_PDK,
+    MA_PDC,
+    MA_KTX,
+    MA_PHONG,
+    MA_NV
+)
+VALUES
+(
+    'LICH002',
+    DATEADD(DAY, 1, GETDATE()),
+    N'Nhận phòng',
+    N'Đã xử lý',
+    'PDK002',
+    'PDC002',
+    'KTX001',
+    'P101',
+    'NV001'
+);
+GO
+
+UPDATE HOP_DONG_THUE
+SET MA_PHIEU = 'LICH002'
+WHERE MA_HOP_DONG = 'HD002';
+GO
+
+INSERT INTO LICH_GIUONG
+(
+    MA_PHIEU,
+    MA_GIUONG
+)
+VALUES
+(
+    'LICH002',
+    'G103'
+);
+GO
+
+/* =========================================================
+   HỢP ĐỒNG 3
+========================================================= */
+
+INSERT INTO HOP_DONG_THUE
+(
+    MA_HOP_DONG,
+    NGAY_BD,
+    NGAY_KT,
+    SL_NGUOI_THUE,
+    NOI_DUNG,
+    TRANG_THAI,
+    MA_PHIEU,
+    IMAGE_URL
+)
+VALUES
+(
+    'HD003',
+    CAST(GETDATE() AS DATE),
+    DATEADD(MONTH, 6, GETDATE()),
+    1,
+    N'Hợp đồng thuê phòng 3',
+    N'Đã ký',
+    NULL,
+    'contract3.jpg'
+);
+GO
+
+INSERT INTO TAI_KHOAN
+(
+    MA_TK,
+    MAT_KHAU,
+    EMAIL,
+    ROLE,
+    MA_HOP_DONG
+)
+VALUES
+(
+    'TK004',
+    '123',
+    'customer3@gmail.com',
+    'CUSTOMER',
+    'HD003'
+);
+GO
+
+INSERT INTO KHACH_HANG
+(
+    MA_KH,
+    TEN_KH,
+    NGAY_SINH,
+    CCCD,
+    SDT,
+    GIOI_TINH,
+    MA_TK
+)
+VALUES
+(
+    'KH003',
+    N'Phạm Thị D',
+    '2004-03-03',
+    '123456789444',
+    '0933333333',
+    N'Nữ',
+    'TK004'
+);
+GO
+
+INSERT INTO PHIEU_DANG_KY_THUE
+(
+    MA_PDK,
+    NGAY_DANG_KY,
+    MA_KH,
+    HINH_THUC_THUE
+)
+VALUES
+(
+    'PDK003',
+    CAST(GETDATE() AS DATE),
+    'KH003',
+    N'Cá nhân'
+);
+GO
+
+INSERT INTO PHIEU_DAT_COC
+(
+    MA_PDC,
+    NGAY,
+    SO_TIEN,
+    TRANG_THAI,
+    MA_KH,
+    MA_NV
+)
+VALUES
+(
+    'PDC003',
+    GETDATE(),
+    2500000,
+    N'Đã đặt cọc',
+    'KH003',
+    'NV001'
+);
+GO
+
+INSERT INTO LICH
+(
+    MA_PHIEU,
+    NGAY_GIO,
+    LOAI,
+    TRANG_THAI,
+    MA_PDK,
+    MA_PDC,
+    MA_KTX,
+    MA_PHONG,
+    MA_NV
+)
+VALUES
+(
+    'LICH003',
+    DATEADD(DAY, 2, GETDATE()),
+    N'Nhận phòng',
+    N'Đã xử lý',
+    'PDK003',
+    'PDC003',
+    'KTX001',
+    'P101',
+    'NV001'
+);
+GO
+
+UPDATE HOP_DONG_THUE
+SET MA_PHIEU = 'LICH003'
+WHERE MA_HOP_DONG = 'HD003';
+GO
+
+/* =========================================================
+   CHECK
+========================================================= */
+
+SELECT 
+    HD.MA_HOP_DONG,
+    HD.MA_PHIEU,
+    BB.MA_BAN_GIAO
+FROM HOP_DONG_THUE HD
+LEFT JOIN BIEN_BAN_BAN_GIAO BB
+    ON HD.MA_HOP_DONG = BB.MA_HOP_DONG;
+GO

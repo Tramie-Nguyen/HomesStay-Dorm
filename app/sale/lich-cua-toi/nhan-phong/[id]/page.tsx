@@ -160,6 +160,17 @@ export default function RentalDetail() {
                   height={112}
                   className="object-cover rounded-lg border"
                 />
+                <a
+                  href={
+                    data.HOP_DONG_IMAGE?.startsWith("/")
+                      ? data.HOP_DONG_IMAGE
+                      : `/${data.HOP_DONG_IMAGE}`
+                  }
+                  download
+                  className="text-accent hover:underline mt-1 block"
+                >
+                  Tải xuống
+                </a>
               </div>
             )}
 
@@ -177,6 +188,17 @@ export default function RentalDetail() {
                   height={112}
                   className="object-cover rounded-lg border"
                 />
+                <a
+                  href={
+                    data.BIEN_BAN_IMAGE?.startsWith("/")
+                      ? data.BIEN_BAN_IMAGE
+                      : `/${data.BIEN_BAN_IMAGE}`
+                  }
+                  download
+                  className="text-accent hover:underline mt-1 block"
+                >
+                  Tải xuống
+                </a>
               </div>
             )}
           </div>
