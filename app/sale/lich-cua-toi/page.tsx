@@ -13,16 +13,16 @@ export default function CalendarPage() {
 
   useEffect(() => {
     // Thay 'userInfo' bằng đúng cái tên Key mà bạn đang lưu trong tab Application > Local Storage nhé
-    const storedData = localStorage.getItem("auth"); 
+    const storedData = localStorage.getItem("auth");
 
     if (storedData) {
       try {
         // Biến chuỗi JSON thành Object trong Javascript
         const parsedData = JSON.parse(storedData);
-        
+
         // Chui vào trong object lấy đúng cái MA_NV
-        const maNv = parsedData.user.MA_NV; 
-        
+        const maNv = parsedData.user.MA_NV;
+
         if (maNv) {
           setMaNv(maNv);
         }
@@ -37,11 +37,13 @@ export default function CalendarPage() {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
-  const fetchLich = useCallback(async() => {
+  const fetchLich = useCallback(async () => {
     if (!maNv) return;
 
     try {
-      const response = await fetch(`/api/lich?maNv=${maNv}&thang=${month + 1}&nam=${year}`);
+      const response = await fetch(
+        `/api/lich?maNv=${maNv}&thang=${month + 1}&nam=${year}`,
+      );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -70,9 +72,12 @@ export default function CalendarPage() {
 
   // padding cuối (đủ 7 cột)
   const totalCells = paddingStart.length + days.length;
-  const paddingEnd = Array.from({
-    length: (7 - (totalCells % 7)) % 7,
-  }, () => null);
+  const paddingEnd = Array.from(
+    {
+      length: (7 - (totalCells % 7)) % 7,
+    },
+    () => null,
+  );
 
   // today đúng (fix bug highlight)
   const today = new Date();
@@ -81,11 +86,9 @@ export default function CalendarPage() {
     month === today.getMonth() &&
     year === today.getFullYear();
 
-  const prevMonth = () =>
-    setCurrentDate(new Date(year, month - 1, 1));
+  const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
 
-  const nextMonth = () =>
-    setCurrentDate(new Date(year, month + 1, 1));
+  const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
 
   return (
     <div className="min-h-screen bg-background pt-24 pb-10 px-4 md:px-10">

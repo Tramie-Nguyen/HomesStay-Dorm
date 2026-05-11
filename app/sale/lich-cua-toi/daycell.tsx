@@ -11,40 +11,44 @@ interface DayCellProps {
   onRefresh: () => void; // Thêm hàm này để load lại data khi dời/hủy lịch thành công
 }
 
-export default function DayCell({ 
-  day, 
-  isToday, 
-  dayTasks, 
-  currentDate, 
-  selectedTaskId, 
+export default function DayCell({
+  day,
+  isToday,
+  dayTasks,
+  currentDate,
+  selectedTaskId,
   onSelectTask,
-  onRefresh
+  onRefresh,
 }: DayCellProps) {
   return (
     <div className="relative min-h-[120px] border-b border-r border-gray-400 p-1">
-      <div className={`text-center text-sm mb-1 ${isToday ? 'w-6 h-6 mx-auto bg-primary text-white rounded-full flex items-center justify-center' : 'text-text1'}`}>
+      <div
+        className={`text-center text-sm mb-1 ${isToday ? "w-6 h-6 mx-auto bg-primary text-white rounded-full flex items-center justify-center" : "text-text1"}`}
+      >
         {day}
       </div>
-      
+
       <div className="space-y-1">
-        {dayTasks.map(task => {
+        {dayTasks.map((task) => {
           const isSelected = selectedTaskId === task.id;
           return (
             <div key={task.id} className="relative">
-              <div 
+              <div
                 onClick={() => onSelectTask(isSelected ? null : task)}
                 className={`text-xs p-1 rounded cursor-pointer truncate flex items-center gap-1
-                  ${isSelected ? 'bg-yellow-300 font-semibold shadow-sm' : 'hover:bg-gray-100'}`}
+                  ${isSelected ? "bg-yellow-300 font-semibold shadow-sm" : "hover:bg-gray-100"}`}
               >
-                <div className={`w-2 h-2 rounded-full ${task.loai === 'Xem phòng' ? 'bg-accent' : 'bg-primary'}`}></div>
-                {task.khachHang.split(' ').pop()} - {task.gio}
+                <div
+                  className={`w-2 h-2 rounded-full ${task.loai === "Xem phòng" ? "bg-accent" : "bg-primary"}`}
+                ></div>
+                {task.khachHang.split(" ").pop()} - {task.gio}
               </div>
 
               {isSelected && (
-                <Popup 
-                  task={task} 
-                  currentDate={currentDate} 
-                  onClose={() => onSelectTask(null)} 
+                <Popup
+                  task={task}
+                  currentDate={currentDate}
+                  onClose={() => onSelectTask(null)}
                   onRefresh={onRefresh} // Truyền xuống popup
                 />
               )}
