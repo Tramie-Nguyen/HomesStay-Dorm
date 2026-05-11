@@ -286,7 +286,7 @@ export default function DanhSachPhongPage() {
                         Trạng thái:{" "}
                         <span
                           className={
-                            room.status === "Trống"
+                            (room.status as string) === "Trống"
                               ? "font-semibold text-accent"
                               : "font-semibold text-grey"
                           }
@@ -294,7 +294,7 @@ export default function DanhSachPhongPage() {
                           {room.status}
                         </span>
                       </p>
-                      <p className="text-text1 ">
+                      <p className="text-text1">
                         Vị trí:{" "}
                         <span className="font-semibold">{room.address}</span> (
                         {""}

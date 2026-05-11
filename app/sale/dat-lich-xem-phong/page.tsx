@@ -39,6 +39,16 @@ const readonlyStyle = {
   backgroundColor: "#989898",
   color: "white",
 };
+// Thiết lập mốc 7h sáng
+const minTime = new Date();
+minTime.setHours(7, 0, 0);
+
+// Thiết lập mốc 6h tối (18:00)
+const maxTime = new Date();
+maxTime.setHours(18, 0, 0);
+// Tính toán ngày mai
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
 
 export default function DatLichPage() {
   const router = useRouter();
@@ -48,7 +58,12 @@ export default function DatLichPage() {
   const [type, setType] = useState<"khach" | "vanglai">("khach");
   const [roomData, setRoomData] = useState<any>(null);
   const [selectedBeds, setSelectedBeds] = useState<string[]>([]);
-  const [startDate, setStartDate] = useState<Date | null>(new Date());
+  const [startDate, setStartDate] = useState<Date | null>(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    d.setHours(7, 0, 0, 0); // Thiết lập 7:00:00
+    return d;
+  });
   const [isAgreed, setIsAgreed] = useState(false);
   const [searchSdt, setSearchSdt] = useState("");
   const [searchError, setSearchError] = useState("");
@@ -85,6 +100,14 @@ export default function DatLichPage() {
     setSearchError("");
   }, [type]);
 
+  const isGenderMatched = () => {
+    if (!roomData?.quyDinh) return true; // Nếu phòng không quy định thì bỏ qua
+
+    const quyDinhText = roomData.quyDinh.toLowerCase();
+    const gioiTinhKhach = form.gioiTinh.toLowerCase();
+
+    return quyDinhText.includes(gioiTinhKhach);
+  };
   const isFormValid = () => {
     if (type === "khach") {
       return (
@@ -122,6 +145,7 @@ export default function DatLichPage() {
       });
       return;
     }
+
     setIsSearching(true);
     setSearchError("");
     try {
@@ -162,8 +186,19 @@ export default function DatLichPage() {
       alert("Thiếu thông tin phòng");
       return;
     }
+    if (!startDate) {
+      alert("Vui lòng chọn ngày giờ");
+      return;
+    }
 
-    if (!isFormValid()) return;
+    // Tạo một chuỗi format YYYY-MM-DD HH:mm:ss từ địa phương
+    // Điều này tránh việc bị convert sang UTC làm lệch giờ hoặc mất giờ
+    const pad = (n: any) => n.toString().padStart(2, "0");
+    const dateStr = `${startDate.getFullYear()}-${pad(startDate.getMonth() + 1)}-${pad(startDate.getDate())}`;
+    const timeStr = `${pad(startDate.getHours())}:${pad(startDate.getMinutes())}:00`;
+    const finalDateTime = `${dateStr} ${timeStr}`;
+
+    console.log("Chuỗi gửi đi:", finalDateTime);
 
     try {
       const res = await fetch("/api/dat-lich", {
@@ -181,7 +216,7 @@ export default function DatLichPage() {
           maKtx: roomData?.maKtx,
           hinhThucThue,
           selectedBeds,
-          ngayXem: startDate?.toISOString(),
+          ngayXem: finalDateTime,
         }),
       });
 
@@ -380,6 +415,13 @@ export default function DatLichPage() {
               </Field>
             </div>
           )}
+          {!isGenderMatched() && (
+            <div className="mt-2 p-2 bg-red-100 border border-red-400 rounded-md">
+              <p className="text-red-700 text-sm font-bold">
+                ⚠️ Giới tính không khớp với quy định của phòng
+              </p>
+            </div>
+          )}
         </div>
 
         {/* ── THÔNG TIN XEM PHÒNG ── */}
@@ -394,6 +436,15 @@ export default function DatLichPage() {
             </p>
             <p>
               <span className="font-bold">Phòng:</span> {roomData?.code}
+            </p>
+            <p>
+              <span className="font-bold">Đối tượng: </span>
+              {(() => {
+                const text = roomData.quyDinh.toLowerCase();
+
+                if (text.includes("nữ")) return "Chỉ nữ";
+                return "Chỉ nam";
+              })()}
             </p>
             <div className="flex flex-wrap gap-2 items-center">
               <span className="font-bold">Giường:</span>
@@ -445,7 +496,7 @@ export default function DatLichPage() {
                   selected={startDate}
                   onChange={(date) => setStartDate(date)}
                   dateFormat="dd/MM/yyyy"
-                  minDate={new Date()}
+                  minDate={tomorrow}
                   customInput={
                     <input
                       style={{ ...borderedStyle, width: "100%" }}
@@ -480,6 +531,10 @@ export default function DatLichPage() {
                   timeIntervals={30}
                   timeCaption="Giờ"
                   dateFormat="HH:mm"
+                  timeFormat="HH:mm"
+                  minTime={minTime}
+                  maxTime={maxTime}
+                  showTimeInput={false}
                   customInput={
                     <input
                       style={{ ...borderedStyle, width: "100%" }}
@@ -545,7 +600,7 @@ export default function DatLichPage() {
 
         {/* ── NÚT ĐẶT LỊCH ── */}
         <button
-          disabled={!isFormValid()}
+          disabled={!isFormValid() || !isGenderMatched()}
           onClick={handleSubmit}
           className="w-full rounded-xl bg-accent py-3 text-xl font-bold text-white shadow-lg disabled:bg-grey disabled:cursor-not-allowed transition-all hover:opacity-90 uppercase"
         >

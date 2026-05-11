@@ -48,7 +48,6 @@ export async function POST(req: NextRequest) {
     const loaiLich = "Xem phòng";
     const trangThai = "Chưa xử lý";
     const dsGiuong = Array.isArray(selectedBeds) ? selectedBeds.join(",") : "";
-    const ngayHen = new Date(ngayXem); // DATETIME - giữ nguyên giờ từ DatePicker
 
     if (type === "khach") {
       const customerCheck = await pool
@@ -69,7 +68,7 @@ export async function POST(req: NextRequest) {
         .input("NGAY_DANG_KY", sql.Date, ngayDangKy)
         .input("MA_KH", sql.VarChar(5), maKh)
         .input("HINH_THUC_THUE", sql.NVarChar(25), hinhThucThue)
-        .input("NGAY_HEN", sql.DateTime, ngayHen)
+        .input("NGAY_HEN", sql.VarChar(19), ngayXem)
         .input("LOAI", sql.NVarChar(14), loaiLich)
         .input("TRANG_THAI", sql.NVarChar(20), trangThai)
         .input("MA_KTX", sql.VarChar(6), maKtx)
@@ -94,7 +93,7 @@ export async function POST(req: NextRequest) {
         .input("GIOI_TINH", sql.NVarChar(3), gioiTinh.substring(0, 3))
         .input("EMAIL", sql.VarChar(100), email)
         .input("HINH_THUC_THUE", sql.NVarChar(25), hinhThucThue)
-        .input("NGAY_HEN", sql.DateTime, ngayHen)
+        .input("NGAY_HEN", sql.VarChar(19), ngayXem)
         .input("LOAI", sql.NVarChar(14), loaiLich)
         .input("TRANG_THAI", sql.NVarChar(20), trangThai)
         .input("MA_KTX", sql.VarChar(6), maKtx)
