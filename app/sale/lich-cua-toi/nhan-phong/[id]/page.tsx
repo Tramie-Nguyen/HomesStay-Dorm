@@ -82,7 +82,7 @@ export default function RentalDetail() {
       : "Đang chờ bàn giao";
 
   return (
-    <div className="min-h-screen bg-background px-20">
+    <div className="min-h-screen bg-background px-40">
       {/* BACK */}
       <button
         onClick={() => router.back()}
