@@ -4,40 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { formatGiaRange, formatGia } from "@/lib/format";
-
-interface Bed {
-  id: string;
-  status: "Đã thuê" | "Trống";
-  price: number;
-}
-
-interface RoomDetail {
-  id: string;
-  code: string;
-
-  totalBeds: number;
-  availableBeds: number;
-  status: "Còn chỗ" | "Hết chỗ";
-
-  imageUrl: string | null;
-
-  ktxName: string;
-  address: string;
-  quyDinh: string;
-
-  moTaPhong: string;
-
-  giaMin: number;
-  giaMax: number;
-
-  giaDien: number;
-  giaNuoc: number;
-  wifi: number;
-  guiXe: number;
-  dichVu: number;
-
-  beds: Bed[];
-}
+import {
+  type Bed,
+  type RoomDetail,
+  getChiTietPhong,
+} from "@/services/phongService";
 
 export default function ChiTietPhongPage() {
   const { id } = useParams<{ id: string }>();
@@ -50,9 +21,8 @@ export default function ChiTietPhongPage() {
     router.push(`/sale/dat-lich-xem-phong?roomId=${id}`);
   };
   useEffect(() => {
-    fetch(`/api/phong/${id}`)
-      .then((res) => res.json())
-      .then(({ room }) => setRoom(room))
+    getChiTietPhong(id)
+      .then((room) => setRoom(room))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [id]);

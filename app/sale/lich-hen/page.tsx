@@ -3,25 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { getAuthData } from "@/utils/auth";
-
-type Appointment = {
-  MA_PHIEU: string;
-  LOAI: string;
-  TRANG_THAI: string;
-  NGAY_HEN: string;
-  GIO_HEN: string;
-  MA_PHONG: string;
-  IMAGE_URL: string | null;
-  MA_KTX: string;
-  TEN_KTX: string;
-  GIA_PHONG: number | null;
-  GIA_DIEN: number | null;
-  GIA_NUOC: number | null;
-  WIFI: string | null;
-  GUI_XE: number | null;
-  DICH_VU: number | null;
-  MA_GIUONGS: string;
-};
+import {
+  getDanhSachLichHen,
+  xuLyLichHen,
+  type Appointment,
+} from "@/services/lichHenService";
 
 const ITEMS_PER_PAGE = 3;
 
@@ -54,14 +40,9 @@ export default function SaleLichHenPage() {
       setLoading(true);
       setError(null);
 
-      const res = await fetch("/api/lich-hen", { cache: "no-store" });
-      const data = await res.json();
+      const data = await getDanhSachLichHen(); // ← gọi service
 
-      if (!res.ok) {
-        throw new Error(data?.detail || "Không thể tải danh sách lịch hẹn");
-      }
-
-      setAppointments((data?.appointments ?? []) as Appointment[]);
+      setAppointments(data);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Đã có lỗi xảy ra";
       setError(message);
@@ -101,27 +82,9 @@ export default function SaleLichHenPage() {
       setError(null);
 
       const authData = getAuthData();
-      const maNv = authData?.user?.MA_NV;
+      const maNv = authData?.user?.MA_NV ?? "";
 
-      if (!maNv) {
-        throw new Error("Không tìm thấy mã nhân viên. Vui lòng đăng nhập lại.");
-      }
-
-      const res = await fetch("/api/lich-hen", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action,
-          maPhieu: appointment.MA_PHIEU,
-          maNv: maNv,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.detail || data?.error || "Thao tác thất bại");
-      }
-
+      await xuLyLichHen(appointment.MA_PHIEU, action, maNv); // ← gọi service
       await fetchAppointments();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Đã có lỗi xảy ra";
@@ -207,7 +170,7 @@ export default function SaleLichHenPage() {
                         </div>
 
                         <div>
-                          <p>Wifi: {item.WIFI || "-"}/tháng</p>
+                          <p>Wifi: {formatCurrency(item.WIFI)}</p>
                           <p>Xe: {formatFee(item.GUI_XE, "/xe")}</p>
                           <p>Phí DV: {formatFee(item.DICH_VU, "/ph")}</p>
                         </div>

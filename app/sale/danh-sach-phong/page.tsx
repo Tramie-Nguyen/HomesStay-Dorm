@@ -6,59 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatGiaRange } from "@/lib/format";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-
-// ── Types ────────────────────────────────────────────────────────────────────
-interface Room {
-  id: string;
-  code: string;
-  availableBeds: number;
-  totalBeds: number;
-  status: "Trống" | "Đã thuê";
-  imageUrl: string | null;
-  ktxName: string;
-  giaMin: number; // ← thay pricePerBed string bằng 2 số thô
-  giaMax: number;
-  address: string;
-}
-
-async function fetchRooms(params: {
-  search: string;
-  status: string;
-  sort: string;
-  page: number;
-  ward: string;
-  gioiTinh: string;
-  minBeds: number;
-}) {
-  const qs = new URLSearchParams({
-    search: params.search,
-    status: params.status,
-    sort: params.sort,
-    page: String(params.page),
-    ward: params.ward,
-    gioiTinh: params.gioiTinh,
-    minBeds: String(params.minBeds),
-  });
-
-  const res = await fetch(`/api/phong?${qs}`, {
-    cache: "no-store", // Thêm dòng này để ép fetch mới hoàn toàn
-    headers: {
-      "Cache-Control": "no-cache",
-    },
-  });
-  if (!res.ok) {
-    const body = await res.text();
-    // Log rõ status + nội dung lỗi từ server
-    console.error(`[fetchRooms] HTTP ${res.status}:`, body);
-    throw new Error(`Fetch thất bại: ${res.status} - ${body}`);
-  }
-
-  return res.json() as Promise<{
-    rooms: Room[];
-    totalPages: number;
-    total: number;
-  }>;
-}
+import { getDanhSachPhong, type Room } from "@/services/phongService";
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function DanhSachPhongPage() {
@@ -95,14 +43,14 @@ export default function DanhSachPhongPage() {
   useEffect(() => {
     setLoading(true);
     setError("");
-    fetchRooms({
+    getDanhSachPhong({
       search: searchQuery,
       status: statusFilter,
       sort: sortOrder,
       page: currentPage,
-      ward: ward,
-      gioiTinh: gioiTinh,
-      minBeds: minBeds,
+      ward,
+      gioiTinh,
+      minBeds,
     })
       .then(({ rooms, totalPages }) => {
         setRooms(rooms);
@@ -182,8 +130,8 @@ export default function DanhSachPhongPage() {
             {/* ← phải khớp với chuỗi trong QUY_DINH của DB */}
           </select>
           {/* TRƯỜNG NUMERIC UPDOWN MỚI THÊM */}
-          <div className="flex items-center gap-2 bg-white border border-grey/40 rounded-lg px-3 py-1">
-            <span className="text-sm font-medium text-grey">Số giường:</span>
+          <div className="flex items-center gap-2 bg-white border border-grey/40 rounded-lg py-2 ">
+            <span className="text-md text-text1 pl-5">Số giường:</span>
             <input
               type="number"
               min="1"
