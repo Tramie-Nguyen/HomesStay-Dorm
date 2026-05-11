@@ -5,7 +5,10 @@ import RoomCard from "@/components/room/roomCard";
 import CustomerCard from "@/components/customer/CustomerCard";
 import { useRouter, useParams } from "next/navigation";
 import { RentalData } from "@/types/rental";
-import ConfirmPopup from "./popup"; // Import modal mới
+import ConfirmPopup from "./popup"; 
+import * as depositService from "@/services/deposit";
+import * as calendarService from "@/services/calendar";
+import { toast } from "react-toastify"; // Đảm bảo bạn đã import toast
 
 export default function RentalDetail() {
   const router = useRouter();
@@ -13,10 +16,26 @@ export default function RentalDetail() {
   const id = params.id as string;
 
   const [data, setData] = useState<RentalData | null>(null);
-  
-  // States cho 2 chức năng mới
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [maNv, setMaNv] = useState<string>("");
+
+  // 1. Đưa localStorage vào useEffect để tránh lỗi SSR trên Next.js
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedData = localStorage.getItem("auth");
+      if (storedData) {
+        try {
+          const parsedData = JSON.parse(storedData);
+          if (parsedData?.user?.MA_NV) {
+            setMaNv(parsedData.user.MA_NV);
+          }
+        } catch (e) {
+          console.error("Lỗi parse localStorage:", e);
+        }
+      }
+    }
+  }, []);
 
   const fetchData = async () => {
     try {
@@ -30,10 +49,17 @@ export default function RentalDetail() {
       }
 
       const json = await res.json();
+      const giuongs = Array.isArray(json?.GIUONGS) ? json.GIUONGS : [];
+
+      // 2. Tính toán tổng tiền ngay khi lấy được dữ liệu chính xác từ API
+      const tongTienCalc = depositService.calculateDepositAmount(
+        giuongs.map((g: any) => g.GIA)
+      );
 
       setData({
         ...json,
-        GIUONGS: Array.isArray(json?.GIUONGS) ? json.GIUONGS : [],
+        GIUONGS: giuongs,
+        TONG_TIEN: tongTienCalc, // Gán trực tiếp vào state
       });
     } catch (err) {
       console.error("Fetch error:", err);
@@ -42,65 +68,13 @@ export default function RentalDetail() {
   };
 
   useEffect(() => {
-    fetchData();
+    if (id) {
+      fetchData();
+    }
   }, [id]);
 
-  // Hàm xử lý khi bấm nút "Kết thúc"
-  const handleEndSchedule = async () => {
-    if (!confirm("Bạn có chắc chắn muốn kết thúc lịch này?")) return;
-    setIsProcessing(true);
-    try {
-      // Thay đổi endpoint này cho đúng với route API của bạn
-      const res = await fetch(`/api/rental/${id}/status`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "Đã xử lý" }),
-      });
-
-      if (res.ok) {
-        alert("Đã cập nhật trạng thái lịch thành 'Đã xử lý'!");
-        fetchData(); // Load lại data
-      } else {
-        alert("Có lỗi xảy ra khi cập nhật trạng thái!");
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // Hàm xử lý khi chọn "Có" trong popup Đặt Cọc
-  const handleCreateDeposit = async () => {
-    setIsProcessing(true);
-    try {
-      // Gọi API tạo phiếu đặt cọc với thông tin phòng và khách hàng
-      const res = await fetch(`/api/deposit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          MA_KH: data?.MA_KH,
-          MA_PHONG: data?.MA_PHONG,
-          MA_PHIEU: data?.MA_PHIEU,
-          // Truyền thêm các trường cần thiết khác ở đây...
-        }),
-      });
-
-      if (res.ok) {
-        alert("Tạo phiếu đặt cọc thành công!");
-        setOpenConfirmModal(false); // Đóng modal
-        fetchData(); // Load lại data 
-      } else {
-        alert("Có lỗi xảy ra khi tạo phiếu đặt cọc!");
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  if (!data) return <div>Loading...</div>;
+  // 3. Nếu data là null thì dừng render tại đây (tránh lỗi truy cập thuộc tính phía dưới)
+  if (!data) return <div className="min-h-screen bg-background flex items-center justify-center font-medium text-text1">Loading...</div>;
 
   const beds = Array.isArray(data.GIUONGS) ? data.GIUONGS : [];
 
@@ -117,11 +91,10 @@ export default function RentalDetail() {
       <h2 className="text-center font-bold text-text1 text-xl pt-6 uppercase">THÔNG TIN THUÊ</h2>
 
       {/* ===== CUSTOMER ===== */}
-      {/* Trong UI tham khảo, khối Thông tin khách nằm trên Thông tin phòng */}
       <div className="mt-6">
         <h3 className="font-semibold mb-2 text-text2">Thông tin khách</h3>
         <div className="border border-[#009BDE] rounded-2xl">
-           <CustomerCard
+          <CustomerCard
             id={data.MA_KH}
             name={data.TEN_KH}
             code={data.MA_KH}
@@ -165,19 +138,19 @@ export default function RentalDetail() {
         />
       </div>
 
-      {/* ===== ACTIONS (ĐẶT CỌC / KẾT THÚC) ===== */}
+      {/* ===== ACTIONS ===== */}
       <div className="flex justify-center items-center gap-4 mt-10">
         <button
           onClick={() => setOpenConfirmModal(true)}
           disabled={isProcessing}
-          className="bg-accent hover:bg-pink-600 text-white font-medium py-2 px-8 rounded-lg shadow-sm transition-all disabled:opacity-50"
+          className="bg-accent hover:bg-pink-600 text-white font-medium py-2 px-8 rounded-lg shadow-sm transition-all disabled:opacity-50 cursor-pointer"
         >
           Đặt cọc
         </button>
         <button
-          onClick={handleEndSchedule}
+          onClick={() => calendarService.handleEndSchedule(data?.MA_PHIEU)}
           disabled={isProcessing}
-          className="bg-grey hover:bg-gray-600 text-white font-medium py-2 px-8 rounded-lg shadow-sm transition-all disabled:opacity-50"
+          className="bg-grey hover:bg-gray-600 text-white font-medium py-2 px-8 rounded-lg shadow-sm transition-all disabled:opacity-50 cursor-pointer"
         >
           {isProcessing ? "Đang xử lý..." : "Kết thúc"}
         </button>
@@ -187,7 +160,37 @@ export default function RentalDetail() {
       <ConfirmPopup
         open={openConfirmModal}
         onClose={() => setOpenConfirmModal(false)}
-        onConfirm={handleCreateDeposit}
+        onConfirm={async () => {
+          if (!maNv) {
+            toast.error("Không tìm thấy thông tin nhân viên, vui lòng đăng nhập lại!");
+            return;
+          }
+
+          setIsProcessing(true);
+          try {
+            const result = await depositService.handleCreateDeposit({
+              soTien: data.TONG_TIEN,
+              maKh: data.MA_KH,
+              maNv: maNv
+            });
+
+            setOpenConfirmModal(false);
+            toast.success("Tạo phiếu đặt cọc thành công!");
+
+            // Chuyển sang trang hoàn tất thanh toán đặt cọc (trang có QR code)
+            if (result && result.maPdc) {
+              router.push(`/dat-coc/${result.maPdc}`); 
+            } else {
+              toast.error("Không nhận được mã phiếu đặt cọc để chuyển trang!");
+              fetchData(); // Reset lại data nếu không chuyển trang
+            }
+          } catch (error) {
+            console.error("Error during deposit:", error);
+            // toast.error đã được gọi bên trong service nên không cần gọi lại ở đây
+          } finally {
+            setIsProcessing(false);
+          }
+        }}
         isProcessing={isProcessing}
       />
     </div>
