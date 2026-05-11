@@ -194,15 +194,18 @@ export default function ChiTietPhongPage() {
         </section>
 
         {/* Section QUY ĐỊNH */}
-        <section className="mt-10">
+        <section className="mt-10 ">
           <h2 className="mb-3 text-xl font-bold text-text1">QUY ĐỊNH KTX</h2>
-          <div className="rounded-3xl bg-base p-8 shadow-sm">
-            <ul className="space-y-3">
+          <div className="rounded-3xl bg-base p-8 shadow-sm text-[18px]">
+            <ul className="space-y-3 ">
               {room.quyDinh
                 ?.split(/\r?\n/)
                 .filter(Boolean)
                 .map((item, index) => (
-                  <li key={index} className="flex items-start gap-2 text-text1">
+                  <li
+                    key={index}
+                    className=" text-md flex items-start gap-2 text-text1"
+                  >
                     <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
                     <span
                       className={
