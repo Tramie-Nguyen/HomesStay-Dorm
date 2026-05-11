@@ -49,7 +49,7 @@ export interface RoomDetail {
   giaMax: number;
   giaDien: number;
   giaNuoc: number;
-  wifi: number;
+  wifi: string;
   guiXe: number;
   dichVu: number;
   beds: Bed[];

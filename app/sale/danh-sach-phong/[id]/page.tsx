@@ -104,10 +104,11 @@ export default function ChiTietPhongPage() {
         <section className="mt-10">
           <h2 className="mb-3 text-xl font-bold text-text1">MÔ TẢ</h2>
           <div className="rounded-3xl bg-base p-8 shadow-sm">
-            <ul className="space-y-3">
+            <ul className="space-y-3 text-[18px] leading-relaxed text-text1">
+              {/* 1. HIỂN THỊ THÔNG TIN CƠ BẢN (Số giường, vệ sinh...) */}
               {roomDescriptionItems.map((item, index) => (
-                <li key={index} className="flex items-start gap-2 text-text1">
-                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
+                <li key={index} className="flex items-start gap-2">
+                  <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
                   <span>
                     {item.includes(":") ? (
                       <>
@@ -122,92 +123,72 @@ export default function ChiTietPhongPage() {
                   </span>
                 </li>
               ))}
-              <ul className="space-y-3 text-[18px] leading-relaxed text-text1">
-                {/* 1. HIỂN THỊ THÔNG TIN CƠ BẢN (Số giường, vệ sinh...) */}
-                {roomDescriptionItems.map((item, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
-                    <span>
-                      {item.includes(":") ? (
-                        <>
-                          <span className="underline font-semibold">
-                            {item.split(":")[0]}
-                          </span>
-                          :{item.split(":")[1]}
-                        </>
-                      ) : (
-                        item
-                      )}
-                    </span>
-                  </li>
-                ))}
 
-                {/* 2. HIỂN THỊ GIÁ THUÊ CHI TIẾT TỪNG GIƯỜNG */}
-                <li className="flex items-start gap-2">
-                  <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
-                  <div className="flex flex-wrap items-baseline gap-x-1">
-                    <span className="underline font-semibold">Giá thuê</span>
-                    <span>:</span>
-                    <div className="ml-4 mt-1 space-y-1">
-                      {room.beds.map((bed, idx) => (
-                        <div key={bed.id}>
-                          Giường {idx + 1}: {formatGia(bed.price)}/tháng{" "}
-                          <span
-                            className={
-                              bed.status === "Đã thuê"
-                                ? "text-grey"
-                                : "text-accent font-medium"
-                            }
-                          >
-                            ({bed.status === "Đã thuê" ? "Đã thuê" : "Trống"})
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+              {/* 2. HIỂN THỊ GIÁ THUÊ CHI TIẾT TỪNG GIƯỜNG */}
+              <li className="flex items-start gap-2">
+                <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
+                <div className="flex flex-wrap items-baseline gap-x-1">
+                  <span className="underline font-semibold">Giá thuê</span>
+                  <span>:</span>
+                  <div className="ml-4 mt-1 space-y-1">
+                    {room.beds.map((bed, idx) => (
+                      <div key={bed.id}>
+                        Giường {idx + 1}: {formatGia(bed.price)}/tháng{" "}
+                        <span
+                          className={
+                            bed.status === "Đã thuê"
+                              ? "text-grey"
+                              : "text-accent font-medium"
+                          }
+                        >
+                          ({bed.status === "Đã thuê" ? "Đã thuê" : "Trống"})
+                        </span>
+                      </div>
+                    ))}
                   </div>
-                </li>
+                </div>
+              </li>
 
-                {/* 3. HIỂN THỊ CHI PHÍ DỊCH VỤ (Lấy từ thongTinChiPhi) */}
-                <li className="flex items-start gap-2">
-                  <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
-                  <span>
-                    <span className="underline font-semibold">Giá điện</span>:{" "}
-                    {formatGia(room.giaDien)}/kWh
-                  </span>
-                </li>
+              {/* 3. HIỂN THỊ CHI PHÍ DỊCH VỤ (Lấy từ thongTinChiPhi) */}
+              <li className="flex items-start gap-2">
+                <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
+                <span>
+                  <span className="underline font-semibold">Giá điện</span>:{" "}
+                  {formatGia(room.giaDien)}/kWh
+                </span>
+              </li>
 
-                <li className="flex items-start gap-2">
-                  <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
-                  <span>
-                    <span className="underline font-semibold">Giá nước</span>:{" "}
-                    {formatGia(room.giaNuoc)}/m³
-                  </span>
-                </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
+                <span>
+                  <span className="underline font-semibold">Giá nước</span>:{" "}
+                  {formatGia(room.giaNuoc)}/m³
+                </span>
+              </li>
 
-                <li className="flex items-start gap-2">
-                  <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
-                  <span>
-                    <span className="underline font-semibold">Wifi</span>:{" "}
-                    {formatGia(room.wifi)}/tháng
-                  </span>
-                </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
+                <span>
+                  <span className="underline font-semibold">Wifi</span>:{" "}
+                  {room.wifi}
+                </span>
+              </li>
 
-                <li className="flex items-start gap-2">
-                  <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
-                  <span>
-                    <span className="underline font-semibold">Gửi xe</span>:{" "}
-                    {formatGia(room.guiXe)}/tháng
-                  </span>
-                </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
+                <span>
+                  <span className="underline font-semibold">Gửi xe</span>:{" "}
+                  {formatGia(room.guiXe)}/tháng
+                </span>
+              </li>
 
-                <li className="flex items-start gap-2">
-                  <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
-                  <span>
-                    <span className="underline font-semibold">Dịch vụ</span>:{" "}
-                    {formatGia(room.dichVu)}/tháng
-                  </span>
-                </li>
-              </ul>
+              <li className="flex items-start gap-2">
+                <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
+                <span>
+                  <span className="underline font-semibold">Dịch vụ</span>:{" "}
+                  {formatGia(room.dichVu)}/tháng
+                </span>
+              </li>
             </ul>
           </div>
         </section>
