@@ -15,30 +15,13 @@ export async function PUT(
 
     await pool
       .request()
-      .input("id", id)
-      .input("name", name)
-      .input("phone", phone)
-      .input("cccd", cccd)
-      .input("gender", gender)
-      .input("email", email).query(`
-        UPDATE KHACH_HANG
-        SET TEN_KH = @name,
-            SDT = @phone,
-            CCCD = @cccd,
-            GIOI_TINH = @gender
-        WHERE MA_KH = @id
-      `);
-
-    // nếu có bảng tài khoản thì update email
-    if (email) {
-      await pool.request().input("id", id).input("email", email).query(`
-          UPDATE TAI_KHOAN
-          SET EMAIL = @email
-          WHERE MA_TK = (
-            SELECT MA_TK FROM KHACH_HANG WHERE MA_KH = @id
-          )
-        `);
-    }
+      .input("MA_KH", id)
+      .input("TEN_KH", name)
+      .input("SDT", phone)
+      .input("CCCD", cccd)
+      .input("GIOI_TINH", gender)
+      .input("EMAIL", email)
+      .execute("SP_UPDATE_KHACH_HANG");
 
     return NextResponse.json({ message: "Updated" });
   } catch (err) {
