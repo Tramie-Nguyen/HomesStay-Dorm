@@ -29,21 +29,21 @@ export const handleCreateDeposit = async (depositData: DepositRequest) => {
 
 export const changeDepositStatus = async (maPhieu: string, newStatus: string) => {
   try {
-    const response = await fetch(`/api/deposit/${maPhieu}/status`, {
+    const response = await fetch(`/api/deposit/${maPhieu}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus }),
+      body: JSON.stringify({ MA_PDC: maPhieu, status: newStatus }),
     });
 
     if (!response.ok) {
-      throw new Error("Failed to update schedule status");
+      throw new Error("Failed to update deposit status");
     }
 
     const result = await response.json();
     return result;
   } catch (error) {
-    console.error("Error updating schedule status:", error);
-    toast.error("Có lỗi xảy ra khi cập nhật trạng thái lịch!");
+    console.error("Error updating deposit status:", error);
+    toast.error("Có lỗi xảy ra khi cập nhật trạng thái phiếu đặt cọc!");
     throw error;
   }
 };

@@ -148,7 +148,7 @@ export default function RentalDetail() {
           Đặt cọc
         </button>
         <button
-          onClick={() => calendarService.handleEndSchedule(data?.MA_PHIEU)}
+          onClick={() => calendarService.handleCapNhatLich(data.MA_PHIEU, 'Đã xử lý', setIsProcessing, fetchData)}
           disabled={isProcessing}
           className="bg-grey hover:bg-gray-600 text-white font-medium py-2 px-8 rounded-lg shadow-sm transition-all disabled:opacity-50 cursor-pointer"
         >
@@ -179,7 +179,7 @@ export default function RentalDetail() {
 
             // Chuyển sang trang hoàn tất thanh toán đặt cọc (trang có QR code)
             if (result && result.maPdc) {
-              router.push(`/dat-coc/${result.maPdc}`); 
+              router.push(`/sale/dat-coc/${result.maPdc}`); 
             } else {
               toast.error("Không nhận được mã phiếu đặt cọc để chuyển trang!");
               fetchData(); // Reset lại data nếu không chuyển trang

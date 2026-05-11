@@ -2,8 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import DatePicker from "@/components/common/datepicker"; // Đường dẫn import component của bạn
-import TimePicker from "@/components/common/timepicker"; // Đường dẫn import component của bạn
+import DatePicker from "@/components/common/datepicker";
+import TimePicker from "@/components/common/timepicker";
+import { toast } from "react-toastify";
+import * as paymentService from "@/services/payment";
+import * as depositService from "@/services/deposit";
+import * as calendarService from "@/services/calendar";
 
 interface DepositData {
   MA_PDC: string;
@@ -29,6 +33,8 @@ interface DepositData {
     DICH_VU: number;
     GUI_XE: number;
   };
+  onFresh?: () => void; // Hàm này sẽ được gọi sau khi cập nhật trạng thái lịch
+  onClose?: () => void; // Hàm này sẽ được gọi sau khi hoàn tất xử lý
 }
 
 export default function DepositPage() {
@@ -41,7 +47,7 @@ export default function DepositPage() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Form states
-  const [phuongThuc, setPhuongThuc] = useState<"Tiền mặt" | "Chuyển khoản">("Chuyển khoản");
+  const [phuongThuc, setPhuongThuc] = useState<"Tiền mặt" | "QR">("QR");
   const [ngayNhan, setNgayNhan] = useState<Date | null>(new Date());
   const [gioNhan, setGioNhan] = useState<string>("08:00");
 
@@ -69,74 +75,6 @@ export default function DepositPage() {
   const qrUrl = data 
     ? `https://img.vietqr.io/image/${bankId}-${bankAccount}-compact2.png?amount=${data.SO_TIEN}&addInfo=DATCOC%20${data.MA_PDC}`
     : "";
-
-  // Chuẩn bị payload chung
-  const getPayload = () => ({
-    maPdc: data?.MA_PDC,
-    maKh: data?.KHACH_HANG.MA_KH,
-    maKtx: data?.PHONG.MA_KTX,
-    maPhong: data?.PHONG.MA_PHONG,
-    soTien: data?.SO_TIEN,
-    phuongThuc,
-    ngayNhanPhong: ngayNhan ? `${ngayNhan.getFullYear()}-${String(ngayNhan.getMonth() + 1).padStart(2, "0")}-${String(ngayNhan.getDate()).padStart(2, "0")}` : "",
-    gioNhanPhong: gioNhan,
-    emailKhach: data?.KHACH_HANG.EMAIL,
-    danhSachGiuong: data?.PHONG.GIUONGS
-  });
-
-  // 2. Xử lý nút "Hoàn tất" (Thanh toán ngay)
-  const handleComplete = async () => {
-    if (!ngayNhan || !gioNhan) return alert("Vui lòng chọn đầy đủ ngày giờ nhận phòng!");
-    setIsProcessing(true);
-
-    try {
-      const res = await fetch("/api/deposit/complete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(getPayload()),
-      });
-      const result = await res.json();
-
-      if (res.ok && result.success) {
-        alert("Đặt cọc thành công! Đã tạo phiếu thanh toán và lịch nhận phòng.");
-        router.push("/rental-list"); // Đẩy về trang danh sách hoặc dashboard tùy bạn
-      } else {
-        alert("Có lỗi xảy ra: " + result.error);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Lỗi kết nối đến máy chủ!");
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // 3. Xử lý nút "Thanh toán sau" (Giữ chỗ 24h & gửi Email)
-  const handlePayLater = async () => {
-    if (!ngayNhan || !gioNhan) return alert("Vui lòng chọn đầy đủ ngày giờ nhận phòng!");
-    setIsProcessing(true);
-
-    try {
-      const res = await fetch("/api/deposit/pay-later", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...getPayload(), qrUrl }), // Gửi kèm link QR để BE gửi mail
-      });
-      const result = await res.json();
-
-      if (res.ok && result.success) {
-        alert("Đã ghi nhận giữ chỗ 24h. Hệ thống đã gửi email thông báo kèm mã QR cho khách.");
-        router.push("/rental-list");
-      } else {
-        alert("Có lỗi xảy ra: " + result.error);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Lỗi kết nối đến máy chủ!");
-    } finally {
-      setIsProcessing(false);
-    }
-  };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-lg font-medium">Đang tải dữ liệu...</div>;
   if (!data) return <div className="min-h-screen flex items-center justify-center text-red-500">Dữ liệu không hợp lệ!</div>;
@@ -203,9 +141,9 @@ export default function DepositPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setPhuongThuc("Chuyển khoản")}
+                onClick={() => setPhuongThuc("QR")}
                 className={`px-4 py-2 rounded-md text-xs font-bold transition-all ${
-                  phuongThuc === "Chuyển khoản" ? "bg-[#208b81] text-white shadow-md" : "text-gray-600 hover:text-gray-900"
+                  phuongThuc === "QR" ? "bg-[#208b81] text-white shadow-md" : "text-gray-600 hover:text-gray-900"
                 }`}
               >
                 Chuyển khoản
@@ -230,7 +168,7 @@ export default function DepositPage() {
         </div>
 
         {/* QR CODE DÀNH CHO CHUYỂN KHOẢN */}
-        {phuongThuc === "Chuyển khoản" && (
+        {phuongThuc === "QR" && (
           <div className="flex flex-col items-center justify-center bg-white p-6 rounded-xl border-2 border-dashed border-[#208b81] mb-8 animate-fadeIn">
             <div className="p-2 bg-white shadow-md rounded-lg border">
               <img src={qrUrl} alt="VietQR" className="w-64 h-64 object-contain" />
@@ -246,7 +184,36 @@ export default function DepositPage() {
           <button
             type="button"
             disabled={isProcessing}
-            onClick={handleComplete}
+            onClick={async () => {
+              if (!ngayNhan || !gioNhan || !data) {
+                toast.error("Vui lòng chọn đầy đủ ngày giờ và đảm bảo dữ liệu phiếu đặt cọc hợp lệ.");
+                return;
+              }
+
+              setIsProcessing(true);
+              try {
+                const result = await paymentService.handleCreatePayment({
+                  hinhThuc: phuongThuc,
+                  soTien: data.SO_TIEN,
+                  trangThai: "Đã thanh toán",
+                  maHd: null,
+                  ma_Pdc: data.MA_PDC,
+                });
+                const changePDCstatus = await depositService.changeDepositStatus(data.MA_PDC, "Đã đặt cọc");
+                const changeCalendarstatus = await calendarService.handleCapNhatLich(data.MA_PDC, 'Đã đặt cọc', () => {}, () => {});
+                if (result?.success && changePDCstatus?.success && changeCalendarstatus?.success) {
+                  toast.success("Hoàn tất đặt cọc thành công. Phiếu thanh toán đã được tạo.");
+                  router.push("/sale/lich-cua-toi");
+                } else {
+                  toast.error(result?.error || changePDCstatus?.error || "Lỗi khi hoàn tất đặt cọc.");
+                }
+              } catch (error) {
+                console.error(error);
+                toast.error("Lỗi kết nối đến máy chủ.");
+              } finally {
+                setIsProcessing(false);
+              }
+            }}
             className="bg-accent hover:bg-[#e0356f] text-white font-semibold px-10 py-3 rounded-xl shadow-lg transition-all disabled:opacity-50 w-48 text-center cursor-pointer"
           >
             {isProcessing ? "Đang xử lý..." : "Hoàn tất"}
@@ -255,7 +222,35 @@ export default function DepositPage() {
           <button
             type="button"
             disabled={isProcessing}
-            onClick={handlePayLater}
+            onClick={async () => {
+              if (!ngayNhan || !gioNhan || !data) {
+                toast.error("Vui lòng chọn đầy đủ ngày giờ và đảm bảo dữ liệu phiếu đặt cọc hợp lệ.");
+                return;
+              }
+
+              setIsProcessing(true);
+              try {
+                const result = await paymentService.handleCreatePayment({
+                  hinhThuc: phuongThuc,
+                  soTien: data.SO_TIEN,
+                  trangThai: "Chưa thanh toán",
+                  maHd: null,
+                  ma_Pdc: data.MA_PDC,
+                });
+
+                if (result?.success) {
+                  toast.success("Ghi nhận thanh toán sau thành công.");
+                  router.push("/sale/lich-cua-toi");
+                } else {
+                  toast.error(result?.error || "Lỗi khi ghi nhận thanh toán sau.");
+                }
+              } catch (error) {
+                console.error(error);
+                toast.error("Lỗi kết nối đến máy chủ.");
+              } finally {
+                setIsProcessing(false);
+              }
+            }}
             className="bg-grey hover:bg-gray-700 text-white font-semibold px-10 py-3 rounded-xl shadow-lg transition-all disabled:opacity-50 w-48 text-center cursor-pointer"
           >
             Thanh toán sau
