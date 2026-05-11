@@ -8,6 +8,13 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Calendar, Clock, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+import {
+  timKhachHang,
+  guiDatLich,
+  validateSdt,
+  type DatLichPayload,
+} from "@/services/datLichService";
+import { getThongTinPhongDatLich } from "@/services/phongService";
 
 function Field({
   label,
@@ -81,24 +88,9 @@ export default function DatLichPage() {
 
   useEffect(() => {
     if (roomId) {
-      fetch(`/api/phong/${roomId}`)
-        .then((res) => res.json())
-        .then((data) => setRoomData(data.room));
+      getThongTinPhongDatLich(roomId).then((room) => setRoomData(room));
     }
   }, [roomId]);
-
-  useEffect(() => {
-    setForm({
-      tenKh: "",
-      ngaySinh: "",
-      sdt: "",
-      email: "",
-      cccd: "",
-      gioiTinh: "Nữ",
-    });
-    setSearchSdt("");
-    setSearchError("");
-  }, [type]);
 
   const isGenderMatched = () => {
     if (!roomData?.quyDinh) return true; // Nếu phòng không quy định thì bỏ qua
@@ -133,8 +125,10 @@ export default function DatLichPage() {
   };
 
   const handleSearchCustomer = async () => {
-    if (searchSdt.trim().length < 10) {
-      setSearchError("Vui lòng nhập số điện thoại hợp lệ (ít nhất 10 số).");
+    try {
+      validateSdt(searchSdt); // validate ở service
+    } catch (e: any) {
+      setSearchError(e.message);
       setForm({
         tenKh: "",
         ngaySinh: "",
@@ -149,29 +143,14 @@ export default function DatLichPage() {
     setIsSearching(true);
     setSearchError("");
     try {
-      const res = await fetch(`/api/dat-lich?sdt=${searchSdt.trim()}`);
-      const data = await res.json();
-      if (res.ok) {
-        setForm({
-          tenKh: data.TEN_KH || data.tenKh || "",
-          ngaySinh: data.NGAY_SINH
-            ? data.NGAY_SINH.split("T")[0]
-            : data.ngaySinh || "",
-          sdt: data.SDT || data.sdt || searchSdt.trim(),
-          email: data.EMAIL || data.email || "",
-          cccd: data.CCCD || data.cccd || "",
-          gioiTinh: data.GIOI_TINH || data.gioiTinh || "Nữ",
-        });
-      } else {
-        setSearchError(data.message || "Không tìm thấy khách hàng.");
-      }
-    } catch {
-      setSearchError("Lỗi kết nối.");
+      const khach = await timKhachHang(searchSdt); // ← gọi service
+      setForm(khach);
+    } catch (e: any) {
+      setSearchError(e.message);
     } finally {
       setIsSearching(false);
     }
   };
-
   const handleToggleBed = (bedId: string, status: string) => {
     if (status === "Đã thuê") return;
     setSelectedBeds((prev) =>
@@ -187,71 +166,46 @@ export default function DatLichPage() {
       return;
     }
     if (!startDate) {
-      alert("Vui lòng chọn ngày giờ");
+      alert("Vui lòng chọn ngày giờ");
       return;
     }
 
-    // Tạo một chuỗi format YYYY-MM-DD HH:mm:ss từ địa phương
-    // Điều này tránh việc bị convert sang UTC làm lệch giờ hoặc mất giờ
+    // Format ngày giờ theo giờ địa phương (tránh lệch UTC)
     const pad = (n: any) => n.toString().padStart(2, "0");
     const dateStr = `${startDate.getFullYear()}-${pad(startDate.getMonth() + 1)}-${pad(startDate.getDate())}`;
     const timeStr = `${pad(startDate.getHours())}:${pad(startDate.getMinutes())}:00`;
     const finalDateTime = `${dateStr} ${timeStr}`;
 
-    console.log("Chuỗi gửi đi:", finalDateTime);
-
     try {
-      const res = await fetch("/api/dat-lich", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type,
-          tenKh: form.tenKh,
-          sdt: form.sdt,
-          ngaySinh: form.ngaySinh,
-          email: form.email,
-          cccd: form.cccd,
-          gioiTinh: form.gioiTinh,
-          maPhong: roomData?.code,
-          maKtx: roomData?.maKtx,
-          hinhThucThue,
-          selectedBeds,
-          ngayXem: finalDateTime,
-        }),
-      });
+      await guiDatLich({
+        type,
+        ...form,
+        maPhong: roomData.code,
+        maKtx: roomData.maKtx,
+        hinhThucThue,
+        selectedBeds,
+        ngayXem: finalDateTime, // ← truyền chuỗi đã format sẵn
+      } as DatLichPayload);
 
-      const result = await res.json();
-      if (res.ok) {
-        toast.success("Đặt lịch thành công");
-        setTimeout(() => {
-          router.push("/sale/lich-hen");
-        }, 1500);
-      } else {
-        alert(
-          `Lỗi: ${result.error}${result.details ? "\n" + result.details : ""}`,
-        );
-      }
-    } catch (err) {
-      alert("Có lỗi xảy ra kết nối, vui lòng thử lại.");
+      toast.success("Đặt lịch thành công");
+      setTimeout(() => router.push("/sale/lich-hen"), 1500);
+    } catch (e: any) {
+      alert(e.message || "Có lỗi xảy ra, vui lòng thử lại.");
     }
   };
 
   const isKhach = type === "khach";
   const showFields = type === "vanglai" || (isKhach && form.tenKh.length > 0);
 
-  const [loadingRoom, setLoadingRoom] = useState(true);
+  const [loadingRoom, setLoadingRoom] = useState(true); // ← kéo state lên trên
 
   useEffect(() => {
-    if (roomId) {
-      setLoadingRoom(true);
-      fetch(`/api/phong/${roomId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setRoomData(data.room);
-          setLoadingRoom(false);
-        })
-        .catch(() => setLoadingRoom(false));
-    }
+    if (!roomId) return;
+    setLoadingRoom(true);
+    getThongTinPhongDatLich(roomId)
+      .then((room) => setRoomData(room))
+      .catch(() => setRoomData(null))
+      .finally(() => setLoadingRoom(false));
   }, [roomId]);
 
   if (loadingRoom)
