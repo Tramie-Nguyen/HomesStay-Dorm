@@ -3,6 +3,8 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import DatePicker from "../../../components/common/datepicker";
 import TimePicker from "../../../components/common/timepicker";
+import * as calendarService from "@/services/calendar";
+import { toast } from "react-toastify"; 
 
 interface PopupProps {
   task: any;
@@ -13,13 +15,13 @@ interface PopupProps {
 
 export default function Popup({ task, currentDate, onClose, onRefresh }: PopupProps) {
   const router = useRouter();
+  const popupRef = useRef<HTMLDivElement>(null);
+  const [isTooltipFlipped, setIsTooltipFlipped] = useState(false);
+
   const [isRescheduling, setIsRescheduling] = useState(false);
   const [newDate, setNewDate] = useState<Date | null>(null);
   const [newTime, setNewTime] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
-  const popupRef = useRef<HTMLDivElement>(null);
-  const [isTooltipFlipped, setIsTooltipFlipped] = useState(false);
 
   useEffect(() => {
     if (popupRef.current) {
@@ -30,73 +32,7 @@ export default function Popup({ task, currentDate, onClose, onRefresh }: PopupPr
     }
   }, []);
 
-  // XỬ LÝ HỦY LỊCH
-  const handleHuyLich = async (e: React.MouseEvent) => {
-    e.stopPropagation(); // CHẶN CHUYỂN TRANG
-    if (!confirm("Bạn có chắc chắn muốn hủy lịch này?")) return;
-    
-    setIsLoading(true);
-    try {
-      const res = await fetch(`/api/lich?maPhieu=${task.id}`, { method: 'DELETE' });
-      if (res.ok) {
-        alert("Hủy lịch thành công!");
-        onRefresh();
-        onClose();
-      } else {
-        const data = await res.json();
-        alert(`Lỗi: ${data.details || data.error}`);
-      }
-    } catch (error) {
-      alert("Lỗi kết nối mạng.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // XỬ LÝ DỜI LỊCH
-  const handleDoiLich = async (e: React.MouseEvent) => {
-    e.stopPropagation(); // CHẶN CHUYỂN TRANG
-    if (!newDate || !newTime) {
-      alert("Vui lòng chọn cả ngày và giờ mới!");
-      return;
-    }
-    
-    // Kết hợp ngày và giờ mới thành một đối tượng Date duy nhất
-    // theo múi giờ hiện tại của người dùng
-    const [hours, minutes] = newTime.split(':').map(Number);
-    const combinedDateTime = new Date(newDate);
-    combinedDateTime.setHours(hours+7, minutes, 0, 0);
-
-    if (combinedDateTime <= new Date()) {
-      alert("Ngày giờ mới phải lớn hơn thời gian hiện tại!");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const res = await fetch('/api/lich', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          maPhieu: task.id,
-          ngayGioMoi: combinedDateTime.toISOString()
-        })
-      });
-
-      if (res.ok) {
-        alert("Dời lịch thành công!");
-        onRefresh();
-        onClose();
-      } else {
-        const data = await res.json();
-        alert(`Lỗi: ${data.details || data.error}`);
-      }
-    } catch (error) {
-      alert("Lỗi kết nối mạng.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  
 
   return (
     <div 
@@ -155,7 +91,7 @@ export default function Popup({ task, currentDate, onClose, onRefresh }: PopupPr
                     <button
                       disabled={isLoading}
                       className={`px-3 py-1 rounded text-xs text-white ${isLoading ? 'bg-gray-400' : 'bg-primary'}`}
-                      onClick={handleDoiLich}
+                      onClick={() => calendarService.handleDoiLich(task.id, newDate, newTime, setIsLoading, onRefresh, onClose)}
                     >
                       {isLoading ? 'Đang lưu...' : 'Lưu'}
                     </button>
@@ -180,7 +116,10 @@ export default function Popup({ task, currentDate, onClose, onRefresh }: PopupPr
               {task.loai === 'Xem phòng' && !isRescheduling && (
                 <button 
                   disabled={isLoading}
-                  onClick={handleHuyLich}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    calendarService.handleHuyLich(task.id, setIsLoading, onRefresh, onClose);
+                  }}
                   className={`px-3 py-1 rounded-full text-xs transition text-white ${isLoading ? 'bg-gray-400' : 'bg-red-500 hover:bg-red-600'}`}
                 >
                   {isLoading ? 'Đang xử lý...' : 'Hủy lịch'}

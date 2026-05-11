@@ -1,23 +1,138 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "react-hot-toast";
+import type { Dispatch, SetStateAction } from "react";
 
-// Xử lý hủy lịch
-export const handleEndSchedule = async (maPhieu: string) => {
+type SetLoading = Dispatch<SetStateAction<boolean>>;
+
+export const handleHuyLich = async (
+  maPhieu: string | number,
+  setIsLoading: SetLoading,
+  onRefresh: () => void,
+  onClose: () => void
+) => {
+  if (!confirm("Bạn có chắc chắn muốn hủy lịch này?")) return;
+
+  setIsLoading(true);
   try {
-    const response = await fetch(`/api/schedule/${maPhieu}/end`, {
+    const res = await fetch(`/api/lich?maPhieu=${maPhieu}`, { method: "DELETE" });
+    if (res.ok) {
+      alert("Hủy lịch thành công!");
+      onRefresh();
+      onClose();
+    } else {
+      const data = await res.json();
+      alert(`Lỗi: ${data.details || data.error}`);
+    }
+  } catch {
+    alert("Lỗi kết nối mạng.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+export const handleDoiLich = async (
+  maPhieu: string,
+  newDate: Date | null,
+  newTime: string,
+  setIsLoading: SetLoading,
+  onRefresh: () => void,
+  onClose: () => void
+) => {
+  if (!newDate || !newTime) {
+    alert("Vui lòng chọn cả ngày và giờ mới!");
+    return;
+  }
+
+  const [hours, minutes] = newTime.split(":").map(Number);
+  const combinedDateTime = new Date(newDate);
+  combinedDateTime.setHours(hours + 7, minutes, 0, 0);
+
+  if (combinedDateTime <= new Date()) {
+    alert("Ngày giờ mới phải lớn hơn thời gian hiện tại!");
+    return;
+  }
+
+  setIsLoading(true);
+  try {
+    const res = await fetch("/api/lich", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        maPhieu,
+        ngayGioMoi: combinedDateTime.toISOString(),
+      }),
     });
-    if (!response.ok) {
-      throw new Error("Failed to end schedule");
+
+    if (res.ok) {
+      alert("Dời lịch thành công!");
+      onRefresh();
+      onClose();
+    } else {
+      const data = await res.json();
+      alert(`Lỗi: ${data.details || data.error}`);
     }
-    const result = await response.json();
-    return result;
-  } catch (error) {
-    console.error("Error ending schedule:", error);
-    toast.error("Có lỗi xảy ra khi hủy lịch!");
-    throw error;
+  } catch {
+    alert("Lỗi kết nối mạng.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+export const handleCapNhatLich = async (
+  maPhieu: string,
+  newTrangThai: string,
+  setIsLoading: SetLoading,
+  onRefresh: () => void,
+  onClose?: () => void
+) => {
+  setIsLoading(true);
+  try {
+    const res = await fetch("/api/lich", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        maPhieu,
+        newTrangThai,
+      }),
+    });
+
+    if (res.ok) {
+      onRefresh();
+      onClose?.();
+    } else {
+      const data = await res.json();
+      alert(`Lỗi: ${data.details || data.error}`);
+    }
+  } catch {
+    alert("Lỗi kết nối mạng.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+// Thêm lịch
+export const handleThemLich = async (lichData: {
+    maPhieu: string;
+  ngayGio: Date;
+  loai: string;
+  maPdk: string;
+  maPdc: string;
+  maKtx: string;
+  maPhong: string;
+  maNv: string;
+
+}) => {
+  try {
+    const res = await fetch("/api/lich", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(lichData),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      alert(`Lỗi: ${data.details || data.error}`);
+    }
+  } catch {
+    alert("Lỗi kết nối mạng.");
   }
 };
