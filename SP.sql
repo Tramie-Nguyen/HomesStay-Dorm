@@ -244,7 +244,7 @@ GO
    SP_GET_RENTAL_DETAILS
 ========================================================= */
 
-CREATE OR ALTER PROCEDURE SP_GET_RENTAL_DETAILS
+CREATE PROCEDURE SP_GET_RENTAL_DETAILS
     @id VARCHAR(10)
 AS
 BEGIN
@@ -361,25 +361,4 @@ BEGIN
     WHERE MA_KTX = @ktxId
       AND MA_PHONG = @roomId;
 END
-GO
-
-/* =========================================================
-   TEST
-========================================================= */
-
-EXEC SP_LOGIN
-    'kh1@gmail.com',
-    '123';
-
-EXEC SP_GET_RENTAL_DETAILS
-    'LICH002';
-
-EXEC SP_GET_RENTAL_BEDS
-    'LICH002',
-    'KTX001',
-    'P101';
-
-EXEC SP_GET_ALL_ROOM_BEDS
-    'KTX001',
-    'P101';
 GO
