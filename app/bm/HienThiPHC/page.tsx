@@ -27,7 +27,7 @@ export default function HienThiPHCPage() {
           setCustomer(json.customer);
           setSummary(json.summary);
           // use IMAGE_URL from customer/room if available, otherwise placeholder
-          const img = json.customer?.IMAGE_URL || "/images/room1.jpg";
+          const img = json.customer?.IMAGE_URL || "/room.jpg";
           setImages([img, img, img]);
         } else {
           console.error(json);
@@ -155,11 +155,7 @@ export default function HienThiPHCPage() {
 
               {displayTotal < 0 && (
                 <div className="w-44 rounded-lg bg-white p-3 shadow">
-                  <img
-                    src="/images/qr-placeholder.png"
-                    alt="qr"
-                    className="h-auto w-full"
-                  />
+                  <img src="/qr.png" alt="qr" className="h-auto w-full" />
                 </div>
               )}
             </section>
@@ -167,9 +163,9 @@ export default function HienThiPHCPage() {
             <section>
               <div className="rounded-md bg-base/50 p-4">
                 <div className="flex gap-3">
-                  <div className="w-[50px] h-[70px] overflow-hidden rounded bg-gray-100">
+                  <div className="w-[450px] h-[250px] overflow-hidden rounded bg-gray-100">
                     <img
-                      src={images[0] || "/images/room1.jpg"}
+                      src={"/room.jpg"}
                       alt="room"
                       className="w-full h-full object-cover"
                     />

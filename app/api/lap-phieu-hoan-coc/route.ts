@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getPool } from "@/lib/db";
+import sql from "mssql";
 
 export async function GET(req: Request) {
   try {
@@ -11,26 +12,39 @@ export async function GET(req: Request) {
     if (ma_kh && !ma_hop_dong) {
       const pool = await getPool();
       const findReq = pool.request();
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const sql = require("mssql");
-      findReq.input("MA_KH", sql.VarChar(5), ma_kh);
+      findReq.input("MA_KH", sql.VarChar(10), ma_kh);
+
+      // Query dựa trên schema: tìm MA_HOP_DONG từ MA_KH
+      // Dùng EXISTS để tìm hợp đồng có liên kết với khách hàng
       const findRes = await findReq.query(`
         SELECT TOP 1 hd.MA_HOP_DONG
-        FROM KHACH_HANG kh
-        INNER JOIN PHIEU_DANG_KY_THUE pdk ON kh.MA_KH = pdk.MA_KH
-        INNER JOIN LICH l ON pdk.MA_PDK = l.MA_PDK
-        INNER JOIN HOP_DONG_THUE hd ON l.MA_PHIEU = hd.MA_PHIEU
-        WHERE kh.MA_KH = @MA_KH
-        ORDER BY hd.NGAY_BD DESC
+        FROM HOP_DONG_THUE hd
+        WHERE EXISTS (
+          SELECT 1 FROM LICH l
+          WHERE l.MA_PHIEU = hd.MA_PHIEU
+          AND (
+            l.MA_PDC IN (
+              SELECT MA_PDC FROM PHIEU_DAT_COC WHERE MA_KH = @MA_KH
+            )
+            OR l.MA_PDK IN (
+              SELECT MA_PDK FROM PHIEU_DANG_KY_THUE WHERE MA_KH = @MA_KH
+            )
+          )
+        )
+        ORDER BY hd.MA_HOP_DONG DESC
       `);
+
       ma_hop_dong = findRes.recordset?.[0]?.MA_HOP_DONG;
+
       console.log(`Looking up MA_HOP_DONG for MA_KH=${ma_kh}:`, {
         found: !!ma_hop_dong,
         ma_hop_dong,
+        recordsetLength: findRes.recordset?.length || 0,
       });
+
       if (!ma_hop_dong) {
         return NextResponse.json(
-          { error: "No contract found for customer" },
+          { error: "No contract found for customer", ma_kh },
           { status: 404 },
         );
       }
@@ -43,11 +57,10 @@ export async function GET(req: Request) {
       );
     }
 
+    // Call sp_GetLapPhieuHoanCoc
     const pool = await getPool();
     const request = pool.request();
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const sql = require("mssql");
-    request.input("MA_HOP_DONG", sql.VarChar(5), ma_hop_dong);
+    request.input("MA_HOP_DONG", sql.VarChar(10), ma_hop_dong);
     const result = await request.execute("sp_GetLapPhieuHoanCoc");
 
     const recordsets = Array.isArray(result.recordsets)
@@ -60,8 +73,15 @@ export async function GET(req: Request) {
       summaryCount: recordsets[1]?.length,
     });
 
-    const items = recordsets[0] || [];
-    const summary = recordsets[1]?.[0] || { TIEN_COC: 0 };
+    const items = (recordsets[0] || []).map((r: any) => ({
+      MA_VT: r.MA_VT || "",
+      TEN_VAT_TU: r.TEN_VAT_TU || "",
+      VALUE: Number(r.VALUE) || 0,
+      QUANTITY: Number(r.QUANTITY) || 0,
+    }));
+    const summary = {
+      TIEN_COC: Number(recordsets[1]?.[0]?.TIEN_COC) || 0,
+    };
 
     console.log(`API response: ma_hop_dong=${ma_hop_dong}`, {
       items: items.length,
