@@ -546,6 +546,10 @@ VALUES
 );
 GO
 
+UPDATE LICH
+SET LOAI=N'Xem phòng'
+WHERE MA_PHIEU='LICH002';
+
 INSERT INTO KHACH_HANG
 (
     MA_KH,
@@ -647,3 +651,211 @@ FROM HOP_DONG_THUE HD
 LEFT JOIN BIEN_BAN_BAN_GIAO BB
     ON HD.MA_HOP_DONG = BB.MA_HOP_DONG;
 GO
+
+
+USE DORM
+GO
+
+/* =========================================================
+   THÊM DATA TEST "XEM PHÒNG"
+========================================================= */
+
+/* ---------- KHÁCH HÀNG 4 ---------- */
+
+INSERT INTO TAI_KHOAN
+(
+    MA_TK,
+    MAT_KHAU,
+    EMAIL,
+    ROLE,
+    MA_HOP_DONG
+)
+VALUES
+(
+    'TK005',
+    '123',
+    'customer4@gmail.com',
+    'CUSTOMER',
+    NULL
+);
+GO
+
+INSERT INTO KHACH_HANG
+(
+    MA_KH,
+    TEN_KH,
+    NGAY_SINH,
+    CCCD,
+    SDT,
+    GIOI_TINH,
+    MA_TK
+)
+VALUES
+(
+    'KH004',
+    N'Hoàng Văn E',
+    '2001-04-04',
+    '123456789555',
+    '0944444444',
+    N'Nam',
+    'TK005'
+);
+GO
+
+/* ---------- PHIẾU ĐĂNG KÝ ---------- */
+
+INSERT INTO PHIEU_DANG_KY_THUE
+(
+    MA_PDK,
+    NGAY_DANG_KY,
+    MA_KH,
+    HINH_THUC_THUE
+)
+VALUES
+(
+    'PDK004',
+    CAST(GETDATE() AS DATE),
+    'KH004',
+    N'Cá nhân'
+);
+GO
+
+/* ---------- LỊCH XEM PHÒNG 1 ---------- */
+
+INSERT INTO LICH
+(
+    MA_PHIEU,
+    NGAY_GIO,
+    LOAI,
+    TRANG_THAI,
+    MA_PDK,
+    MA_PDC,
+    MA_KTX,
+    MA_PHONG,
+    MA_NV
+)
+VALUES
+(
+    'LICH004',
+    DATEADD(HOUR, 2, GETDATE()),
+    N'Xem phòng',
+    N'Chưa xử lý',
+    'PDK004',
+    NULL,
+    'KTX001',
+    'P101',
+    'NV001'
+);
+GO
+
+/* ---------- KHÁCH HÀNG 5 ---------- */
+
+INSERT INTO TAI_KHOAN
+(
+    MA_TK,
+    MAT_KHAU,
+    EMAIL,
+    ROLE,
+    MA_HOP_DONG
+)
+VALUES
+(
+    'TK006',
+    '123',
+    'customer5@gmail.com',
+    'CUSTOMER',
+    NULL
+);
+GO
+
+INSERT INTO KHACH_HANG
+(
+    MA_KH,
+    TEN_KH,
+    NGAY_SINH,
+    CCCD,
+    SDT,
+    GIOI_TINH,
+    MA_TK
+)
+VALUES
+(
+    'KH005',
+    N'Nguyễn Thị F',
+    '2000-06-06',
+    '123456789666',
+    '0955555555',
+    N'Nữ',
+    'TK006'
+);
+GO
+
+/* ---------- PHIẾU ĐĂNG KÝ ---------- */
+
+INSERT INTO PHIEU_DANG_KY_THUE
+(
+    MA_PDK,
+    NGAY_DANG_KY,
+    MA_KH,
+    HINH_THUC_THUE
+)
+VALUES
+(
+    'PDK005',
+    CAST(GETDATE() AS DATE),
+    'KH005',
+    N'Nhóm'
+);
+GO
+
+/* ---------- LỊCH XEM PHÒNG 2 ---------- */
+
+INSERT INTO LICH
+(
+    MA_PHIEU,
+    NGAY_GIO,
+    LOAI,
+    TRANG_THAI,
+    MA_PDK,
+    MA_PDC,
+    MA_KTX,
+    MA_PHONG,
+    MA_NV
+)
+VALUES
+(
+    'LICH005',
+    DATEADD(DAY, 1, GETDATE()),
+    N'Xem phòng',
+    N'Đã xử lý',
+    'PDK005',
+    NULL,
+    'KTX001',
+    'P101',
+    'NV001'
+);
+GO
+
+/* =========================================================
+   CHECK DATA XEM PHÒNG
+========================================================= */
+
+SELECT 
+    L.MA_PHIEU,
+    L.LOAI,
+    L.TRANG_THAI,
+    KH.TEN_KH,
+    P.MA_PHONG,
+    KTX.TEN_KTX
+FROM LICH L
+JOIN PHIEU_DANG_KY_THUE PDK
+    ON L.MA_PDK = PDK.MA_PDK
+JOIN KHACH_HANG KH
+    ON PDK.MA_KH = KH.MA_KH
+JOIN PHONG P
+    ON L.MA_PHONG = P.MA_PHONG
+JOIN KY_TUC_XA KTX
+    ON L.MA_KTX = KTX.MA_KTX
+WHERE L.LOAI = N'Xem phòng';
+GO
+

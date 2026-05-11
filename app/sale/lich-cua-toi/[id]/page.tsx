@@ -7,6 +7,7 @@ import { useRouter, useParams } from "next/navigation";
 import { RentalData } from "@/types/rental";
 import HandoverModal from "@/components/room/HandoverModal";
 import Image from "next/image";
+import { getRentalDetail } from "@/services/rental";
 
 export default function RentalDetail() {
   const router = useRouter();
@@ -17,51 +18,14 @@ export default function RentalDetail() {
   const [openHandover, setOpenHandover] = useState(false);
 
   const fetchData = async () => {
-    try {
-      const res = await fetch(`/api/rental/${id}`, {
-        cache: "no-store",
-      });
-
-      if (!res.ok) {
-        setData(null);
-        return;
-      }
-
-      const json = await res.json();
-
-      setData({
-        ...json,
-        GIUONGS: Array.isArray(json?.GIUONGS) ? json.GIUONGS : [],
-      });
-    } catch (err) {
-      console.error("Fetch error:", err);
-      setData(null);
-    }
+    setData(await getRentalDetail(id));
   };
 
   useEffect(() => {
     const loadInitialData = async () => {
       if (!id) return;
 
-      try {
-        const res = await fetch(`/api/rental/${id}`, {
-          cache: "no-store",
-        });
-
-        if (!res.ok) {
-          setData(null);
-          return;
-        }
-
-        const json = await res.json();
-        setData({
-          ...json,
-          GIUONGS: Array.isArray(json?.GIUONGS) ? json.GIUONGS : [],
-        });
-      } catch (err) {
-        console.error("Fetch error:", err);
-        setData(null);
-      }
+      setData(await getRentalDetail(id));
     };
 
     loadInitialData();
