@@ -66,7 +66,7 @@ export default function RoomCard({
           alt={name}
           width={192}
           height={128}
-          className="w-48 h-32 object-cover rounded-xl"
+          className="w-48 h-48 object-cover rounded-xl"
         />
 
         <div className="flex-1 text-text1 text-sm">
@@ -83,7 +83,7 @@ export default function RoomCard({
             </button>
           </div>
 
-          <div className="flex justify-between mt-2">
+          <div className="mt-2">
             <div>
               {beds && beds.length > 0 ? (
                 <>
@@ -113,14 +113,18 @@ export default function RoomCard({
                   </p>
                 </>
               )}
-              <p>Điện: {formatMoney(electricity)}/kWh</p>
-              <p>Nước: {formatMoney(water)}/m³</p>
             </div>
 
-            <div>
-              <p>Wifi: {wifi}</p>
-              <p>Xe: {formatMoney(vehicle)}</p>
-              <p>Phí DV: {formatMoney(service)}</p>
+            <div className="flex justify-between">
+              <div>
+                <p>Điện: {formatMoney(electricity)}/kWh</p>
+                <p>Nước: {formatMoney(water)}/m³</p>
+              </div>
+              <div>
+                <p>Wifi: {wifi}</p>
+                <p>Xe: {formatMoney(vehicle)}</p>
+                <p>Phí DV: {formatMoney(service)}</p>
+              </div>
             </div>
           </div>
 
