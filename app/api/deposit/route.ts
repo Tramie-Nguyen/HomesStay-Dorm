@@ -5,7 +5,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     // Không cần nhận maPdc nữa, nhận thêm soTien
-    const { soTien, maKh, maNv } = body; 
+    const { soTien, maKh, maNv } = body;
     const pool = await getPool();
 
     const result = await pool
@@ -26,6 +26,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, maPdc: newMaPdc });
   } catch (error) {
     console.error("Error creating deposit:", error);
-    return NextResponse.json({ error: "Failed to create deposit" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create deposit" },
+      { status: 500 },
+    );
   }
 }
