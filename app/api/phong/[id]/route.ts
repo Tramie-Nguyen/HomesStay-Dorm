@@ -71,3 +71,29 @@ export async function GET(
     );
   }
 }
+
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const { id } = await params;
+    const body = await req.json();
+    const { status } = body;
+    const pool = await getPool();
+    
+    const result = await pool
+      .request()
+      .input("MaKTX", sql.VarChar(10), body.maKtx)
+      .input("MaPhong", sql.VarChar(10), id)
+      .input("TrangThai", sql.VarChar(20), status)
+      .execute("SP_CapNhatTrangThaiPhong");
+    return NextResponse.json(result);
+  } catch (err) {
+    console.error("[PUT /api/phong/:id]", err);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
+  }
+};
