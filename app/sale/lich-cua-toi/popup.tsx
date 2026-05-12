@@ -5,6 +5,7 @@ import DatePicker from "../../../components/common/datepicker";
 import TimePicker from "../../../components/common/timepicker";
 import * as calendarService from "@/services/calendar";
 import { toast } from "react-toastify";
+import Image from "next/image";
 
 interface PopupProps {
   task: any;
@@ -52,10 +53,19 @@ export default function Popup({
         }
       }}
     >
-      <img
-        src={task.hinhAnh || "/placeholder.jpg"}
+      <Image
+        //src={task.hinhAnh || "/room.jpg"}
+        src={
+          task.hinhAnh
+          ? task.hinhAnh.startsWith("/")
+            ? task.hinhAnh
+            : `/${task.hinhAnh}`
+          : "/room.png"
+        }
         alt="Room"
         className="w-full h-32 object-cover rounded-t-xl"
+        width={256}
+        height={128}
       />
 
       <div className="p-3 text-sm text-text1 relative">
