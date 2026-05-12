@@ -298,6 +298,10 @@ BEGIN
 END
 GO
 
+USE DORM
+GO
+
+
 -- ============================================
 -- XUANXUANXUANXUANXUANXUANXUANXUANXUANXUANXUAN 
 -- ============================================
@@ -558,7 +562,7 @@ BEGIN
     DECLARE @MA_THANH_TOAN VARCHAR(5) = LEFT(REPLACE(CONVERT(VARCHAR(36), NEWID()), '-', ''), 5);
 
     INSERT INTO PHIEU_THANH_TOAN (MA_THANH_TOAN, HINH_THUC, NGAY, SO_TIEN, TRANG_THAI, MA_HOP_DONG)
-    VALUES (@MA_THANH_TOAN, @HT, GETDATE(), @SO_TIEN, N'Đã thanh toán', @MA_HOP_DONG);
+    VALUES (@MA_THANH_TOAN, @HT, GETDATE(), @SO_TIEN, N'Đã thanh toán', @MA_HOP_DONG);
 
     -- Liên kết phiếu thanh toán với biên bản trả phòng gần nhất của hợp đồng
     UPDATE BIEN_BAN_TRA_PHONG
@@ -571,7 +575,7 @@ BEGIN
     -- trả về mã thanh toán để UI có thể hiển thị hoặc sử dụng tiếp
     SELECT @MA_THANH_TOAN AS MA_THANH_TOAN;
 END;
-GO
+GO 
 
 -- lấy thông tin trang lịch hẹn nhân viên 
 CREATE OR ALTER PROCEDURE sp_get_lich_hen_nhan_vien
@@ -823,21 +827,21 @@ GO
 
 -- ── SP 2: Chi tiết phòng ─────────────────────────────────────────────────────
 CREATE OR ALTER PROCEDURE SP_GetChiTietPhong
+    @MaKtx   VARCHAR(6),    -- ← thêm mới
     @MaPhong VARCHAR(10)
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Thông tin phòng + KTX
+    -- Thông tin phòng
     SELECT
         p.MA_PHONG,
-        p.IMAGE_URL,
+        p.MA_KTX,
         p.SL_GIUONG,
         p.SL_GIUONG_TRONG,
         p.TRANG_THAI,
-        p.MA_KTX,
-        p.MO_TA AS MO_TA_PHONG,
-
+        p.IMAGE_URL,
+        p.MO_TA       AS MO_TA_PHONG,   -- ← schema dùng MO_TA không phải MO_TA_PHONG
         k.TEN_KTX,
         k.DIA_CHI,
         k.QUY_DINH,
@@ -846,41 +850,26 @@ BEGIN
         k.WIFI,
         k.GUI_XE,
         k.DICH_VU,
-
-        ISNULL(MIN(g.GIA), 0) AS GIA_MIN,
-        ISNULL(MAX(g.GIA), 0) AS GIA_MAX
+        ISNULL(gp.GIA_MIN, 0) AS GIA_MIN,
+        ISNULL(gp.GIA_MAX, 0) AS GIA_MAX
     FROM PHONG p
-    LEFT JOIN KY_TUC_XA k
-        ON p.MA_KTX = k.MA_KTX
-    LEFT JOIN GIUONG g
-        ON p.MA_KTX = g.MA_KTX
-        AND p.MA_PHONG = g.MA_PHONG
-    WHERE p.MA_PHONG = @MaPhong
-    GROUP BY
-        p.MA_PHONG,
-        p.IMAGE_URL,
-        p.SL_GIUONG,
-        p.SL_GIUONG_TRONG,
-        p.TRANG_THAI,
-        p.MA_KTX,
-        p.MO_TA,
-        k.TEN_KTX,
-        k.DIA_CHI,
-        k.QUY_DINH,
-        k.GIA_DIEN,
-        k.GIA_NUOC,
-        k.WIFI,
-        k.GUI_XE,
-        k.DICH_VU;
+    JOIN KY_TUC_XA k ON p.MA_KTX = k.MA_KTX
+    LEFT JOIN (
+        SELECT MA_KTX, MA_PHONG,
+               MIN(GIA) AS GIA_MIN,
+               MAX(GIA) AS GIA_MAX
+        FROM GIUONG
+        GROUP BY MA_KTX, MA_PHONG
+    ) gp ON p.MA_KTX = gp.MA_KTX AND p.MA_PHONG = gp.MA_PHONG
+    WHERE p.MA_KTX = @MaKtx AND p.MA_PHONG = @MaPhong;  -- ← cả 2 điều kiện
 
     -- Danh sách giường
     SELECT
-        MA_GIUONG,
-        TRANG_THAI,
-        GIA
-    FROM GIUONG
-    WHERE MA_PHONG = @MaPhong
-    ORDER BY MA_GIUONG;
+        g.MA_GIUONG,
+        g.TRANG_THAI,
+        g.GIA
+    FROM GIUONG g
+    WHERE g.MA_KTX = @MaKtx AND g.MA_PHONG = @MaPhong;  -- ← cả 2 điều kiện
 END;
 GO
 
@@ -1798,12 +1787,13 @@ END;
 GO
 -- ── SP 2: Chi tiết phòng ─────────────────────────────────────────────────────
 CREATE OR ALTER PROCEDURE SP_GetChiTietPhong
+    @MaKtx VARCHAR(6),    -- Thêm tham số này
     @MaPhong VARCHAR(10)
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Thông tin phòng + KTX
+    -- 1. Thông tin phòng + KTX (Lọc theo cặp KTX + PHONG)
     SELECT
         p.MA_PHONG,
         p.IMAGE_URL,
@@ -1830,36 +1820,23 @@ BEGIN
     LEFT JOIN GIUONG g
         ON p.MA_KTX = g.MA_KTX
         AND p.MA_PHONG = g.MA_PHONG
-    WHERE p.MA_PHONG = @MaPhong
+    WHERE p.MA_KTX = @MaKtx AND p.MA_PHONG = @MaPhong -- FIX: Lọc thêm theo MaKtx
     GROUP BY
-        p.MA_PHONG,
-        p.IMAGE_URL,
-        p.SL_GIUONG,
-        p.SL_GIUONG_TRONG,
-        p.TRANG_THAI,
-        p.MA_KTX,
-        p.MO_TA,
-        k.TEN_KTX,
-        k.DIA_CHI,
-        k.QUY_DINH,
-        k.GIA_DIEN,
-        k.GIA_NUOC,
-        k.WIFI,
-        k.GUI_XE,
-        k.DICH_VU;
+        p.MA_PHONG, p.IMAGE_URL, p.SL_GIUONG, p.SL_GIUONG_TRONG,
+        p.TRANG_THAI, p.MA_KTX, p.MO_TA,
+        k.TEN_KTX, k.DIA_CHI, k.QUY_DINH,
+        k.GIA_DIEN, k.GIA_NUOC, k.WIFI, k.GUI_XE, k.DICH_VU;
 
-    -- Danh sách giường
+    -- 2. Danh sách giường (Phải lọc theo cả KTX và PHONG)
     SELECT
         MA_GIUONG,
         TRANG_THAI,
         GIA
     FROM GIUONG
-    WHERE MA_PHONG = @MaPhong
+    WHERE MA_KTX = @MaKtx AND MA_PHONG = @MaPhong -- FIX: Lọc thêm theo MaKtx
     ORDER BY MA_GIUONG;
 END;
 GO
-
-
 --SP3
 CREATE OR ALTER PROCEDURE SP_GetThongTinKhachHang
 @SDT VARCHAR(11)
@@ -2027,7 +2004,8 @@ BEGIN
             TRANG_THAI,
             MA_PDK,
             MA_KTX,
-            MA_PHONG
+            MA_PHONG,
+            MA_NV
         )
         VALUES
         (
@@ -2038,7 +2016,7 @@ BEGIN
             @MA_PDK,
             @MA_KTX,
             @MA_PHONG,
-            @MA_NV
+            NULL
         );
 
         INSERT INTO LICH_GIUONG
@@ -2050,7 +2028,7 @@ BEGIN
             @MA_PHIEU,
             LTRIM(RTRIM(value))
         FROM STRING_SPLIT(@DS_MA_GIUONG, ',')
-        WHERE LTRIM(RTRIM(NULL)) <> '';
+        WHERE LTRIM(RTRIM(value)) <> '';
 
         COMMIT TRAN;
     END TRY

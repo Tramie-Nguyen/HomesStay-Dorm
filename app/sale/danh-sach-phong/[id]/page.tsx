@@ -12,6 +12,7 @@ import {
 
 export default function ChiTietPhongPage() {
   const { id } = useParams<{ id: string }>();
+  const [maKtx, maPhong] = id.split("_");
   const router = useRouter();
   const [room, setRoom] = useState<RoomDetail | null>(null);
   const [loading, setLoading] = useState(true);

@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     const totalPages = Math.ceil(tongBanGhi / pageSize) || 1;
 
     const rooms = rows.map((row: any) => ({
-      id: row.MA_PHONG,
+      id: `${row.MA_KTX}_${row.MA_PHONG}`,
       code: row.MA_PHONG,
       totalBeds: row.SL_GIUONG,
       availableBeds: row.SL_GIUONG_TRONG,

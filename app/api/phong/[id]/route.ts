@@ -8,12 +8,19 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    const [maKtx, maPhong] = id.split("_");
 
     const pool = await getPool();
-
+    if (!maKtx || !maPhong) {
+      return NextResponse.json(
+        { error: "ID format invalid (Expected KTX_PHONG)" },
+        { status: 400 },
+      );
+    }
     const result = await pool
       .request()
-      .input("MaPhong", sql.VarChar(10), id)
+      .input("MaKtx", sql.VarChar(6), maKtx)
+      .input("MaPhong", sql.VarChar(10), maPhong)
       .execute("SP_GetChiTietPhong");
 
     const recordsets = result.recordsets as any[];
@@ -30,10 +37,9 @@ export async function GET(
 
     const beds = recordsets[1] || [];
     const room = {
-      id: row.MA_PHONG,
+      id: `${maKtx}_${maPhong}`,
       code: row.MA_PHONG,
       maKtx: row.MA_KTX,
-
       totalBeds: row.SL_GIUONG,
       availableBeds: row.SL_GIUONG_TRONG,
       status: row.TRANG_THAI,
@@ -81,7 +87,7 @@ export async function PUT(
     const body = await req.json();
     const { status } = body;
     const pool = await getPool();
-    
+
     const result = await pool
       .request()
       .input("MaKTX", sql.VarChar(10), body.maKtx)
@@ -96,4 +102,4 @@ export async function PUT(
       { status: 500 },
     );
   }
-};
+}

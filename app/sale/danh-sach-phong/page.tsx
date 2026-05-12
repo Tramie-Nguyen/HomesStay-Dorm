@@ -244,9 +244,10 @@ export default function DanhSachPhongPage() {
                       </p>
                       <p className="text-text1">
                         Vị trí:{" "}
-                        <span className="font-semibold">{room.address}</span> (
-                        {""}
-                        <span className="font-semibold">{room.ktxName}</span>)
+                        <span className="font-semibold">{room.address}</span>
+                      </p>
+                      <p>
+                        📌 <span className="font-semibold">{room.ktxName}</span>
                       </p>
                     </div>
                   </article>

@@ -109,21 +109,22 @@ export async function getDanhSachPhong(
 }
 
 // ── Nghiệp vụ: validate ID ───────────────────────────────────────────────────
-export function validateRoomId(id: string): string {
-  const trimmed = id?.trim();
-  if (!trimmed || trimmed.length > 10) {
-    throw new Error("Mã phòng không hợp lệ");
+export function validateRoomId(id: string): { maKtx: string; maPhong: string } {
+  if (!id || typeof id !== "string") throw new Error("Mã không hợp lệ");
+
+  const parts = id.trim().split("_");
+  // Phải có đúng 2 phần và không phần nào được rỗng
+  if (parts.length !== 2 || !parts[0] || !parts[1]) {
+    throw new Error("Mã phòng phải có định dạng: MAKTX_MAPHONG");
   }
-  return trimmed;
+  return { maKtx: parts[0], maPhong: parts[1] };
 }
 
 // ── Nghiệp vụ: lấy chi tiết phòng ───────────────────────────────────────────
 export async function getChiTietPhong(id: string): Promise<RoomDetail> {
-  const validatedId = validateRoomId(id);
+  validateRoomId(id); // ← validate composite id
 
-  const res = await fetch(`/api/phong/${validatedId}`, {
-    cache: "no-store",
-  });
+  const res = await fetch(`/api/phong/${id}`, { cache: "no-store" });
 
   if (res.status === 404) {
     throw new Error("Không tìm thấy phòng");
@@ -138,14 +139,10 @@ export async function getChiTietPhong(id: string): Promise<RoomDetail> {
 }
 
 // Thêm vào cuối file phongService.ts
-export async function getThongTinPhongDatLich(
-  roomId: string,
-): Promise<RoomDetail> {
-  const validatedId = validateRoomId(roomId);
+export async function getThongTinPhongDatLich(id: string): Promise<RoomDetail> {
+  validateRoomId(id);
 
-  const res = await fetch(`/api/phong/${validatedId}`, {
-    cache: "no-store",
-  });
+  const res = await fetch(`/api/phong/${id}`, { cache: "no-store" });
 
   if (res.status === 404) throw new Error("Không tìm thấy phòng");
   if (!res.ok) {
