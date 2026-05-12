@@ -47,10 +47,8 @@ export default function Popup({
       onClick={() => {
         if (task.loai === "Xem phòng") {
           router.push(`/sale/lich-cua-toi/xem-phong/${task.id}`);
-        } else if (task.loai?.trim().normalize() === "Nhận phòng".normalize()) {
-          router.push(`/sale/lich-cua-toi/nhan-phong/${task.id}`);
         } else {
-          alert("Chưa có trang chi tiết cho loại lịch này.");
+          router.push(`/sale/lich-cua-toi/nhan-phong/${task.id}`);
         }
       }}
     >
@@ -72,9 +70,7 @@ export default function Popup({
           ✕
         </button>
 
-        <span
-          className={`px-3 py-1 rounded-full text-white text-xs ${task.loai === "Xem phòng" ? "bg-accent" : "bg-primary"} gap-2 inline-flex items-center mb-2`}
-        >
+        <span className={`px-3 py-1 rounded-full text-white text-xs ${task.loai === 'Xem phòng' ? 'bg-accent' : 'bg-primary'} gap-2 inline-flex items-center mb-2`}>
           <strong>{task.loai}</strong>
         </span>
 
@@ -150,8 +146,8 @@ export default function Popup({
                 </button>
               )}
 
-              {task.loai === "Xem phòng" && !isRescheduling && (
-                <button
+              {task.loai === 'Xem phòng' && !isRescheduling && (
+                <button 
                   disabled={isLoading}
                   onClick={(e) => {
                     e.stopPropagation();

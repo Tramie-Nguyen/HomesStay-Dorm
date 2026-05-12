@@ -73,7 +73,12 @@ export default function RoomCard({
     <>
       <div className="bg-base rounded-2xl p-4 flex gap-4">
         <Image
-          src={imageUrl || "/room.png"}
+          src={imageUrl
+            ? imageUrl.startsWith("/")
+              ? imageUrl
+              : `/${imageUrl}`
+            : "/room.png"
+          }
           alt={name}
           width={192}
           height={128}

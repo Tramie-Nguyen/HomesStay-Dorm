@@ -7,8 +7,9 @@ interface DayCellProps {
   dayTasks: any[];
   currentDate: Date;
   selectedTaskId: string | null;
+
   onSelectTask: (task: any | null) => void;
-  onRefresh: () => void; // Thêm hàm này để load lại data khi dời/hủy lịch thành công
+  onRefresh: () => void;
 }
 
 export default function DayCell({
