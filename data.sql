@@ -17,79 +17,65 @@ N'Khi nhận phòng, khách thuê cần mang giấy tờ tùy thân, hoàn tất
 -- # =========================================================
 
 INSERT INTO KY_TUC_XA VALUES
-('KTX001', 
- N'Ký túc xá Cống Quỳnh', 
- N'123 Cống Quỳnh, Quận 1, TP.HCM', 
- N'KTX nữ
-Giờ giới nghiêm: 22:00
-Không tiếp khách qua đêm
-Sinh viên phải đăng ký tạm trú đầy đủ', 
- 'DK001', 
- 3500, 
- 100000, 
- N'Miễn phí', 
- 150000, 
- 200000
+(
+    'KTX001',
+    N'Ký túc xá Cống Quỳnh',
+    N'123 Cống Quỳnh, Phường Bến Thành, TP.HCM',
+    N'KTX nữ, giờ giới nghiêm 22:00, không tiếp khách sau 21:00, đăng ký tạm trú đầy đủ, giữ vệ sinh chung',
+    'DK001',
+    3500,
+    100000,
+    N'Miễn phí',
+    150000,
+    200000
 ),
-
-('KTX002', 
- N'Ký túc xá Bình Tân', 
- N'23 Tên Lửa, Bình Tân, TP.HCM', 
- N'KTX nam
-Giờ giới nghiêm: 23:00
-Không sử dụng chất kích thích
-Giữ gìn vệ sinh chung', 
- 'DK002', 
- 4000, 
- 120000, 
- N'Có phí', 
- 180000, 
- 250000
+(
+    'KTX002',
+    N'Ký túc xá Bình Tân',
+    N'23 Tên Lửa, Phường Bình Phú, TP.HCM',
+    N'KTX nam, giờ giới nghiêm 23:00, không sử dụng chất kích thích, không gây ồn sau 22:00, tuân thủ nội quy an ninh',
+    'DK002',
+    4000,
+    120000,
+    N'Có phí',
+    180000,
+    250000
 ),
-
-('KTX003', 
- N'Ký túc xá Phú Nhuận', 
- N'456 Phan Xích Long, Phú Nhuận, TP.HCM', 
- N'KTX nữ
-Giờ giới nghiêm: 22:30
-Không nấu ăn trong phòng
-Tuân thủ nội quy phòng cháy chữa cháy', 
- 'DK003', 
- 3000, 
- 90000, 
- N'Miễn phí', 
- 120000, 
- 150000
+(
+    'KTX003',
+    N'Ký túc xá Phú Nhuận',
+    N'456 Phan Xích Long, Phường Tân Định, TP.HCM',
+    N'KTX nữ, giờ giới nghiêm 22:30, không nuôi thú cưng, không nấu ăn trong phòng, giữ gìn tài sản chung',
+    'DK003',
+    3000,
+    90000,
+    N'Miễn phí',
+    120000,
+    150000
 ),
-
-('KTX004', 
- N'Ký túc xá Tân Bình', 
- N'789 Trường Chinh, Tân Bình, TP.HCM', 
- N'KTX nam
-Giờ giới nghiêm: 23:00
-Không gây ồn sau 21:30
-Khách đến phải đăng ký với bảo vệ', 
- 'DK004', 
- 4500, 
- 150000, 
- N'Có phí', 
- 200000, 
- 300000
+(
+    'KTX004',
+    N'Ký túc xá Tân Bình',
+    N'789 Trường Chinh, Phường Tân Sơn Nhất, TP.HCM',
+    N'KTX nam, giờ giới nghiêm 23:00, kiểm tra thẻ ra vào hằng ngày, không hút thuốc trong phòng, đảm bảo PCCC',
+    'DK004',
+    4500,
+    150000,
+    N'Có phí',
+    200000,
+    300000
 ),
-
-('KTX005', 
- N'Ký túc xá Gò Vấp', 
- N'321 Nguyễn Oanh, Gò Vấp, TP.HCM', 
- N'KTX nữ
-Giờ giới nghiêm: 22:00
-Không nuôi thú cưng
-Giữ an ninh trật tự và bảo quản tài sản cá nhân', 
- 'DK005', 
- 3500, 
- 100000, 
- N'Miễn phí', 
- 150000, 
- 200000
+(
+    'KTX005',
+    N'Ký túc xá Gò Vấp',
+    N'321 Nguyễn Oanh, Phường Tân Hòa, TP.HCM',
+    N'KTX nam nữ riêng tầng, giờ giới nghiêm 22:30, không dẫn người lạ vào phòng, đóng phí đúng hạn, giữ trật tự chung',
+    'DK005',
+    3500,
+    100000,
+    N'Miễn phí',
+    150000,
+    200000
 );
 -- =====================================================
 -- PHONG
