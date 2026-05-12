@@ -70,7 +70,9 @@ export default function Popup({
           ✕
         </button>
 
-        <span className={`px-3 py-1 rounded-full text-white text-xs ${task.loai === 'Xem phòng' ? 'bg-accent' : 'bg-primary'} gap-2 inline-flex items-center mb-2`}>
+        <span
+          className={`px-3 py-1 rounded-full text-white text-xs ${task.loai === "Xem phòng" ? "bg-accent" : "bg-primary"} gap-2 inline-flex items-center mb-2`}
+        >
           <strong>{task.loai}</strong>
         </span>
 
@@ -146,8 +148,8 @@ export default function Popup({
                 </button>
               )}
 
-              {task.loai === 'Xem phòng' && !isRescheduling && (
-                <button 
+              {task.loai === "Xem phòng" && !isRescheduling && (
+                <button
                   disabled={isLoading}
                   onClick={(e) => {
                     e.stopPropagation();

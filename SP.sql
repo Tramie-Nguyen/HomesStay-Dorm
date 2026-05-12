@@ -301,7 +301,6 @@ GO
 USE DORM
 GO
 
-
 -- ============================================
 -- XUANXUANXUANXUANXUANXUANXUANXUANXUANXUANXUAN 
 -- ============================================
@@ -575,7 +574,7 @@ BEGIN
     -- trả về mã thanh toán để UI có thể hiển thị hoặc sử dụng tiếp
     SELECT @MA_THANH_TOAN AS MA_THANH_TOAN;
 END;
-GO 
+GO
 
 -- lấy thông tin trang lịch hẹn nhân viên 
 CREATE OR ALTER PROCEDURE sp_get_lich_hen_nhan_vien
