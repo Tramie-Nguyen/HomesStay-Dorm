@@ -27,7 +27,7 @@ export default function HienThiPHCPage() {
           setCustomer(json.customer);
           setSummary(json.summary);
           // use IMAGE_URL from customer/room if available, otherwise placeholder
-          const img = json.customer?.IMAGE_URL || "/room.jpg";
+          const img = json.customer?.IMAGE_URL || "/room8.png";
           setImages([img, img, img]);
         } else {
           console.error(json);
