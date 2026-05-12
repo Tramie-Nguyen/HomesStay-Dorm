@@ -252,10 +252,20 @@ export default function HienThiPHCPage() {
 
         {isConfirmOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-            <div className="mt-4 rounded-md bg-base p-6 shadow-2xl">
-              <h2 className="text-center text-xl font-bold text-text1">
-                Xác nhận thanh toán
-              </h2>
+            <div className="mt-4 w-full max-w-md rounded-md bg-base p-6 shadow-2xl">
+              <div className="mb-4 flex items-start justify-between gap-4">
+                <h2 className="text-center text-xl font-bold text-text1">
+                  Xác nhận thanh toán
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setIsConfirmOpen(false)}
+                  className="rounded-full border border-base px-3 py-1 text-sm font-semibold text-text2 transition-colors hover:bg-white"
+                  aria-label="Đóng popup xác nhận thanh toán"
+                >
+                  Tắt
+                </button>
+              </div>
 
               <div className="mt-4">
                 <label className="block text-sm font-medium text-text2 mb-2">

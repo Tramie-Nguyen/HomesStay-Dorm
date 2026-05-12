@@ -59,6 +59,11 @@ export default function QL_DanhSachHoanCocPage() {
     })
     .filter((item) => (filterStatus ? item.status === filterStatus : true))
     .sort((a, b) => {
+      const priority = (status: string) => (status === "Đã xử lí" ? 1 : 0);
+
+      const statusDiff = priority(a.status) - priority(b.status);
+      if (statusDiff !== 0) return statusDiff;
+
       const dateA = new Date(a.checkoutDate).getTime();
       const dateB = new Date(b.checkoutDate).getTime();
       return sortOrder === "desc" ? dateB - dateA : dateA - dateB;

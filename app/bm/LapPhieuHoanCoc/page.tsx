@@ -28,6 +28,13 @@ export default function LapPhieuHoanCocPage() {
   const [extraCost, setExtraCost] = useState<number>(0);
   const [paramsLoaded, setParamsLoaded] = useState(false);
   const [fetchedMaHopDong, setFetchedMaHopDong] = useState<string | null>(null);
+  const [popupMessage, setPopupMessage] = useState<string | null>(null);
+  const [popupTitle, setPopupTitle] = useState("Thông báo");
+
+  const showPopup = (title: string, message: string) => {
+    setPopupTitle(title);
+    setPopupMessage(message);
+  };
 
   // Fetch data on mount
   useEffect(() => {
@@ -117,7 +124,7 @@ export default function LapPhieuHoanCocPage() {
         contractCode,
       );
       if (!contractCode) {
-        alert("Lỗi: Không tìm thấy mã hợp đồng");
+        showPopup("Lỗi", "Không tìm thấy mã hợp đồng");
         return;
       }
       const payload = {
@@ -140,7 +147,7 @@ export default function LapPhieuHoanCocPage() {
       });
       const json = await res.json();
       if (!res.ok) {
-        alert("Lỗi: " + (json?.error || "Không thể lưu"));
+        showPopup("Lỗi", json?.error || "Không thể lưu");
         return;
       }
       // Navigate to HienThiPHc with created phieu ID
@@ -151,7 +158,7 @@ export default function LapPhieuHoanCocPage() {
       router.push(`/bm/HienThiPHC${query}`);
     } catch (err) {
       console.error(err);
-      alert("Lỗi khi xác nhận");
+      showPopup("Lỗi", "Lỗi khi xác nhận");
     }
   };
 
@@ -159,6 +166,35 @@ export default function LapPhieuHoanCocPage() {
     <>
       <NavBar />
       <main className="min-h-screen bg-background font-sans p-6 pt-24">
+        {popupMessage && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+            <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+              <div className="mb-4 flex items-start justify-between gap-4">
+                <h3 className="text-lg font-bold text-text1">{popupTitle}</h3>
+                <button
+                  type="button"
+                  onClick={() => setPopupMessage(null)}
+                  className="rounded-full border border-base px-3 py-1 text-sm font-semibold text-text2 transition-colors hover:bg-base"
+                  aria-label="Đóng popup"
+                >
+                  Tắt
+                </button>
+              </div>
+              <p className="mb-6 text-sm leading-6 text-text2">
+                {popupMessage}
+              </p>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setPopupMessage(null)}
+                  className="rounded-full bg-accent px-5 py-2 text-sm font-bold text-white shadow-md transition-colors hover:bg-primary"
+                >
+                  Đóng
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="mx-auto max-w-3xl bg-base/80 rounded-xl shadow p-6">
           <h2 className="text-center text-2xl font-bold text-text1 uppercase mb-6">
             Danh sách vật dụng
