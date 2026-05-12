@@ -49,6 +49,7 @@ export default function QL_DanhSachHoanCocPage() {
   }, [fetchData]);
 
   const filteredData = data
+    .filter((item) => item.status === "Đã hẹn" || item.status === "Đã xử lí")
     .filter((item) => {
       const keyword = search.trim().toLowerCase();
       return (
@@ -126,7 +127,6 @@ export default function QL_DanhSachHoanCocPage() {
               >
                 <option value="">Tất cả trạng thái</option>
                 <option value="Đã hẹn">Đã hẹn</option>
-                <option value="Đang chờ xử lí">Đang chờ xử lí</option>
                 <option value="Đã xử lí">Đã xử lí</option>
               </select>
             </div>

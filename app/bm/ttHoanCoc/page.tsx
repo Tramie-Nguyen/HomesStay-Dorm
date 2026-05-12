@@ -29,10 +29,10 @@ export default function TT_HoanCocPage() {
       setError(null);
       try {
         const res = await fetch(
-          `/api/hoancoc?ma_kh=${encodeURIComponent(ma_kh)}`,
+          `/api/tthoancoc?ma_kh=${encodeURIComponent(ma_kh)}`,
         );
         const json = await res.json();
-        console.debug("/api/hoancoc response:", json);
+        console.debug("/api/tthoancoc response:", json);
         if (!res.ok) {
           setError(json?.error || "API error");
           setUserInfo(null);
@@ -164,15 +164,24 @@ export default function TT_HoanCocPage() {
                           src: string | Blob | undefined,
                           idx: Key | null | undefined,
                         ) => (
+                          (() => {
+                            const imageSrc =
+                              typeof src === "string" && src.trim()
+                                ? src
+                                : "/room8.png";
+
+                            return (
                           <img
                             key={String(idx)}
-                            src={String(src) || "/room.png"}
+                            src={imageSrc}
                             alt={`Room img ${String(idx)}`}
                             className="h-[250px] w-[450px] object-cover rounded border border-gray-300 shadow-sm"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = "/room.png";
                             }}
                           />
+                            );
+                          })()
                         ),
                       )
                     ) : (
