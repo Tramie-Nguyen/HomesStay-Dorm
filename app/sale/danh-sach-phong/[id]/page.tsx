@@ -44,13 +44,18 @@ export default function ChiTietPhongPage() {
      px-6 py-8"
     >
       <div className="mx-auto max-w-5xl">
-        {/* <button onClick={() => router.back()} className="mb-4 text-pink-500">
-          <ChevronLeft size={40} />
-        </button> */}
+        <div className="relative flex items-center justify-center min-h-[48px] mb-5">
+          <button
+            onClick={() => router.back()}
+            className="absolute left-0 top-1/2 -translate-y-1/2 text-accent text-3xl cursor-pointer"
+          >
+            ←
+          </button>
 
-        <h1 className="mb-6 text-2xl font-bold text-text1">
-          {room.ktxName.toUpperCase()} - PHÒNG {room.code}
-        </h1>
+          <h1 className="text-2xl font-bold text-text1 text-center">
+            {room.ktxName.toUpperCase()} - PHÒNG {room.code}
+          </h1>
+        </div>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.2fr_0.8fr]">
           {/* Khung ảnh */}

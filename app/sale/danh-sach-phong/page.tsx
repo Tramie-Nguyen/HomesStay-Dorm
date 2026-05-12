@@ -21,7 +21,7 @@ export default function DanhSachPhongPage() {
   const [ward, setWard] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState<"Trống" | "Đã thuê" | "">(
+  const [statusFilter, setStatusFilter] = useState<"Trống" | "Đã thuê" | "">(
     "",
   );
   const [gioiTinh, setGioiTinh] = useState("");
@@ -69,7 +69,7 @@ export default function DanhSachPhongPage() {
   ]);
 
   // Reset về trang 1 khi đổi filter
-  const handleStatusFilter = (val: "Trống" | "Đã thuê") => {
+  const handleStatusFilter = (val: "Trống" | "Đã thuê") => {
     setStatusFilter((prev) => (prev === val ? "" : val));
     setCurrentPage(1);
   };
@@ -175,7 +175,7 @@ export default function DanhSachPhongPage() {
 
           <div className="flex items-center gap-2">
             <span className=" font-semibold text-text1">Trạng thái:</span>
-            {(["Trống", "Đã thuê"] as const).map((val) => (
+            {(["Trống", "Đã thuê"] as const).map((val) => (
               <button
                 key={val}
                 onClick={() => handleStatusFilter(val)}
@@ -234,7 +234,7 @@ export default function DanhSachPhongPage() {
                         Trạng thái:{" "}
                         <span
                           className={
-                            (room.status as string) === "Trống"
+                            room.availableBeds > 0
                               ? "font-semibold text-accent"
                               : "font-semibold text-grey"
                           }

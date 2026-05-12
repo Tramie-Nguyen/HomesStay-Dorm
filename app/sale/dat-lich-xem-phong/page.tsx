@@ -220,9 +220,18 @@ export default function DatLichPage() {
   return (
     <div className="min-h-screen bg-background p-6 text-text1">
       <div className="mx-auto max-w-4xl space-y-6">
-        <h1 className="text-center text-2xl font-bold uppercase tracking-wide">
-          Đặt lịch xem phòng
-        </h1>
+        <div className="relative flex items-center justify-center">
+          <button
+            onClick={() => router.back()}
+            className="absolute left-0 text-accent text-3xl cursor-pointer"
+          >
+            ←
+          </button>
+
+          <h1 className="text-center text-2xl font-bold uppercase tracking-wide">
+            Đặt lịch xem phòng
+          </h1>
+        </div>
 
         {/* ── THÔNG TIN KHÁCH HÀNG ── */}
         <div className="rounded-2xl bg-base p-6 shadow-md space-y-5">
