@@ -179,7 +179,7 @@ GO
    SP_GET_RENTAL_DETAILS
 ========================================================= */
 
-CREATE PROCEDURE SP_GET_RENTAL_DETAILS
+CREATE OR ALTER PROCEDURE SP_GET_RENTAL_DETAILS
     @id VARCHAR(10)
 AS
 BEGIN
@@ -1091,6 +1091,8 @@ BEGIN
 END;
 GO
 
+
+
 CREATE OR ALTER PROCEDURE SP_XuLyDatLichXemPhongVL
     @NGAY_DANG_KY DATE,
     @TEN_KH NVARCHAR(250),
@@ -1123,6 +1125,7 @@ BEGIN
         @MA_KTX = @MA_KTX, @MA_PHONG = @MA_PHONG, @DS_MA_GIUONG = @DS_MA_GIUONG;
 END;
 GO
+
 
 CREATE OR ALTER PROCEDURE SP_GetLichByNhanVien
     @MaNV VARCHAR(5),
@@ -1949,7 +1952,6 @@ GO
 
 CREATE OR ALTER PROCEDURE SP_XuLyDatLichXemPhongKH
     @NGAY_DANG_KY DATE,
-    @MA_NV VARCHAR(5),
     @MA_KH VARCHAR(5),
     @HINH_THUC_THUE NVARCHAR(25),
     @NGAY_HEN DATETIME,
@@ -2010,7 +2012,6 @@ BEGIN
         (
             MA_PDK,
             NGAY_DANG_KY,
-            MA_NV,
             MA_KH,
             HINH_THUC_THUE
         )
@@ -2018,7 +2019,6 @@ BEGIN
         (
             @MA_PDK,
             @NGAY_DANG_KY,
-            @MA_NV,
             @MA_KH,
             @HINH_THUC_THUE
         );
@@ -2043,7 +2043,7 @@ BEGIN
             @MA_PDK,
             @MA_KTX,
             @MA_PHONG,
-            @MA_NV
+            NULL
         );
 
         INSERT INTO LICH_GIUONG
@@ -2068,7 +2068,6 @@ GO
 
 CREATE OR ALTER PROCEDURE SP_XuLyDatLichXemPhongVL
     @NGAY_DANG_KY DATE,
-    @MA_NV VARCHAR(5),
     @TEN_KH NVARCHAR(250),
     @NGAY_SINH DATE,
     @CCCD VARCHAR(12),
@@ -2093,7 +2092,7 @@ BEGIN
         @MA_KH_MOI = @MA_KH OUTPUT;
 
     EXEC SP_XuLyDatLichXemPhongKH
-        @NGAY_DANG_KY = @NGAY_DANG_KY, @MA_NV = @MA_NV, @MA_KH = @MA_KH,
+        @NGAY_DANG_KY = @NGAY_DANG_KY, @MA_KH = @MA_KH,
         @HINH_THUC_THUE = @HINH_THUC_THUE, @NGAY_HEN = @NGAY_HEN,
         @LOAI = @LOAI, @TRANG_THAI = @TRANG_THAI,
         @MA_KTX = @MA_KTX, @MA_PHONG = @MA_PHONG, @DS_MA_GIUONG = @DS_MA_GIUONG;
@@ -2132,8 +2131,7 @@ GO
 
 CREATE OR ALTER PROCEDURE SP_DoiLich
     @MaPhieu VARCHAR(10),
-    @NgayGioMoi DATETIME,
-    @TrangThaiMoi
+    @NgayGioMoi DATETIME
 AS
 BEGIN
     -- Kiểm tra xem lịch có tồn tại và đang 'Chưa xử lý' hay không
@@ -2183,7 +2181,7 @@ GO
 
 -- new
 -- Stored Procedure dọn dẹp phiếu hết hạn
-CREATE PROCEDURE SP_HuyDatCocQuahan
+CREATE OR ALTER PROCEDURE SP_HuyDatCocQuahan
 AS
 BEGIN
     SET NOCOUNT ON;

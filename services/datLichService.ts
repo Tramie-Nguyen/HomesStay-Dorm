@@ -1,5 +1,6 @@
 // ── Types ────────────────────────────────────────────────────────────────────
 export interface KhachHangInfo {
+  maKh: string;
   tenKh: string;
   ngaySinh: string;
   sdt: string;
@@ -23,6 +24,15 @@ export interface DatLichPayload {
   ngayXem: string;
 }
 
+export interface CapNhatKhachHang {
+  maKh: string;
+  tenKh: string;
+  sdt: string;
+  cccd: string;
+  gioiTinh: string;
+  email: string;
+}
+
 // ── Nghiệp vụ: validate SĐT ─────────────────────────────────────────────────
 export function validateSdt(sdt: string): string {
   const trimmed = sdt.trim();
@@ -38,7 +48,8 @@ export function validateSdt(sdt: string): string {
 // ── Nghiệp vụ: validate form đặt lịch ───────────────────────────────────────
 export function validateDatLich(payload: DatLichPayload): string | null {
   if (!payload.maPhong || !payload.maKtx) return "Thiếu thông tin phòng.";
-  if (payload.selectedBeds.length === 0) return "Vui lòng chọn ít nhất 1 giường.";
+  if (payload.selectedBeds.length === 0)
+    return "Vui lòng chọn ít nhất 1 giường.";
   if (!payload.ngayXem) return "Vui lòng chọn ngày xem phòng.";
   if (!payload.hinhThucThue) return "Vui lòng chọn hình thức thuê.";
 
@@ -67,8 +78,11 @@ export async function timKhachHang(sdt: string): Promise<KhachHangInfo> {
   }
 
   return {
+    maKh: data.MA_KH || "",
     tenKh: data.TEN_KH || data.tenKh || "",
-    ngaySinh: data.NGAY_SINH ? data.NGAY_SINH.split("T")[0] : data.ngaySinh || "",
+    ngaySinh: data.NGAY_SINH
+      ? data.NGAY_SINH.split("T")[0]
+      : data.ngaySinh || "",
     sdt: data.SDT || data.sdt || validatedSdt,
     email: data.EMAIL || data.email || "",
     cccd: data.CCCD || data.cccd || "",
@@ -92,5 +106,33 @@ export async function guiDatLich(payload: DatLichPayload): Promise<void> {
     throw new Error(
       `${result.error}${result.details ? "\n" + result.details : ""}`,
     );
+  }
+}
+
+// ── Nghiệp vụ: kiểm tra có thay đổi không ──────────────────────────────────
+export function daThayDoi(
+  original: KhachHangInfo & { maKh: string },
+  current: KhachHangInfo & { maKh: string },
+): boolean {
+  return (
+    original.tenKh !== current.tenKh ||
+    original.sdt !== current.sdt ||
+    original.cccd !== current.cccd ||
+    original.gioiTinh !== current.gioiTinh ||
+    original.email !== current.email
+  );
+}
+
+// ── Nghiệp vụ: cập nhật thông tin khách hàng ────────────────────────────────
+export async function capNhatKhachHang(data: CapNhatKhachHang): Promise<void> {
+  const res = await fetch("/api/khach-hang", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  const result = await res.json();
+  if (!res.ok) {
+    throw new Error(result.error || "Cập nhật thông tin thất bại.");
   }
 }
