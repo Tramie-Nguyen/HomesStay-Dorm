@@ -200,22 +200,24 @@ export default function RentalDetail() {
       </div>
 
       {/* ===== ACTIONS ===== */}
-      <div className="flex justify-center items-center gap-4 mt-10">
-        <button
-          onClick={() => setOpenConfirmModal(true)}
-          disabled={isProcessing}
-          className="bg-accent hover:bg-pink-600 text-white font-medium py-2 px-8 rounded-lg shadow-sm transition-all disabled:opacity-50 cursor-pointer"
-        >
-          Đặt cọc
-        </button>
-        <button
-          onClick={() => calendarService.handleCapNhatLich(data.MA_PHIEU, 'Đã xử lý', setIsProcessing, fetchData)}
-          disabled={isProcessing}
-          className="bg-grey hover:bg-gray-600 text-white font-medium py-2 px-8 rounded-lg shadow-sm transition-all disabled:opacity-50 cursor-pointer"
-        >
-          {isProcessing ? "Đang xử lý..." : "Kết thúc"}
-        </button>
-      </div>
+      {data.trangThai !== "Chưa xử lý" && (
+          <div className="flex justify-center items-center gap-4 mt-10">
+          <button
+            onClick={() => setOpenConfirmModal(true)}
+            disabled={isProcessing}
+            className="bg-accent hover:bg-pink-600 text-white font-medium py-2 px-8 rounded-lg shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+          >
+            Đặt cọc
+          </button>
+          <button
+            onClick={() => calendarService.handleCapNhatLich(data.MA_PHIEU, 'Đã xử lý', setIsProcessing, fetchData)}
+            disabled={isProcessing}
+            className="bg-grey hover:bg-gray-600 text-white font-medium py-2 px-8 rounded-lg shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+          >
+            {isProcessing ? "Đang xử lý..." : "Kết thúc"}
+          </button>
+        </div>
+      )}
 
       {/* ===== MODAL ĐẶT CỌC ===== */}
       <ConfirmPopup
