@@ -46,7 +46,7 @@ export default function RentalDetail() {
       : "Đang chờ bàn giao";
 
   return (
-    <div className="min-h-screen bg-background px-40">
+    <div className="min-h-screen bg-background px-60">
       {/* BACK */}
       <button
         onClick={() => router.back()}
@@ -55,11 +55,15 @@ export default function RentalDetail() {
         ←
       </button>
 
-      <h2 className="text-center font-bold text-text1">THÔNG TIN THUÊ</h2>
+      <h2 className="text-center font-bold text-text1 text-xl">
+        THÔNG TIN THUÊ
+      </h2>
 
       {/* ===== ROOM ===== */}
       <div>
-        <h3 className="font-semibold mb-2 text-text2">Thông tin phòng</h3>
+        <h3 className="font-semibold mb-2 text-xl text-text2">
+          Thông tin phòng
+        </h3>
 
         <RoomCard
           maPhieu={data.MA_PHIEU}
@@ -85,7 +89,9 @@ export default function RentalDetail() {
 
       {/* ===== CUSTOMER ===== */}
       <div className="mt-6">
-        <h3 className="font-semibold mb-2 text-text2">Thông tin khách</h3>
+        <h3 className="font-semibold mb-2 text-xl text-text2">
+          Thông tin khách
+        </h3>
 
         <CustomerCard
           id={data.MA_KH}
@@ -107,12 +113,12 @@ export default function RentalDetail() {
 
       {(data.HOP_DONG_IMAGE || data.BIEN_BAN_IMAGE) && (
         <div className="mt-6">
-          <h3 className="font-semibold mb-2 text-text2">Tài liệu</h3>
+          <h3 className="font-semibold mb-2 text-xl text-text2">Tài liệu</h3>
 
           <div className="flex gap-6">
             {data.HOP_DONG_IMAGE && (
               <div>
-                <p className="text-sm mb-1">Hợp đồng</p>
+                <p className="text-text1 mb-1">Hợp đồng</p>
                 <Image
                   src={
                     data.HOP_DONG_IMAGE?.startsWith("/")
@@ -131,7 +137,7 @@ export default function RentalDetail() {
                       : `/${data.HOP_DONG_IMAGE}`
                   }
                   download
-                  className="text-accent hover:underline mt-1 block"
+                  className="text-accent hover:underline mt-1 block text-lg"
                 >
                   Tải xuống
                 </a>
@@ -140,7 +146,7 @@ export default function RentalDetail() {
 
             {data.BIEN_BAN_IMAGE && (
               <div>
-                <p className="text-sm mb-1">Biên bản</p>
+                <p className="text-text1 mb-1 text-lg">Biên bản</p>
                 <Image
                   src={
                     data.BIEN_BAN_IMAGE?.startsWith("/")
@@ -159,7 +165,7 @@ export default function RentalDetail() {
                       : `/${data.BIEN_BAN_IMAGE}`
                   }
                   download
-                  className="text-accent hover:underline mt-1 block"
+                  className="text-accent hover:underline mt-1 block text-lg"
                 >
                   Tải xuống
                 </a>
@@ -174,14 +180,14 @@ export default function RentalDetail() {
         {data.HOP_DONG_IMAGE && data.BIEN_BAN_IMAGE ? (
           <button
             onClick={() => setOpenHandover(true)}
-            className="bg-accent text-white px-6 py-2 rounded-lg"
+            className="bg-accent text-lg text-white px-6 py-2 rounded-lg"
           >
             Chỉnh sửa tài liệu
           </button>
         ) : (
           <button
             onClick={() => setOpenHandover(true)}
-            className="bg-accent text-white px-6 py-2 rounded-lg"
+            className="bg-accent text-lg text-white px-6 py-2 rounded-lg"
           >
             Bàn giao phòng
           </button>

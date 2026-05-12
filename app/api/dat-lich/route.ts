@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPool } from "@/lib/db";
 import sql from "mssql";
+import { guiMailXacNhanLich } from "@/services/mailService";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -75,6 +76,26 @@ export async function POST(req: NextRequest) {
         .input("MA_PHONG", sql.VarChar(10), maPhong)
         .input("DS_MA_GIUONG", sql.NVarChar(sql.MAX), dsGiuong)
         .execute("SP_XuLyDatLichXemPhongKH");
+
+      // Lấy email khách hàng từ kết quả đã query trước đó
+      const khachHang = customerCheck.recordset[0];
+      guiMailXacNhanLich({
+        tenKh: khachHang.TEN_KH,
+        email: khachHang.EMAIL,
+        maPhong,
+        ktxName: maKtx,
+        ngayXem,
+        selectedBeds: Array.isArray(selectedBeds) ? selectedBeds : [],
+        hinhThucThue,
+      }).catch((e) =>
+        console.warn("[Mail] Gửi mail thất bại, bỏ qua:", e.message),
+      );
+      return NextResponse.json({
+        success: true,
+        message: "Đặt lịch thành công!",
+      });
+
+      // ← dùng .catch để lỗi mail không làm hỏng response đặt lịch
     } else {
       if (!tenKh || !sdt || !ngaySinh || !email || !cccd || !gioiTinh) {
         return NextResponse.json(
@@ -100,6 +121,24 @@ export async function POST(req: NextRequest) {
         .input("MA_PHONG", sql.VarChar(10), maPhong)
         .input("DS_MA_GIUONG", sql.NVarChar(sql.MAX), dsGiuong)
         .execute("SP_XuLyDatLichXemPhongVL");
+
+      // Sau khi execute SP thành công, return trước, gửi mail sau (fire and forget)
+      const response = NextResponse.json({
+        success: true,
+        message: "Đặt lịch thành công!",
+      });
+
+      guiMailXacNhanLich({
+        tenKh,
+        email,
+        maPhong,
+        ktxName: maKtx,
+        ngayXem,
+        selectedBeds: Array.isArray(selectedBeds) ? selectedBeds : [],
+        hinhThucThue,
+      }).catch((e) =>
+        console.warn("[Mail] Gửi mail thất bại, bỏ qua:", e.message),
+      );
     }
 
     return NextResponse.json({

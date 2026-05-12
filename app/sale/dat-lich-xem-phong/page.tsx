@@ -8,13 +8,18 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Calendar, Clock, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+
+import { getThongTinPhongDatLich } from "@/services/phongService";
 import {
   timKhachHang,
   guiDatLich,
   validateSdt,
+  capNhatKhachHang,
+  daThayDoi,
   type DatLichPayload,
+  type KhachHangInfo,
+  type CapNhatKhachHang,
 } from "@/services/datLichService";
-import { getThongTinPhongDatLich } from "@/services/phongService";
 
 function Field({
   label,
@@ -61,6 +66,12 @@ export default function DatLichPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const roomId = searchParams.get("roomId");
+
+  // Thêm state lưu thông tin gốc + maKh
+  const [originalForm, setOriginalForm] = useState<
+    (KhachHangInfo & { maKh: string }) | null
+  >(null);
+  const [maKh, setMaKh] = useState("");
 
   const [type, setType] = useState<"khach" | "vanglai">("khach");
   const [roomData, setRoomData] = useState<any>(null);
@@ -137,7 +148,7 @@ export default function DatLichPage() {
         cccd: "",
         gioiTinh: "Nữ",
       });
-      return;
+      return; // ← dừng lại, không tìm nữa
     }
 
     setIsSearching(true);
@@ -145,6 +156,8 @@ export default function DatLichPage() {
     try {
       const khach = await timKhachHang(searchSdt); // ← gọi service
       setForm(khach);
+      setMaKh(khach.maKh);
+      setOriginalForm({ ...khach, maKh: khach.maKh });
     } catch (e: any) {
       setSearchError(e.message);
     } finally {
@@ -170,6 +183,25 @@ export default function DatLichPage() {
       return;
     }
 
+    // Cập nhật thông tin khách hàng nếu có thay đổi
+    if (type === "khach" && maKh && originalForm) {
+      const current = { ...form, maKh };
+      if (daThayDoi(originalForm, current)) {
+        try {
+          await capNhatKhachHang({
+            maKh,
+            tenKh: form.tenKh,
+            sdt: form.sdt,
+            cccd: form.cccd,
+            gioiTinh: form.gioiTinh,
+            email: form.email,
+          });
+        } catch (e: any) {
+          alert("Cập nhật thông tin thất bại: " + e.message);
+          return;
+        }
+      }
+    }
     // Format ngày giờ theo giờ địa phương (tránh lệch UTC)
     const pad = (n: any) => n.toString().padStart(2, "0");
     const dateStr = `${startDate.getFullYear()}-${pad(startDate.getMonth() + 1)}-${pad(startDate.getDate())}`;
@@ -187,8 +219,8 @@ export default function DatLichPage() {
         ngayXem: finalDateTime, // ← truyền chuỗi đã format sẵn
       } as DatLichPayload);
 
-      toast.success("Đặt lịch thành công");
-      setTimeout(() => router.push("/sale/lich-hen"), 1500);
+      toast.success("Đặt lịch thành công", { duration: 3000 });
+      setTimeout(() => router.push("/sale/lich-hen"), 2000);
     } catch (e: any) {
       alert(e.message || "Có lỗi xảy ra, vui lòng thử lại.");
     }
@@ -306,10 +338,10 @@ export default function DatLichPage() {
                 <input
                   value={form.tenKh}
                   onChange={(e) => setForm({ ...form, tenKh: e.target.value })}
-                  readOnly={isKhach}
+                  readOnly={false}
                   placeholder="Nhập họ tên"
                   className={inputBase}
-                  style={isKhach ? readonlyStyle : borderedStyle}
+                  style={borderedStyle}
                 />
               </Field>
               <Field label="Ngày sinh">
@@ -319,20 +351,13 @@ export default function DatLichPage() {
                   onChange={(e) =>
                     setForm({ ...form, ngaySinh: e.target.value })
                   }
-                  readOnly={isKhach}
+                  readOnly={false}
                   className={inputBase}
-                  style={isKhach ? readonlyStyle : borderedStyle}
+                  style={borderedStyle}
                 />
               </Field>
               <Field label="Giới tính">
-                {isKhach ? (
-                  <input
-                    value={form.gioiTinh}
-                    readOnly
-                    className={inputBase}
-                    style={readonlyStyle}
-                  />
-                ) : (
+                {
                   <select
                     value={form.gioiTinh}
                     onChange={(e) =>
@@ -344,36 +369,36 @@ export default function DatLichPage() {
                     <option>Nam</option>
                     <option>Nữ</option>
                   </select>
-                )}
+                }
               </Field>
               <Field label="SĐT">
                 <input
                   value={form.sdt}
                   onChange={(e) => setForm({ ...form, sdt: e.target.value })}
-                  readOnly={isKhach}
+                  readOnly={false}
                   placeholder="Nhập số điện thoại"
                   className={inputBase}
-                  style={isKhach ? readonlyStyle : borderedStyle}
+                  style={borderedStyle}
                 />
               </Field>
               <Field label="Email">
                 <input
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  readOnly={isKhach}
+                  readOnly={false}
                   placeholder="Nhập email"
                   className={inputBase}
-                  style={isKhach ? readonlyStyle : borderedStyle}
+                  style={borderedStyle}
                 />
               </Field>
               <Field label="CCCD">
                 <input
                   value={form.cccd}
                   onChange={(e) => setForm({ ...form, cccd: e.target.value })}
-                  readOnly={isKhach}
+                  readOnly={false}
                   placeholder="Nhập CCCD"
                   className={inputBase}
-                  style={isKhach ? readonlyStyle : borderedStyle}
+                  style={borderedStyle}
                 />
               </Field>
             </div>

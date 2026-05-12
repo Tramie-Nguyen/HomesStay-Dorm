@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import EditCustomerModal from "../customer/EditCustomerModal";
+import Image from "next/image";
 
 interface Props {
   id: string;
@@ -33,30 +34,34 @@ export default function CustomerCard(props: Props) {
 
   return (
     <div className="bg-base p-6 rounded-2xl flex gap-6">
-      <div className="w-32 h-32 shrink-0 bg-gray-300 rounded-full flex items-center justify-center">
-        👤
-      </div>
+      <Image
+        src={"/avt.jpg"}
+        alt={"avt"}
+        width={192}
+        height={128}
+        className="w-80 h-80 object-cover rounded-xl"
+      />
 
       <div className="flex-1 flex flex-col justify-between">
         <div className="text-sm text-text1 space-y-1">
           <p className="font-semibold text-lg">{props.name}</p>
-          <p>Mã KH: {props.code}</p>
-          <p>Số điện thoại: {props.phone}</p>
-          <p>Ngày sinh: {formatDate(props.dob)}</p>
-          <p>CCCD: {props.cccd}</p>
-          <p>Giới tính: {props.gender}</p>
-          <p>Email: {props.email}</p>
+          <p className="text-lg">Mã KH: {props.code}</p>
+          <p className="text-lg">Số điện thoại: {props.phone}</p>
+          <p className="text-lg">Ngày sinh: {formatDate(props.dob)}</p>
+          <p className="text-lg">CCCD: {props.cccd}</p>
+          <p className="text-lg">Giới tính: {props.gender}</p>
+          <p className="text-lg">Email: {props.email}</p>
 
           {/* Chỉ hiển thị Thời hạn và Trạng thái hợp đồng nếu là Nhận phòng */}
           {isNhanPhong && props.startDate && props.endDate && (
-            <p>
+            <p className="text-lg">
               Thời hạn: {formatDate(props.startDate)} -{" "}
               {formatDate(props.endDate)}
             </p>
           )}
 
           {isNhanPhong && props.contractStatus && (
-            <p className="font-medium">
+            <p className="text-lg font-medium">
               Trạng thái hợp đồng:{" "}
               <span
                 className={
@@ -75,7 +80,7 @@ export default function CustomerCard(props: Props) {
         {!props.disableEdit && (
           <div className="flex justify-end mt-4">
             <button
-              className="cursor-pointer bg-text2 hover:bg-opacity-90 transition text-white px-4 py-1.5 rounded-md text-sm"
+              className="cursor-pointer text-lg bg-text2 hover:bg-opacity-90 transition text-white px-4 py-1.5 rounded-md "
               onClick={() => setOpenEdit(true)}
             >
               Chỉnh sửa thông tin

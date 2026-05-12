@@ -49,6 +49,7 @@ export default function QL_DanhSachHoanCocPage() {
   }, [fetchData]);
 
   const filteredData = data
+    .filter((item) => item.status === "Đã hẹn" || item.status === "Đã xử lí")
     .filter((item) => {
       const keyword = search.trim().toLowerCase();
       return (
@@ -58,6 +59,11 @@ export default function QL_DanhSachHoanCocPage() {
     })
     .filter((item) => (filterStatus ? item.status === filterStatus : true))
     .sort((a, b) => {
+      const priority = (status: string) => (status === "Đã xử lí" ? 1 : 0);
+
+      const statusDiff = priority(a.status) - priority(b.status);
+      if (statusDiff !== 0) return statusDiff;
+
       const dateA = new Date(a.checkoutDate).getTime();
       const dateB = new Date(b.checkoutDate).getTime();
       return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
@@ -126,7 +132,6 @@ export default function QL_DanhSachHoanCocPage() {
               >
                 <option value="">Tất cả trạng thái</option>
                 <option value="Đã hẹn">Đã hẹn</option>
-                <option value="Đang chờ xử lí">Đang chờ xử lí</option>
                 <option value="Đã xử lí">Đã xử lí</option>
               </select>
             </div>

@@ -58,19 +58,19 @@ export default function EditCustomerModal({
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div className="bg-background rounded-xl p-6 w-96 space-y-3">
-        <h2 className="font-semibold text-center text-text1">
+        <h2 className="font-semibold text-lg text-center text-text1">
           Chỉnh sửa thông tin
         </h2>
 
         <input
-          className="bg-base w-full p-2 text-text1 rounded"
+          className="bg-base text-lg w-full p-2 text-text1 rounded"
           value={form.name}
           onChange={(e) => handleChange("name", e.target.value)}
           placeholder="Họ tên"
         />
 
         <input
-          className="bg-base w-full p-2 text-text1 rounded"
+          className="bg-base text-lg w-full p-2 text-text1 rounded"
           value={form.phone}
           onChange={(e) => handleChange("phone", e.target.value)}
           placeholder="Số điện thoại"
@@ -78,20 +78,20 @@ export default function EditCustomerModal({
 
         <input
           type="date"
-          className="bg-base w-full p-2 text-text1 rounded"
+          className="bg-base text-lg w-full p-2 text-text1 rounded"
           value={form.dob}
           onChange={(e) => handleChange("dob", e.target.value)}
         />
 
         <input
-          className="bg-base w-full p-2 text-text1 rounded"
+          className="bg-base text-lg w-full p-2 text-text1 rounded"
           value={form.cccd}
           onChange={(e) => handleChange("cccd", e.target.value)}
           placeholder="CCCD"
         />
 
         <select
-          className="bg-base w-full p-2 text-text1 rounded"
+          className="bg-base text-lg w-full p-2 text-text1 rounded"
           value={form.gender}
           onChange={(e) => handleChange("gender", e.target.value)}
         >
@@ -101,7 +101,7 @@ export default function EditCustomerModal({
         </select>
 
         <input
-          className="bg-base w-full p-2 text-text1 rounded"
+          className="bg-base text-lg w-full p-2 text-text1 rounded"
           value={form.email}
           onChange={(e) => handleChange("email", e.target.value)}
           placeholder="Email"
@@ -110,14 +110,14 @@ export default function EditCustomerModal({
         <div className="flex justify-end gap-2 pt-2">
           <button
             onClick={onClose}
-            className="cursor-pointer px-3 py-1 border border-text1 text-text1 rounded"
+            className="cursor-pointer text-lg px-3 py-1 border border-text1 text-text1 rounded"
           >
             Hủy
           </button>
 
           <button
             onClick={handleSubmit}
-            className="cursor-pointer px-3 py-1 bg-text2 text-white rounded"
+            className="cursor-pointer text-lg px-3 py-1 bg-text2 text-white rounded"
           >
             Lưu
           </button>

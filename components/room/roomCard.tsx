@@ -64,8 +64,10 @@ export default function RoomCard({
   const formatMoney = (value?: number) =>
     value ? value.toLocaleString("vi-VN") + "đ" : "—";
 
-  const isChuaXuLy = scheduleStatus?.trim().normalize() === "Chưa xử lý".normalize();
-  const isXemPhong = scheduleType?.trim().normalize() === "Xem phòng".normalize();
+  const isChuaXuLy =
+    scheduleStatus?.trim().normalize() === "Chưa xử lý".normalize();
+  const isXemPhong =
+    scheduleType?.trim().normalize() === "Xem phòng".normalize();
 
   return (
     <>
@@ -80,18 +82,18 @@ export default function RoomCard({
           alt={name}
           width={192}
           height={128}
-          className="w-48 h-48 object-cover rounded-xl"
+          className="w-80 h-80 object-cover rounded-xl"
         />
 
-        <div className="flex-1 text-text1 text-sm">
+        <div className="flex-1 text-text1 text-sm px-6">
           <div className="flex justify-between">
             <div>
-              <p className="font-semibold">{name}</p>
+              <p className="font-semibold text-lg text-text1">{name}</p>
             </div>
 
             <button
               onClick={() => router.push(`/chi-tiet-phong/${roomId}`)}
-              className="border cursor-pointer border-text2 px-3 py-1 rounded-full text-xs"
+              className="border text-lg cursor-pointer border-text2 px-4 rounded-full text-text2 hover:bg-text2 hover:text-white transition"
             >
               Xem chi tiết
             </button>
@@ -101,15 +103,15 @@ export default function RoomCard({
             <div>
               {beds && beds.length > 0 ? (
                 <>
-                  <p className="mb-1">
-                    <span className="font-semibold">Giường:</span>
+                  <p className="text-text1">
+                    <span className=" text-text1 text-lg">Giường:</span>
                   </p>
                   {beds.map((bed) => (
-                    <p key={bed.MA_GIUONG} className="text-xs text-text2">
+                    <p key={bed.MA_GIUONG} className=" text-text2">
                       {bed.MA_GIUONG} - {formatMoney(bed.GIA)}
                     </p>
                   ))}
-                  <p className="mt-2">
+                  <p className="mt-2 text-lg text-text1">
                     Tổng giá:{" "}
                     <span className="text-accent font-semibold">
                       {formatMoney(totalPrice)}
@@ -118,8 +120,8 @@ export default function RoomCard({
                 </>
               ) : (
                 <>
-                  <p>Mã giường: {bedCode || "—"}</p>
-                  <p>
+                  <p className="text-lg">Mã giường: {bedCode || "—"}</p>
+                  <p className="mt-2 text-text1 text-lg">
                     Giá:{" "}
                     <span className="text-accent font-semibold">
                       {formatMoney(totalPrice)}
@@ -131,18 +133,24 @@ export default function RoomCard({
 
             <div className="flex justify-between">
               <div>
-                <p>Điện: {formatMoney(electricity)}/kWh</p>
-                <p>Nước: {formatMoney(water)}/m³</p>
+                <p className="text-text1 text-lg">
+                  Điện: {formatMoney(electricity)}/kWh
+                </p>
+                <p className="text-text1 text-lg">
+                  Nước: {formatMoney(water)}/m³
+                </p>
+                <p className="text-text1 text-lg">Wifi: {wifi}</p>
               </div>
               <div>
-                <p>Wifi: {wifi}</p>
-                <p>Xe: {formatMoney(vehicle)}</p>
-                <p>Phí DV: {formatMoney(service)}</p>
+                <p className="text-text1 text-lg">Xe: {formatMoney(vehicle)}</p>
+                <p className="text-text1 text-lg">
+                  Phí DV: {formatMoney(service)}
+                </p>
               </div>
             </div>
           </div>
 
-          <p className="text-text2 font-medium mt-2">{status}</p>
+          <p className="text-text2 text-lg font-medium mt-2">{status}</p>
 
           <div className="flex justify-between items-center mt-3">
             {mapLink ? (
@@ -151,12 +159,12 @@ export default function RoomCard({
                 target="_blank"
                 className="flex text-text2 font-medium cursor-pointer gap-1"
               >
-                <MapPin size={18} />
+                <MapPin size={24} />
                 Link Google Map
               </a>
             ) : (
-              <span className="text-gray-400 flex gap-1">
-                <MapPin size={18} />
+              <span className="text-gray-400 text-lg flex gap-1">
+                <MapPin size={24} />
                 Không có map
               </span>
             )}
@@ -202,8 +210,6 @@ export default function RoomCard({
         maPhieu={maPhieu}
         onSuccess={onRefresh ?? (() => {})}
       />
-
-      
     </>
   );
 }

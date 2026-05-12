@@ -179,7 +179,7 @@ GO
    SP_GET_RENTAL_DETAILS
 ========================================================= */
 
-CREATE PROCEDURE SP_GET_RENTAL_DETAILS
+CREATE OR ALTER PROCEDURE SP_GET_RENTAL_DETAILS
     @id VARCHAR(10)
 AS
 BEGIN
@@ -297,10 +297,6 @@ BEGIN
       AND MA_PHONG = @roomId;
 END
 GO
-
-USE DORM
-GO
-
 
 -- ============================================
 -- XUANXUANXUANXUANXUANXUANXUANXUANXUANXUANXUAN 
@@ -562,7 +558,7 @@ BEGIN
     DECLARE @MA_THANH_TOAN VARCHAR(5) = LEFT(REPLACE(CONVERT(VARCHAR(36), NEWID()), '-', ''), 5);
 
     INSERT INTO PHIEU_THANH_TOAN (MA_THANH_TOAN, HINH_THUC, NGAY, SO_TIEN, TRANG_THAI, MA_HOP_DONG)
-    VALUES (@MA_THANH_TOAN, @HT, GETDATE(), @SO_TIEN, N'Đã thanh toán', @MA_HOP_DONG);
+    VALUES (@MA_THANH_TOAN, @HT, GETDATE(), @SO_TIEN, N'Đã thanh toán', @MA_HOP_DONG);
 
     -- Liên kết phiếu thanh toán với biên bản trả phòng gần nhất của hợp đồng
     UPDATE BIEN_BAN_TRA_PHONG
@@ -575,7 +571,7 @@ BEGIN
     -- trả về mã thanh toán để UI có thể hiển thị hoặc sử dụng tiếp
     SELECT @MA_THANH_TOAN AS MA_THANH_TOAN;
 END;
-GO 
+GO
 
 -- lấy thông tin trang lịch hẹn nhân viên 
 CREATE OR ALTER PROCEDURE sp_get_lich_hen_nhan_vien
@@ -1091,6 +1087,8 @@ BEGIN
 END;
 GO
 
+
+
 CREATE OR ALTER PROCEDURE SP_XuLyDatLichXemPhongVL
     @NGAY_DANG_KY DATE,
     @TEN_KH NVARCHAR(250),
@@ -1123,6 +1121,7 @@ BEGIN
         @MA_KTX = @MA_KTX, @MA_PHONG = @MA_PHONG, @DS_MA_GIUONG = @DS_MA_GIUONG;
 END;
 GO
+
 
 CREATE OR ALTER PROCEDURE SP_GetLichByNhanVien
     @MaNV VARCHAR(5),
@@ -1688,57 +1687,115 @@ CREATE OR ALTER PROCEDURE SP_GetDanhSachPhong
     @Search     NVARCHAR(100) = '',
     @TrangThai  NVARCHAR(10)  = '',
     @SortDir    VARCHAR(4)    = 'ASC',
-    @Ward       NVARCHAR(100) = '',   
-    @GioiTinh   NVARCHAR(3)   = '',   
+    @Ward       NVARCHAR(100) = '',
+    @GioiTinh   NVARCHAR(3)   = '',
+    @MinBeds    INT           = 1,
     @Page       INT           = 1,
     @PageSize   INT           = 6
 AS
 BEGIN
     SET NOCOUNT ON;
+
     DECLARE @Offset INT = (@Page - 1) * @PageSize;
 
-    -- 1. Đổ dữ liệu vào bảng tạm #KetQua
     SELECT
         p.MA_PHONG,
+        p.MA_KTX,
         p.IMAGE_URL,
         p.SL_GIUONG,
-        p.SL_GIUONG_TRONG,
-        p.TRANG_THAI,
-        p.MA_KTX,
+
+        -- luôn ép NULL về 0
+        ISNULL(gt.GIUONG_TRONG, 0) AS SL_GIUONG_TRONG,
+
+        -- trạng thái lấy hoàn toàn từ số giường trống
+        CASE
+            WHEN ISNULL(gt.GIUONG_TRONG, 0) > 0
+                THEN N'Trống'
+            ELSE N'Đã thuê'
+        END AS TRANG_THAI,
+
         k.TEN_KTX,
         k.DIA_CHI,
         k.QUY_DINH,
+
         ISNULL(gp.GIA_MIN, 0) AS GIA_MIN,
         ISNULL(gp.GIA_MAX, 0) AS GIA_MAX
+
     INTO #KetQua
     FROM PHONG p
-    LEFT JOIN KY_TUC_XA k  ON p.MA_KTX  = k.MA_KTX
+
+    LEFT JOIN KY_TUC_XA k
+        ON p.MA_KTX = k.MA_KTX
+
     LEFT JOIN (
-        SELECT MA_PHONG, MIN(GIA) AS GIA_MIN, MAX(GIA) AS GIA_MAX
-        FROM GIUONG GROUP BY MA_PHONG
-    ) gp ON p.MA_PHONG = gp.MA_PHONG
+        SELECT
+            MA_KTX,
+            MA_PHONG,
+            MIN(GIA) AS GIA_MIN,
+            MAX(GIA) AS GIA_MAX
+        FROM GIUONG
+        GROUP BY MA_KTX, MA_PHONG
+    ) gp
+        ON p.MA_KTX = gp.MA_KTX
+       AND p.MA_PHONG = gp.MA_PHONG
+
+    LEFT JOIN (
+        SELECT
+            MA_KTX,
+            MA_PHONG,
+            COUNT(*) AS GIUONG_TRONG
+        FROM GIUONG
+        WHERE TRANG_THAI = N'Trống'
+        GROUP BY MA_KTX, MA_PHONG
+    ) gt
+        ON p.MA_KTX = gt.MA_KTX
+       AND p.MA_PHONG = gt.MA_PHONG
+
     WHERE
-        (@Search    = '' OR p.MA_PHONG LIKE '%' + @Search + '%')
-        AND (@TrangThai = '' OR p.TRANG_THAI = @TrangThai)
-        AND (@Ward      = '' OR k.DIA_CHI  LIKE '%' + @Ward + '%')
-        AND (@GioiTinh  = '' OR k.QUY_DINH LIKE '%' + @GioiTinh + '%');
+        (@Search = ''
+            OR p.MA_PHONG LIKE '%' + @Search + '%')
 
-    -- 2. Trả về tổng số bản ghi
-    SELECT COUNT(*) AS TONG_BAN_GHI FROM #KetQua;
+        -- lọc trạng thái đúng nghiệp vụ
+        AND (
+            @TrangThai = ''
+            OR (
+                @TrangThai = N'Trống'
+                AND ISNULL(gt.GIUONG_TRONG, 0) > 0
+            )
+            OR (
+                @TrangThai = N'Đã thuê'
+                AND ISNULL(gt.GIUONG_TRONG, 0) = 0
+            )
+        )
 
-    -- 3. Trả về dữ liệu phân trang
+        AND (@Ward = ''
+            OR k.DIA_CHI LIKE '%' + @Ward + '%')
+
+        AND (@GioiTinh = ''
+            OR k.QUY_DINH LIKE '%' + @GioiTinh + '%')
+
+        -- lọc số giường tối thiểu
+        AND (
+            @MinBeds <= 1
+            OR ISNULL(gt.GIUONG_TRONG, 0) >= @MinBeds
+        );
+
+    -- tổng bản ghi
+    SELECT COUNT(*) AS TONG_BAN_GHI
+    FROM #KetQua;
+
+    -- phân trang
     SELECT *
     FROM #KetQua
     ORDER BY
-        CASE WHEN @SortDir = 'ASC'  THEN GIA_MIN END ASC,
+        CASE WHEN @SortDir = 'ASC' THEN GIA_MIN END ASC,
         CASE WHEN @SortDir = 'DESC' THEN GIA_MAX END DESC
-    OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
+    OFFSET @Offset ROWS
+    FETCH NEXT @PageSize ROWS ONLY;
 
-    -- Xóa bảng tạm sau khi dùng
     DROP TABLE #KetQua;
 END;
 GO
-
 -- ── SP 2: Chi tiết phòng ─────────────────────────────────────────────────────
 CREATE OR ALTER PROCEDURE SP_GetChiTietPhong
     @MaPhong VARCHAR(10)
@@ -1891,7 +1948,6 @@ GO
 
 CREATE OR ALTER PROCEDURE SP_XuLyDatLichXemPhongKH
     @NGAY_DANG_KY DATE,
-    @MA_NV VARCHAR(5),
     @MA_KH VARCHAR(5),
     @HINH_THUC_THUE NVARCHAR(25),
     @NGAY_HEN DATETIME,
@@ -1952,7 +2008,6 @@ BEGIN
         (
             MA_PDK,
             NGAY_DANG_KY,
-            MA_NV,
             MA_KH,
             HINH_THUC_THUE
         )
@@ -1960,7 +2015,6 @@ BEGIN
         (
             @MA_PDK,
             @NGAY_DANG_KY,
-            @MA_NV,
             @MA_KH,
             @HINH_THUC_THUE
         );
@@ -1973,8 +2027,7 @@ BEGIN
             TRANG_THAI,
             MA_PDK,
             MA_KTX,
-            MA_PHONG,
-            MA_NV
+            MA_PHONG
         )
         VALUES
         (
@@ -1997,7 +2050,7 @@ BEGIN
             @MA_PHIEU,
             LTRIM(RTRIM(value))
         FROM STRING_SPLIT(@DS_MA_GIUONG, ',')
-        WHERE LTRIM(RTRIM(value)) <> '';
+        WHERE LTRIM(RTRIM(NULL)) <> '';
 
         COMMIT TRAN;
     END TRY
@@ -2010,7 +2063,6 @@ GO
 
 CREATE OR ALTER PROCEDURE SP_XuLyDatLichXemPhongVL
     @NGAY_DANG_KY DATE,
-    @MA_NV VARCHAR(5),
     @TEN_KH NVARCHAR(250),
     @NGAY_SINH DATE,
     @CCCD VARCHAR(12),
@@ -2035,7 +2087,7 @@ BEGIN
         @MA_KH_MOI = @MA_KH OUTPUT;
 
     EXEC SP_XuLyDatLichXemPhongKH
-        @NGAY_DANG_KY = @NGAY_DANG_KY, @MA_NV = @MA_NV, @MA_KH = @MA_KH,
+        @NGAY_DANG_KY = @NGAY_DANG_KY, @MA_KH = @MA_KH,
         @HINH_THUC_THUE = @HINH_THUC_THUE, @NGAY_HEN = @NGAY_HEN,
         @LOAI = @LOAI, @TRANG_THAI = @TRANG_THAI,
         @MA_KTX = @MA_KTX, @MA_PHONG = @MA_PHONG, @DS_MA_GIUONG = @DS_MA_GIUONG;
@@ -2074,8 +2126,7 @@ GO
 
 CREATE OR ALTER PROCEDURE SP_DoiLich
     @MaPhieu VARCHAR(10),
-    @NgayGioMoi DATETIME,
-    @TrangThaiMoi
+    @NgayGioMoi DATETIME
 AS
 BEGIN
     -- Kiểm tra xem lịch có tồn tại và đang 'Chưa xử lý' hay không
@@ -2125,7 +2176,7 @@ GO
 
 -- new
 -- Stored Procedure dọn dẹp phiếu hết hạn
-CREATE PROCEDURE SP_HuyDatCocQuahan
+CREATE OR ALTER PROCEDURE SP_HuyDatCocQuahan
 AS
 BEGIN
     SET NOCOUNT ON;
