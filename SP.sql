@@ -2358,30 +2358,32 @@ GO
 
 CREATE OR ALTER PROCEDURE SP_GetPhieuDatCoc
 (
-    @MA_PDC VARCHAR(5)
+    @MA_PDC VARCHAR(10)
 )
 AS
 BEGIN
     SET NOCOUNT ON;
 
     /* =========================================
-       RESULT 1: THÔNG TIN CHÍNH
+       RESULT SET 1: THÔNG TIN CHÍNH
     ========================================= */
-    SELECT TOP 1
+    SELECT
         PDC.MA_PDC,
         PDC.SO_TIEN,
         PDC.TRANG_THAI,
 
+        -- KHÁCH HÀNG
         KH.MA_KH,
         KH.TEN_KH,
         KH.SDT,
+        KH.NGAY_SINH,
         KH.CCCD,
-
+        KH.GIOI_TINH,
         TK.EMAIL,
 
+        -- PHÒNG / KTX
         KTX.MA_KTX,
         KTX.TEN_KTX,
-
         P.MA_PHONG,
 
         KTX.GIA_DIEN,
@@ -2392,12 +2394,13 @@ BEGIN
 
     FROM PHIEU_DAT_COC PDC
 
-    LEFT JOIN KHACH_HANG KH
+    INNER JOIN KHACH_HANG KH
         ON PDC.MA_KH = KH.MA_KH
 
     LEFT JOIN TAI_KHOAN TK
         ON KH.MA_TK = TK.MA_TK
 
+    -- LẤY LỊCH XEM PHÒNG TỪ MA_PDK
     LEFT JOIN LICH L
         ON PDC.MA_PDC = L.MA_PDC
 
@@ -2412,22 +2415,22 @@ BEGIN
 
 
     /* =========================================
-       RESULT 2: DANH SÁCH GIƯỜNG
+       RESULT SET 2: DANH SÁCH GIƯỜNG
     ========================================= */
     SELECT
         LG.MA_GIUONG
     FROM PHIEU_DAT_COC PDC
 
-    JOIN LICH L
+    INNER JOIN LICH L
         ON PDC.MA_PDC = L.MA_PDC
 
-    JOIN LICH_GIUONG LG
+    INNER JOIN LICH_GIUONG LG
         ON L.MA_PHIEU = LG.MA_PHIEU
 
     WHERE PDC.MA_PDC = @MA_PDC;
 
 END;
-GO 
+GO
 
 CREATE OR ALTER PROCEDURE SP_CapNhatTrangThaiLich
 (
@@ -2463,3 +2466,129 @@ BEGIN
 END
 GO
 
+CREATE OR ALTER PROCEDURE SP_GetChiTietLich
+(
+    @Ma_Lich VARCHAR(10)
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    /* =========================================
+       RESULT SET 1: CHI TIẾT LỊCH
+    ========================================= */
+    SELECT 
+        -- ===== LỊCH =====
+        l.MA_PHIEU AS id,
+        l.NGAY_GIO,
+
+        DAY(l.NGAY_GIO) AS ngay,
+        FORMAT(l.NGAY_GIO, 'HH:mm') AS gio,
+
+        l.LOAI AS loai,
+        l.TRANG_THAI AS trangThai,
+
+        l.MA_PDK AS maPdk,
+        l.MA_PDC AS maPdc,
+
+        -- ===== KHÁCH HÀNG =====
+        COALESCE(kh_pdc.MA_KH, kh_pdk.MA_KH) AS maKh,
+        COALESCE(kh_pdc.TEN_KH, kh_pdk.TEN_KH) AS khachHang,
+        COALESCE(kh_pdc.SDT, kh_pdk.SDT) AS sdt,
+        COALESCE(kh_pdc.CCCD, kh_pdk.CCCD) AS cccd,
+        COALESCE(kh_pdc.GIOI_TINH, kh_pdk.GIOI_TINH) AS gioiTinh,
+        COALESCE(kh_pdc.NGAY_SINH, kh_pdk.NGAY_SINH) AS ngaySinh,
+
+        -- ===== PHÒNG =====
+        l.MA_KTX AS maKtx,
+        ktx.TEN_KTX AS tenKtx,
+
+        l.MA_PHONG AS maPhong,
+
+        p.IMAGE_URL AS hinhAnhPhong,
+        p.MO_TA AS moTaPhong,
+        p.TRANG_THAI AS trangThaiPhong,
+
+        p.SL_GIUONG,
+        p.SL_GIUONG_TRONG,
+
+        -- ===== DỊCH VỤ =====
+        ktx.GIA_DIEN,
+        ktx.GIA_NUOC,
+        ktx.WIFI,
+        ktx.GUI_XE,
+        ktx.DICH_VU,
+
+        -- ===== NHÂN VIÊN =====
+        nv.MA_NV AS maNv,
+        nv.TEN_NV AS tenNv,
+
+        -- ===== PHIẾU =====
+        pdk.HINH_THUC_THUE,
+
+        pdc.SO_TIEN,
+        pdc.TRANG_THAI AS trangThaiDatCoc
+
+    FROM LICH l
+
+    LEFT JOIN PHIEU_DANG_KY_THUE pdk
+        ON l.MA_PDK = pdk.MA_PDK
+
+    LEFT JOIN KHACH_HANG kh_pdk
+        ON pdk.MA_KH = kh_pdk.MA_KH
+
+    LEFT JOIN PHIEU_DAT_COC pdc
+        ON l.MA_PDC = pdc.MA_PDC
+
+    LEFT JOIN KHACH_HANG kh_pdc
+        ON pdc.MA_KH = kh_pdc.MA_KH
+
+    LEFT JOIN KY_TUC_XA ktx
+        ON l.MA_KTX = ktx.MA_KTX
+
+    LEFT JOIN PHONG p
+        ON l.MA_KTX = p.MA_KTX
+       AND l.MA_PHONG = p.MA_PHONG
+
+    LEFT JOIN NHAN_VIEN nv
+        ON l.MA_NV = nv.MA_NV
+
+    WHERE l.MA_PHIEU = @Ma_Lich;
+
+
+    /* =========================================
+       RESULT SET 2: DANH SÁCH GIƯỜNG
+    ========================================= */
+    SELECT
+        g.MA_GIUONG,
+        g.GIA
+    FROM LICH l
+
+    INNER JOIN LICH_GIUONG lg
+        ON l.MA_PHIEU = lg.MA_PHIEU
+
+    INNER JOIN GIUONG g
+        ON l.MA_KTX = g.MA_KTX
+       AND l.MA_PHONG = g.MA_PHONG
+       AND lg.MA_GIUONG = g.MA_GIUONG
+
+    WHERE l.MA_PHIEU = @Ma_Lich;
+
+END;
+GO
+
+CREATE OR ALTER PROCEDURE SP_GanPhieuDatCocVaoLich
+(
+    @MA_PHIEU VARCHAR(10),
+    @MA_PDC VARCHAR(10)
+)
+AS
+BEGIN
+    UPDATE LICH
+    SET MA_PDC = @MA_PDC
+    WHERE MA_PHIEU = @MA_PHIEU;
+END;
+GO
+
+-- INSERT INTO LICH_GIUONG VALUES ('LICH0064', 'G1'), ('LICH0064', 'G2'), ('LICH0064', 'G3');
+-- INSERT INTO LICH_GIUONG VALUES ('LICH0054', 'G2');
