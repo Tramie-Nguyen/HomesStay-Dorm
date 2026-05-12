@@ -298,10 +298,6 @@ BEGIN
 END
 GO
 
-USE DORM
-GO
-
-
 -- ============================================
 -- XUANXUANXUANXUANXUANXUANXUANXUANXUANXUANXUAN 
 -- ============================================
@@ -562,7 +558,7 @@ BEGIN
     DECLARE @MA_THANH_TOAN VARCHAR(5) = LEFT(REPLACE(CONVERT(VARCHAR(36), NEWID()), '-', ''), 5);
 
     INSERT INTO PHIEU_THANH_TOAN (MA_THANH_TOAN, HINH_THUC, NGAY, SO_TIEN, TRANG_THAI, MA_HOP_DONG)
-    VALUES (@MA_THANH_TOAN, @HT, GETDATE(), @SO_TIEN, N'Đã thanh toán', @MA_HOP_DONG);
+    VALUES (@MA_THANH_TOAN, @HT, GETDATE(), @SO_TIEN, N'Đã thanh toán', @MA_HOP_DONG);
 
     -- Liên kết phiếu thanh toán với biên bản trả phòng gần nhất của hợp đồng
     UPDATE BIEN_BAN_TRA_PHONG
@@ -575,7 +571,7 @@ BEGIN
     -- trả về mã thanh toán để UI có thể hiển thị hoặc sử dụng tiếp
     SELECT @MA_THANH_TOAN AS MA_THANH_TOAN;
 END;
-GO 
+GO
 
 -- lấy thông tin trang lịch hẹn nhân viên 
 CREATE OR ALTER PROCEDURE sp_get_lich_hen_nhan_vien
@@ -2031,8 +2027,7 @@ BEGIN
             TRANG_THAI,
             MA_PDK,
             MA_KTX,
-            MA_PHONG,
-            MA_NV
+            MA_PHONG
         )
         VALUES
         (
@@ -2043,7 +2038,7 @@ BEGIN
             @MA_PDK,
             @MA_KTX,
             @MA_PHONG,
-            NULL
+            @MA_NV
         );
 
         INSERT INTO LICH_GIUONG
@@ -2055,7 +2050,7 @@ BEGIN
             @MA_PHIEU,
             LTRIM(RTRIM(value))
         FROM STRING_SPLIT(@DS_MA_GIUONG, ',')
-        WHERE LTRIM(RTRIM(value)) <> '';
+        WHERE LTRIM(RTRIM(NULL)) <> '';
 
         COMMIT TRAN;
     END TRY

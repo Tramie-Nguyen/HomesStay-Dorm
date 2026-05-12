@@ -60,7 +60,7 @@ export default function Home() {
           break;
 
         case "BRANCH_MANAGER":
-          router.push("/bm/danh-sach-phong");
+          router.push("/bm/tra-phong");
           break;
 
         default:

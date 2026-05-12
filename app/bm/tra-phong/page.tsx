@@ -49,6 +49,7 @@ export default function QL_dsTraPhongPage() {
   }, [fetchData]);
 
   const filteredData = data
+    .filter((item) => item.status === "Đang chờ xử lí") // Only show rows with status 'Đang chờ xử lí'
     .filter((item) => {
       const keyword = search.trim().toLowerCase();
       return (
@@ -56,7 +57,6 @@ export default function QL_dsTraPhongPage() {
         (item.fullName ?? "").toLowerCase().includes(keyword)
       );
     })
-    .filter((item) => (filterStatus ? item.status === filterStatus : true))
     .sort((a, b) => {
       const dateA = new Date(a.checkoutDate).getTime();
       const dateB = new Date(b.checkoutDate).getTime();
@@ -125,9 +125,7 @@ export default function QL_dsTraPhongPage() {
                 onChange={(e) => setFilterStatus(e.target.value || null)}
               >
                 <option value="">Tất cả trạng thái</option>
-                <option value="Đã hẹn">Đã hẹn</option>
                 <option value="Đang chờ xử lí">Đang chờ xử lí</option>
-                <option value="Đã xử lí">Đã xử lí</option>
               </select>
             </div>
           </div>

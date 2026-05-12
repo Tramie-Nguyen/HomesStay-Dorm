@@ -1,861 +1,1515 @@
-﻿USE DORM
-GO
-
-/* =========================================================
-   DATA TỐI THIỂU ĐỂ TEST SP + UI
-========================================================= */
-
-/* =========================================================
-   1. CHÍNH SÁCH
-========================================================= */
-
-INSERT INTO CHINH_SACH_THUE
-(
-    MA_DIEU_KHOAN,
-    TEN_DIEU_KHOAN,
-    NOI_DUNG
-)
-VALUES
-(
-    'DK001',
-    N'Nội quy cơ bản',
-    N'Không gây ồn'
-);
-GO
-
-/* =========================================================
-   2. KTX
-========================================================= */
-
-INSERT INTO KY_TUC_XA
-(
-    MA_KTX,
-    TEN_KTX,
-    DIA_CHI,
-    QUY_DINH,
-    MA_DIEU_KHOAN,
-    GIA_DIEN,
-    GIA_NUOC,
-    WIFI,
-    GUI_XE,
-    DICH_VU
-)
-VALUES
-(
-    'KTX001',
-    N'KTX A',
-    N'Quận 1',
-    N'Không hút thuốc',
-    'DK001',
-    3500,
-    15000,
-    N'Có',
-    100000,
-    200000
-);
-GO
-
-/* =========================================================
-   3. PHÒNG
-========================================================= */
-
-INSERT INTO PHONG
-(
-    MA_KTX,
-    MA_PHONG,
-    IMAGE_URL,
-    SL_GIUONG,
-    SL_GIUONG_TRONG,
-    TRANG_THAI,
-    SO_DIEN_CU,
-    SO_DIEN_MOI,
-    MO_TA
-)
-VALUES
-(
-    'KTX001',
-    'P101',
-    'room.jpg',
-    4,
-    2,
-    N'Trống',
-    100,
-    120,
-    N'Phòng máy lạnh'
-);
-GO
-
-/* =========================================================
-   4. GIƯỜNG
-========================================================= */
-
-INSERT INTO GIUONG
-(
-    MA_KTX,
-    MA_PHONG,
-    MA_GIUONG,
-    TRANG_THAI,
-    GIA
-)
-VALUES
-('KTX001', 'P101', 'G101', N'Trống', 1500000),
-('KTX001', 'P101', 'G102', N'Đã thuê', 1500000),
-('KTX001', 'P101', 'G103', N'Trống', 1500000);
-GO
-
-/* =========================================================
-   5. HỢP ĐỒNG
-========================================================= */
-
-INSERT INTO HOP_DONG_THUE
-(
-    MA_HOP_DONG,
-    NGAY_BD,
-    NGAY_KT,
-    SL_NGUOI_THUE,
-    NOI_DUNG,
-    TRANG_THAI,
-    MA_PHIEU,
-    IMAGE_URL
-)
-VALUES
-(
-    'HD001',
-    CAST(GETDATE() AS DATE),
-    DATEADD(MONTH, 6, GETDATE()),
-    1,
-    N'Hợp đồng thuê',
-    N'Đã ký',
-    NULL,
-    'contract.jpg'
-);
-GO
-
-/* =========================================================
-   6. TÀI KHOẢN
-========================================================= */
-
-INSERT INTO TAI_KHOAN
-(
-    MA_TK,
-    MAT_KHAU,
-    EMAIL,
-    ROLE,
-    MA_HOP_DONG
-)
-VALUES
-(
-    'TK001',
-    '123',
-    'sale@gmail.com',
-    'SALE',
-    NULL
-),
-(
-    'TK002',
-    '123',
-    'customer@gmail.com',
-    'CUSTOMER',
-    'HD001'
-);
-GO
-
-/* =========================================================
-   7. NHÂN VIÊN
-========================================================= */
-
-INSERT INTO NHAN_VIEN
-(
-    MA_NV,
-    TEN_NV,
-    NGAY_SINH,
-    NGAY_BD_LAM,
-    CCCD,
-    SDT,
-    MA_TK,
-    GIOI_TINH,
-    CHUC_VU
-)
-VALUES
-(
-    'NV001',
-    N'Nguyễn Văn A',
-    '1999-01-01',
-    '2024-01-01',
-    '123456789111',
-    '0901111111',
-    'TK001',
-    N'Nam',
-    N'Sale'
-);
-GO
-
-/* =========================================================
-   8. KHÁCH HÀNG
-========================================================= */
-
-INSERT INTO KHACH_HANG
-(
-    MA_KH,
-    TEN_KH,
-    NGAY_SINH,
-    CCCD,
-    SDT,
-    GIOI_TINH,
-    MA_TK
-)
-VALUES
-(
-    'KH001',
-    N'Lê Văn B',
-    '2003-05-01',
-    '123456789222',
-    '0911111111',
-    N'Nam',
-    'TK002'
-);
-GO
-
-/* =========================================================
-   9. PHIẾU ĐĂNG KÝ
-========================================================= */
-
-INSERT INTO PHIEU_DANG_KY_THUE
-(
-    MA_PDK,
-    NGAY_DANG_KY,
-    MA_KH,
-    HINH_THUC_THUE
-)
-VALUES
-(
-    'PDK001',
-    CAST(GETDATE() AS DATE),
-    'KH001',
-    N'Cá nhân'
-);
-GO
-
-/* =========================================================
-   10. PHIẾU ĐẶT CỌC
-========================================================= */
-
-INSERT INTO PHIEU_DAT_COC
-(
-    MA_PDC,
-    NGAY,
-    SO_TIEN,
-    TRANG_THAI,
-    MA_KH,
-    MA_NV
-)
-VALUES
-(
-    'PDC001',
-    GETDATE(),
-    2000000,
-    N'Đã đặt cọc',
-    'KH001',
-    'NV001'
-);
-GO
-
-/* =========================================================
-   11. LỊCH
-   PHẢI CÓ "Nhận phòng"
-========================================================= */
-
-INSERT INTO LICH
-(
-    MA_PHIEU,
-    NGAY_GIO,
-    LOAI,
-    TRANG_THAI,
-    MA_PDK,
-    MA_PDC,
-    MA_KTX,
-    MA_PHONG,
-    MA_NV
-)
-VALUES
-(
-    'LICH001',
-    GETDATE(),
-    N'Nhận phòng',
-    N'Đã xử lý',
-    'PDK001',
-    'PDC001',
-    'KTX001',
-    'P101',
-    'NV001'
-);
-GO
-
-/* =========================================================
-   12. UPDATE HỢP ĐỒNG -> LỊCH
-========================================================= */
-
-UPDATE HOP_DONG_THUE
-SET MA_PHIEU = 'LICH001'
-WHERE MA_HOP_DONG = 'HD001';
-GO
-
-/* =========================================================
-   13. LỊCH GIƯỜNG
-========================================================= */
-
-INSERT INTO LICH_GIUONG
-(
-    MA_PHIEU,
-    MA_GIUONG
-)
-VALUES
-(
-    'LICH001',
-    'G101'
-);
-GO
-
-/* =========================================================
-   14. BIÊN BẢN BÀN GIAO
-========================================================= */
-
-INSERT INTO BIEN_BAN_BAN_GIAO
-(
-    MA_BAN_GIAO,
-    NGAY,
-    MA_HOP_DONG,
-    MA_NV,
-    IMAGE_URL
-)
-VALUES
-(
-    'BB001',
-    CAST(GETDATE() AS DATE),
-    'HD001',
-    'NV001',
-    'handover.jpg'
-);
-GO
-
-/* =========================================================
-   TEST
-========================================================= */
-
-SELECT * FROM LICH;
-SELECT * FROM TAI_KHOAN;
-SELECT * FROM HOP_DONG_THUE;
-SELECT * FROM BIEN_BAN_BAN_GIAO;
-
-/* =========================================================
-   THÊM 2 LỊCH CHƯA BÀN GIAO
-========================================================= */
-
-/* ---------- HỢP ĐỒNG 2 ---------- */
-
-INSERT INTO HOP_DONG_THUE
-(
-    MA_HOP_DONG,
-    NGAY_BD,
-    NGAY_KT,
-    SL_NGUOI_THUE,
-    NOI_DUNG,
-    TRANG_THAI,
-    MA_PHIEU,
-    IMAGE_URL
-)
-VALUES
-(
-    'HD002',
-    CAST(GETDATE() AS DATE),
-    DATEADD(MONTH, 12, GETDATE()),
-    1,
-    N'Hợp đồng thuê phòng 2',
-    N'Đã ký',
-    NULL,
-    'contract2.jpg'
-);
-GO
-
-/* ---------- TÀI KHOẢN + KHÁCH HÀNG 2 ---------- */
-
-INSERT INTO TAI_KHOAN
-(
-    MA_TK,
-    MAT_KHAU,
-    EMAIL,
-    ROLE,
-    MA_HOP_DONG
-)
-VALUES
-(
-    'TK003',
-    '123',
-    'customer2@gmail.com',
-    'CUSTOMER',
-    'HD002'
-);
-GO
-
-INSERT INTO KHACH_HANG
-(
-    MA_KH,
-    TEN_KH,
-    NGAY_SINH,
-    CCCD,
-    SDT,
-    GIOI_TINH,
-    MA_TK
-)
-VALUES
-(
-    'KH002',
-    N'Trần Văn C',
-    '2002-02-02',
-    '123456789333',
-    '0922222222',
-    N'Nam',
-    'TK003'
-);
-GO
-
-/* ---------- PHIẾU + LỊCH 2 ---------- */
-
-INSERT INTO PHIEU_DANG_KY_THUE
-(
-    MA_PDK,
-    NGAY_DANG_KY,
-    MA_KH,
-    HINH_THUC_THUE
-)
-VALUES
-(
-    'PDK002',
-    CAST(GETDATE() AS DATE),
-    'KH002',
-    N'Cá nhân'
-);
-GO
-
-INSERT INTO PHIEU_DAT_COC
-(
-    MA_PDC,
-    NGAY,
-    SO_TIEN,
-    TRANG_THAI,
-    MA_KH,
-    MA_NV
-)
-VALUES
-(
-    'PDC002',
-    GETDATE(),
-    2000000,
-    N'Đã đặt cọc',
-    'KH002',
-    'NV001'
-);
-GO
-
-INSERT INTO LICH
-(
-    MA_PHIEU,
-    NGAY_GIO,
-    LOAI,
-    TRANG_THAI,
-    MA_PDK,
-    MA_PDC,
-    MA_KTX,
-    MA_PHONG,
-    MA_NV
-)
-VALUES
-(
-    'LICH002',
-    DATEADD(DAY, 1, GETDATE()),
-    N'Nhận phòng',
-    N'Đã xử lý',
-    'PDK002',
-    'PDC002',
-    'KTX001',
-    'P101',
-    'NV001'
-);
-GO
-
-UPDATE HOP_DONG_THUE
-SET MA_PHIEU = 'LICH002'
-WHERE MA_HOP_DONG = 'HD002';
-GO
-
-INSERT INTO LICH_GIUONG
-(
-    MA_PHIEU,
-    MA_GIUONG
-)
-VALUES
-(
-    'LICH002',
-    'G103'
-);
-GO
-
-/* =========================================================
-   HỢP ĐỒNG 3
-========================================================= */
-
-INSERT INTO HOP_DONG_THUE
-(
-    MA_HOP_DONG,
-    NGAY_BD,
-    NGAY_KT,
-    SL_NGUOI_THUE,
-    NOI_DUNG,
-    TRANG_THAI,
-    MA_PHIEU,
-    IMAGE_URL
-)
-VALUES
-(
-    'HD003',
-    CAST(GETDATE() AS DATE),
-    DATEADD(MONTH, 6, GETDATE()),
-    1,
-    N'Hợp đồng thuê phòng 3',
-    N'Đã ký',
-    NULL,
-    'contract3.jpg'
-);
-GO
-
-INSERT INTO TAI_KHOAN
-(
-    MA_TK,
-    MAT_KHAU,
-    EMAIL,
-    ROLE,
-    MA_HOP_DONG
-)
-VALUES
-(
-    'TK004',
-    '123',
-    'customer3@gmail.com',
-    'CUSTOMER',
-    'HD003'
-);
-GO
-
-UPDATE LICH
-SET LOAI=N'Xem phòng'
-WHERE MA_PHIEU='LICH002';
-
-INSERT INTO KHACH_HANG
-(
-    MA_KH,
-    TEN_KH,
-    NGAY_SINH,
-    CCCD,
-    SDT,
-    GIOI_TINH,
-    MA_TK
-)
-VALUES
-(
-    'KH003',
-    N'Phạm Thị D',
-    '2004-03-03',
-    '123456789444',
-    '0933333333',
-    N'Nữ',
-    'TK004'
-);
-GO
-
-INSERT INTO PHIEU_DANG_KY_THUE
-(
-    MA_PDK,
-    NGAY_DANG_KY,
-    MA_KH,
-    HINH_THUC_THUE
-)
-VALUES
-(
-    'PDK003',
-    CAST(GETDATE() AS DATE),
-    'KH003',
-    N'Cá nhân'
-);
-GO
-
-INSERT INTO PHIEU_DAT_COC
-(
-    MA_PDC,
-    NGAY,
-    SO_TIEN,
-    TRANG_THAI,
-    MA_KH,
-    MA_NV
-)
-VALUES
-(
-    'PDC003',
-    GETDATE(),
-    2500000,
-    N'Đã đặt cọc',
-    'KH003',
-    'NV001'
-);
-GO
-
-INSERT INTO LICH
-(
-    MA_PHIEU,
-    NGAY_GIO,
-    LOAI,
-    TRANG_THAI,
-    MA_PDK,
-    MA_PDC,
-    MA_KTX,
-    MA_PHONG,
-    MA_NV
-)
-VALUES
-(
-    'LICH003',
-    DATEADD(DAY, 2, GETDATE()),
-    N'Nhận phòng',
-    N'Đã xử lý',
-    'PDK003',
-    'PDC003',
-    'KTX001',
-    'P101',
-    'NV001'
-);
-GO
-
-UPDATE HOP_DONG_THUE
-SET MA_PHIEU = 'LICH003'
-WHERE MA_HOP_DONG = 'HD003';
-GO
-
-/* =========================================================
-   CHECK
-========================================================= */
-
-SELECT 
-    HD.MA_HOP_DONG,
-    HD.MA_PHIEU,
-    BB.MA_BAN_GIAO
-FROM HOP_DONG_THUE HD
-LEFT JOIN BIEN_BAN_BAN_GIAO BB
-    ON HD.MA_HOP_DONG = BB.MA_HOP_DONG;
-GO
-
-
+-- # =========================================================
+-- # CHINH_SACH_THUE
+-- # =========================================================
 USE DORM
 GO
 
-/* =========================================================
-   THÊM DATA TEST "XEM PHÒNG"
-========================================================= */
-
-/* ---------- KHÁCH HÀNG 4 ---------- */
-
-INSERT INTO TAI_KHOAN
-(
-    MA_TK,
-    MAT_KHAU,
-    EMAIL,
-    ROLE,
-    MA_HOP_DONG
-)
+INSERT INTO CHINH_SACH_THUE
 VALUES
-(
-    'TK005',
-    '123',
-    'customer4@gmail.com',
-    'CUSTOMER',
-    NULL
-);
-GO
+('DK001', N'Hình thức thuê và đăng ký', N'Chúng tôi cung cấp dịch vụ thuê giường ở ghép hoặc thuê phòng nguyên căn, đăng ký dễ dàng qua website hoặc liên hệ trực tiếp.'),
+('DK002', N'Chính sách cọc và xác nhận', N'Tiền cọc = (Tiền thuê 2 tháng) x (Số giường thuê)
+Thời hạn thanh toán: Trong vòng 24 giờ kể từ khi nhận yêu cầu thanh toán. Sau thời gian này, yêu cầu giữ chỗ sẽ tự động hủy.'),
+('DK003',N'Thủ tục nhận phòng và ký hợp đồng', 
+N'Khi nhận phòng, khách thuê cần mang giấy tờ tùy thân, hoàn tất thanh toán và ký hợp đồng. Quản lý sẽ kiểm tra điều kiện lưu trú, đồng thời hai bên cùng kiểm tra và ký biên bản bàn giao tài sản trước khi vào ở.'),
+('DK004', N'Chính sách trả phòng và hoàn cọc', N'Khách trả phòng sẽ được hoàn theo tỷ lệ đã quy định'),
+('DK005', N'Nghĩa vụ của khách thuê', N'Khách thuê cần tuân thủ nội quy, sử dụng tài sản đúng mục đích và thanh toán tiền thuê, phí dịch vụ đúng hạn.');
 
-INSERT INTO KHACH_HANG
+-- # =========================================================
+-- # KY TUC XA
+-- # =========================================================
+
+INSERT INTO KY_TUC_XA VALUES
+('KTX001', N'Ký túc xá Cống Quỳnh', N'123 Cống Quỳnh, Quận 1, TP.HCM', N'Liên hệ: 0123456789', 'DK001', 3500, 100000, N'Miễn phí', 150000, 200000),
+('KTX002', N'Ký túc xá Bình Tân', N'23 Tên Lửa, Bình Tân, TP.HCM', N'Liên hệ: 0987654321', 'DK002', 4000, 120000, N'Có phí', 180000,250000),
+('KTX003', N'Ký túc xá Phú Nhuận', N'456 Phan Xích Long, Phú Nhuận, TP.HCM', N'Liên hệ: 0912345678', 'DK003', 3000, 90000, N'Miễn phí', 120000,150000),
+('KTX004', N'Ký túc xá Tân Bình', N'789 Trường Chinh, Tân Bình, TP.HCM', N'Liên hệ: 0909876543', 'DK004', 4500, 150000, N'Có phí', 200000, 300000),
+('KTX005', N'Ký túc xá Gò Vấp', N'321 Nguyễn Oanh, Gò Vấp, TP.HCM', N'Liên hệ: 0934567890', 'DK005', 3500, 100000, N'Miễn phí', 150000, 200000);  
+
+
+-- =====================================================
+-- PHONG
+-- =====================================================
+
+
+INSERT INTO PHONG VALUES ('KTX001', 'P101', 'room.png', 4, 2, N'Trống', 212, 307, N'Phòng view đẹp');
+INSERT INTO PHONG VALUES ('KTX001', 'P102', 'room.png', 4, 2, N'Trống', 307, 346, N'Phòng máy lạnh');
+INSERT INTO PHONG VALUES ('KTX001', 'P201', 'room.png', 4, 0, N'Đã thuê', 277, 351, N'Phòng máy lạnh');
+INSERT INTO PHONG VALUES ('KTX001', 'P202', 'room.png', 4, 1, N'Trống', 189, 263, N'Phòng thường');
+INSERT INTO PHONG VALUES ('KTX001', 'P301', 'room.png', 6, 3, N'Trống', 270, 353, N'Phòng có ban công');
+INSERT INTO PHONG VALUES ('KTX001', 'P302', 'room.png', 2, 1, N'Trống', 363, 456, N'Phòng có ban công');
+INSERT INTO PHONG VALUES ('KTX002', 'P101', 'room.png', 2, 0, N'Đã thuê', 366, 458, N'Phòng view đẹp');
+INSERT INTO PHONG VALUES ('KTX002', 'P102', 'room.png', 4, 4, N'Trống', 400, 471, N'Phòng có ban công');
+INSERT INTO PHONG VALUES ('KTX002', 'P201', 'room.png', 4, 4, N'Trống', 335, 434, N'Phòng có ban công');
+INSERT INTO PHONG VALUES ('KTX002', 'P202', 'room.png', 4, 1, N'Trống', 293, 385, N'Phòng máy lạnh');
+INSERT INTO PHONG VALUES ('KTX003', 'P101', 'room.png', 6, 6, N'Trống', 183, 213, N'Phòng view đẹp');
+INSERT INTO PHONG VALUES ('KTX003', 'P102', 'room.png', 6, 5, N'Trống', 214, 298, N'Phòng có ban công');
+INSERT INTO PHONG VALUES ('KTX003', 'P201', 'room.png', 6, 6, N'Trống', 151, 176, N'Phòng thường');
+INSERT INTO PHONG VALUES ('KTX003', 'P202', 'room.png', 4, 3, N'Trống', 100, 139, N'Phòng có ban công');
+INSERT INTO PHONG VALUES ('KTX003', 'P301', 'room.png', 2, 1, N'Trống', 378, 401, N'Phòng thường');
+INSERT INTO PHONG VALUES ('KTX003', 'P302', 'room.png', 2, 0, N'Đã thuê', 177, 199, N'Phòng thường');
+INSERT INTO PHONG VALUES ('KTX003', 'P401', 'room.png', 6, 0, N'Đã thuê', 123, 157, N'Phòng view đẹp');
+INSERT INTO PHONG VALUES ('KTX003', 'P402', 'room.png', 4, 0, N'Đã thuê', 158, 233, N'Phòng có ban công');
+INSERT INTO PHONG VALUES ('KTX004', 'P101', 'room.png', 6, 3, N'Trống', 249, 345, N'Phòng có ban công');
+INSERT INTO PHONG VALUES ('KTX004', 'P102', 'room.png', 2, 0, N'Đã thuê', 127, 154, N'Phòng view đẹp');
+INSERT INTO PHONG VALUES ('KTX004', 'P201', 'room.png', 2, 0, N'Đã thuê', 306, 379, N'Phòng thường');
+INSERT INTO PHONG VALUES ('KTX004', 'P202', 'room.png', 2, 2, N'Trống', 325, 381, N'Phòng view đẹp');
+INSERT INTO PHONG VALUES ('KTX005', 'P101', 'room.png', 4, 0, N'Đã thuê', 232, 253, N'Phòng máy lạnh');
+INSERT INTO PHONG VALUES ('KTX005', 'P102', 'room.png', 4, 0, N'Đã thuê', 374, 415, N'Phòng view đẹp');
+INSERT INTO PHONG VALUES ('KTX005', 'P201', 'room.png', 2, 2, N'Trống', 102, 143, N'Phòng view đẹp');
+INSERT INTO PHONG VALUES ('KTX005', 'P202', 'room.png', 6, 6, N'Trống', 301, 368, N'Phòng view đẹp');
+INSERT INTO PHONG VALUES ('KTX005', 'P301', 'room.png', 2, 2, N'Trống', 227, 257, N'Phòng máy lạnh');
+INSERT INTO PHONG VALUES ('KTX005', 'P302', 'room.png', 4, 4, N'Trống', 301, 388, N'Phòng máy lạnh');
+INSERT INTO PHONG VALUES ('KTX005', 'P401', 'room.png', 4, 0, N'Đã thuê', 352, 408, N'Phòng view đẹp');
+INSERT INTO PHONG VALUES ('KTX005', 'P402', 'room.png', 4, 1, N'Trống', 383, 472, N'Phòng máy lạnh');
+
+
+-- =====================================================
+-- GIUONG
+-- =====================================================
+
+INSERT INTO GIUONG VALUES ('KTX001', 'P101', 'G1', N'Trống', 1500000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P101', 'G2', N'Đã thuê', 1200000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P101', 'G3', N'Đã thuê', 1800000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P101', 'G4', N'Trống', 1800000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P102', 'G1', N'Đã thuê', 1200000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P102', 'G2', N'Đã thuê', 1200000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P102', 'G3', N'Đã thuê', 1200000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P102', 'G4', N'Đã thuê', 1200000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P201', 'G1', N'Đã thuê', 1500000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P201', 'G2', N'Đã thuê', 1500000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P201', 'G3', N'Trống', 1800000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P201', 'G4', N'Trống', 2200000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P202', 'G1', N'Đã thuê', 1200000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P202', 'G2', N'Đã thuê', 1800000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P202', 'G3', N'Đã thuê', 1800000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P202', 'G4', N'Trống', 1500000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P301', 'G1', N'Đã thuê', 1200000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P301', 'G2', N'Đã thuê', 1500000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P301', 'G3', N'Đã thuê', 1500000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P301', 'G4', N'Đã thuê', 1800000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P301', 'G5', N'Đã thuê', 2200000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P301', 'G6', N'Đã thuê', 1800000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P302', 'G1', N'Trống', 2200000);
+INSERT INTO GIUONG VALUES ('KTX001', 'P302', 'G2', N'Đã thuê', 1800000);
+INSERT INTO GIUONG VALUES ('KTX002', 'P101', 'G1', N'Trống', 2200000);
+INSERT INTO GIUONG VALUES ('KTX002', 'P101', 'G2', N'Đã thuê', 1800000);
+INSERT INTO GIUONG VALUES ('KTX002', 'P102', 'G1', N'Trống', 1800000);
+INSERT INTO GIUONG VALUES ('KTX002', 'P102', 'G2', N'Đã thuê', 1800000);
+INSERT INTO GIUONG VALUES ('KTX002', 'P102', 'G3', N'Đã thuê', 1800000);
+INSERT INTO GIUONG VALUES ('KTX002', 'P102', 'G4', N'Đã thuê', 1200000);
+INSERT INTO GIUONG VALUES ('KTX002', 'P201', 'G1', N'Trống', 1800000);
+INSERT INTO GIUONG VALUES ('KTX002', 'P201', 'G2', N'Đã thuê', 2200000);
+INSERT INTO GIUONG VALUES ('KTX002', 'P201', 'G3', N'Đã thuê', 1800000);
+INSERT INTO GIUONG VALUES ('KTX002', 'P201', 'G4', N'Trống', 1200000);
+INSERT INTO GIUONG VALUES ('KTX002', 'P202', 'G1', N'Đã thuê', 2200000);
+INSERT INTO GIUONG VALUES ('KTX002', 'P202', 'G2', N'Đã thuê', 1800000);
+INSERT INTO GIUONG VALUES ('KTX002', 'P202', 'G3', N'Trống', 1500000);
+INSERT INTO GIUONG VALUES ('KTX002', 'P202', 'G4', N'Đã thuê', 1800000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P101', 'G1', N'Trống', 2200000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P101', 'G2', N'Đã thuê', 1800000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P101', 'G3', N'Đã thuê', 1200000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P101', 'G4', N'Trống', 1800000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P101', 'G5', N'Đã thuê', 1500000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P101', 'G6', N'Đã thuê', 1200000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P102', 'G1', N'Đã thuê', 1200000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P102', 'G2', N'Đã thuê', 1200000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P102', 'G3', N'Trống', 2200000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P102', 'G4', N'Trống', 1500000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P102', 'G5', N'Đã thuê', 2200000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P102', 'G6', N'Trống', 1500000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P201', 'G1', N'Đã thuê', 1500000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P201', 'G2', N'Trống', 2200000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P201', 'G3', N'Trống', 2200000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P201', 'G4', N'Đã thuê', 1200000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P201', 'G5', N'Trống', 1200000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P201', 'G6', N'Trống', 1200000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P202', 'G1', N'Trống', 2200000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P202', 'G2', N'Trống', 2200000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P202', 'G3', N'Trống', 2200000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P202', 'G4', N'Trống', 1200000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P301', 'G1', N'Trống', 1500000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P301', 'G2', N'Trống', 1800000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P302', 'G1', N'Trống', 1500000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P302', 'G2', N'Đã thuê', 1200000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P401', 'G1', N'Đã thuê', 1200000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P401', 'G2', N'Đã thuê', 1500000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P401', 'G3', N'Đã thuê', 1500000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P401', 'G4', N'Đã thuê', 1200000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P401', 'G5', N'Trống', 2200000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P401', 'G6', N'Đã thuê', 2200000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P402', 'G1', N'Trống', 1800000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P402', 'G2', N'Đã thuê', 1500000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P402', 'G3', N'Đã thuê', 1800000);
+INSERT INTO GIUONG VALUES ('KTX003', 'P402', 'G4', N'Trống', 2200000);
+INSERT INTO GIUONG VALUES ('KTX004', 'P101', 'G1', N'Trống', 1500000);
+INSERT INTO GIUONG VALUES ('KTX004', 'P101', 'G2', N'Trống', 1800000);
+INSERT INTO GIUONG VALUES ('KTX004', 'P101', 'G3', N'Trống', 1200000);
+INSERT INTO GIUONG VALUES ('KTX004', 'P101', 'G4', N'Đã thuê', 1200000);
+INSERT INTO GIUONG VALUES ('KTX004', 'P101', 'G5', N'Trống', 1500000);
+INSERT INTO GIUONG VALUES ('KTX004', 'P101', 'G6', N'Trống', 2200000);
+INSERT INTO GIUONG VALUES ('KTX004', 'P102', 'G1', N'Đã thuê', 2200000);
+INSERT INTO GIUONG VALUES ('KTX004', 'P102', 'G2', N'Trống', 1200000);
+INSERT INTO GIUONG VALUES ('KTX004', 'P201', 'G1', N'Đã thuê', 1500000);
+INSERT INTO GIUONG VALUES ('KTX004', 'P201', 'G2', N'Trống', 1800000);
+INSERT INTO GIUONG VALUES ('KTX004', 'P202', 'G1', N'Đã thuê', 1200000);
+INSERT INTO GIUONG VALUES ('KTX004', 'P202', 'G2', N'Đã thuê', 1500000);
+
+INSERT INTO GIUONG VALUES ('KTX005', 'P101', 'G1', N'Đã thuê', 2200000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P101', 'G2', N'Trống', 1500000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P101', 'G3', N'Trống', 1500000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P101', 'G4', N'Đã thuê', 1200000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P102', 'G1', N'Trống', 1800000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P102', 'G2', N'Đã thuê', 1500000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P102', 'G3', N'Trống', 1200000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P102', 'G4', N'Trống', 1800000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P201', 'G1', N'Đã thuê', 1800000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P201', 'G2', N'Đã thuê', 2200000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P202', 'G1', N'Đã thuê', 1800000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P202', 'G2', N'Đã thuê', 2200000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P202', 'G3', N'Trống', 1800000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P202', 'G4', N'Trống', 2200000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P202', 'G5', N'Trống', 1800000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P202', 'G6', N'Đã thuê', 1200000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P301', 'G1', N'Đã thuê', 1500000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P301', 'G2', N'Trống', 2200000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P302', 'G1', N'Đã thuê', 1500000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P302', 'G2', N'Đã thuê', 2200000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P302', 'G3', N'Trống', 1200000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P302', 'G4', N'Đã thuê', 1800000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P401', 'G1', N'Đã thuê', 1500000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P401', 'G2', N'Đã thuê', 1800000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P401', 'G3', N'Đã thuê', 1200000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P401', 'G4', N'Đã thuê', 1500000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P402', 'G1', N'Trống', 1200000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P402', 'G2', N'Trống', 2200000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P402', 'G3', N'Đã thuê', 1800000);
+INSERT INTO GIUONG VALUES ('KTX005', 'P402', 'G4', N'Đã thuê', 1200000);
+
+-- =====================================================
+-- TAI_KHOAN
+-- =====================================================
+
+INSERT INTO TAI_KHOAN VALUES ('TK001', '123456', 'nv1@gmail.com', 'BRANCH_MANAGER', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK002', '123456', 'nv2@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK003', '123456', 'nv3@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK004', '123456', 'nv4@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK005', '123456', 'nv5@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK006', '123456', 'nv6@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK007', '123456', 'nv7@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK008', '123456', 'nv8@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK009', '123456', 'nv9@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK010', '123456', 'nv10@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK011', '123456', 'nv11@gmail.com', 'BRANCH_MANAGER', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK012', '123456', 'nv12@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK013', '123456', 'nv13@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK014', '123456', 'nv14@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK015', '123456', 'nv15@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK016', '123456', 'nv16@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK017', '123456', 'nv17@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK018', '123456', 'nv18@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK019', '123456', 'nv19@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK020', '123456', 'nv20@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK021', '123456', 'nv21@gmail.com', 'BRANCH_MANAGER', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK022', '123456', 'nv22@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK023', '123456', 'nv23@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK024', '123456', 'nv24@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK025', '123456', 'nv25@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK026', '123456', 'nv26@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK027', '123456', 'nv27@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK028', '123456', 'nv28@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK029', '123456', 'nv29@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK030', '123456', 'nv30@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK031', '123456', 'nv31@gmail.com', 'BRANCH_MANAGER', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK032', '123456', 'nv32@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK033', '123456', 'nv33@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK034', '123456', 'nv34@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK035', '123456', 'nv35@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK036', '123456', 'nv36@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK037', '123456', 'nv37@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK038', '123456', 'nv38@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK039', '123456', 'nv39@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK040', '123456', 'nv40@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK041', '123456', 'nv41@gmail.com', 'BRANCH_MANAGER', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK042', '123456', 'nv42@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK043', '123456', 'nv43@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK044', '123456', 'nv44@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK045', '123456', 'nv45@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK046', '123456', 'nv46@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK047', '123456', 'nv47@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK048', '123456', 'nv48@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK049', '123456', 'nv49@gmail.com', 'SALE', NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK050', '123456', 'nv50@gmail.com', 'SALE', NULL);
+
+-- =====================================================
+-- NHAN_VIEN
+-- =====================================================
+
+INSERT INTO NHAN_VIEN VALUES ('NV001', N'An Văn Phạm', '1993-06-13', '2023-03-11', '322339981777', '0853012509', 'TK001', N'Nam', N'Quản lý');
+INSERT INTO NHAN_VIEN VALUES ('NV002', N'Trọng Dương', '1998-09-12', '2020-04-05', '192923217984', '0483808603', 'TK002', N'Nam', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV003', N'Linh Dương', '1998-01-18', '2021-05-04', '398497206975', '0324050193', 'TK003', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV004', N'Bà An Lê', '1997-01-21', '2024-01-07', '203272323484', '0523530144', 'TK004', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV005', N'Kim Mai Phạm', '1995-12-15', '2022-04-19', '705423139808', '0182833638', 'TK005', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV006', N'Chị Mai Nguyễn', '1996-07-07', '2024-08-31', '591492481655', '0640336300', 'TK006', N'Nam', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV007', N'Hà Mai', '1985-08-15', '2023-08-05', '825473254121', '0517805647', 'TK007', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV008', N'Châu Phú Vũ', '1999-10-25', '2024-01-07', '680276315443', '0239272994', 'TK008', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV009', N'Hải Nguyễn', '1990-07-18', '2021-05-28', '805907976467', '0514903774', 'TK009', N'Nam', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV010', N'Bà Bảo Trần', '1992-03-15', '2024-06-21', '043578516466', '0114623011', 'TK010', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV011', N'Hưng Bảo Dương', '1989-09-17', '2020-07-06', '837142886784', '0086101502', 'TK011', N'Nam', N'Quản lý');
+INSERT INTO NHAN_VIEN VALUES ('NV012', N'Nhật Quang Hoàng', '1990-07-04', '2022-09-27', '120965829060', '0029026788', 'TK012', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV013', N'Nhật Xuân Trần', '1986-11-18', '2024-11-15', '054936849602', '0493297856', 'TK013', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV014', N'Chị Hạnh Nguyễn', '2001-04-26', '2020-12-01', '803003929760', '0620575495', 'TK014', N'Nam', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV015', N'Vũ Xuân Phạm', '1998-03-31', '2022-09-22', '447279865701', '0459474034', 'TK015', N'Nam', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV016', N'Vi Mai', '1991-11-04', '2023-07-04', '872378548006', '0424274201', 'TK016', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV017', N'Bác Dũng Vũ', '1989-09-07', '2023-02-02', '619434521879', '0460136095', 'TK017', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV018', N'Bảo Dương', '2000-07-19', '2022-07-18', '859104643230', '0468617420', 'TK018', N'Nam', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV019', N'Anh Lê', '1994-04-22', '2020-12-04', '589002916134', '0929635169', 'TK019', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV020', N'Ngọc Phạm', '1990-02-08', '2024-06-21', '235105118588', '0676256596', 'TK020', N'Nam', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV021', N'Cô Hạnh Phạm', '1997-10-10', '2022-09-28', '778384129659', '0259965946', 'TK021', N'Nam', N'Quản lý');
+INSERT INTO NHAN_VIEN VALUES ('NV022', N'Bà Vi Mai', '2002-07-16', '2020-08-13', '759046874172', '0157019402', 'TK022', N'Nam', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV023', N'Bà Mai Lê', '2001-09-15', '2023-07-27', '858081317461', '0145010649', 'TK023', N'Nam', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV024', N'Bà Chi Phạm', '1989-09-06', '2022-08-20', '467094140747', '0515244307', 'TK024', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV025', N'Bác Quang Lê', '1996-07-22', '2024-02-02', '246627928946', '0863217733', 'TK025', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV026', N'Khoa Tấn Nguyễn', '2002-07-30', '2020-10-14', '347013089707', '0535893190', 'TK026', N'Nam', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV027', N'Thành Phạm', '1992-05-27', '2021-11-25', '315608100239', '0247643257', 'TK027', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV028', N'Bác Quang Nguyễn', '1997-06-26', '2022-07-16', '571724672039', '0310537471', 'TK028', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV029', N'An Nguyễn', '1985-08-27', '2021-05-17', '862207561065', '0071983178', 'TK029', N'Nam', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV030', N'Quang Thế Lê', '2001-10-14', '2020-11-20', '229949830714', '0091408320', 'TK030', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV031', N'Anh Trung Nguyễn', '1986-05-06', '2020-11-03', '588175450514', '0640786832', 'TK031', N'Nam', N'Quản lý');
+INSERT INTO NHAN_VIEN VALUES ('NV032', N'Bà Yến Phạm', '1995-04-09', '2021-02-25', '203418280470', '0288093118', 'TK032', N'Nam', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV033', N'Quý ông Tùng Phạm', '1986-05-07', '2022-11-05', '914343518237', '0785043168', 'TK033', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV034', N'Quý cô Duyên Dương', '1988-07-06', '2021-09-24', '507361036427', '0490433834', 'TK034', N'Nam', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV035', N'Tùng Mai', '1996-05-16', '2024-07-23', '738192686476', '0435118670', 'TK035', N'Nam', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV036', N'Chị Hồng Hoàng', '1988-07-18', '2020-09-17', '298287711101', '0073772809', 'TK036', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV037', N'Quý cô Yến Nguyễn', '1999-06-19', '2021-10-01', '468345474487', '0614446670', 'TK037', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV038', N'Tùng Bùi', '2001-06-22', '2022-03-21', '827123073861', '0359804888', 'TK038', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV039', N'Anh Trí Mai', '1995-11-10', '2022-05-27', '376578742066', '0041414369', 'TK039', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV040', N'Trung Hữu Lê', '1994-02-10', '2023-11-26', '949201868495', '0696637418', 'TK040', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV041', N'Quang Quang Bùi', '1999-03-27', '2023-08-20', '981413552665', '0293908453', 'TK041', N'Nam', N'Quản lý');
+INSERT INTO NHAN_VIEN VALUES ('NV042', N'Chị Thành Phạm', '2000-08-25', '2022-01-17', '956079443671', '0714784467', 'TK042', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV043', N'Cô Hương Vũ', '2001-05-31', '2021-01-18', '108348395803', '0911020900', 'TK043', N'Nam', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV044', N'Hạnh Mai Bảo Nguyễn', '1993-09-19', '2022-04-25', '787215301882', '0703900724', 'TK044', N'Nam', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV045', N'Anh Phú Mai', '1999-07-03', '2020-08-29', '871187301940', '0535731372', 'TK045', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV046', N'Ngọc Dương', '1985-07-14', '2024-04-18', '270119307334', '0644709109', 'TK046', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV047', N'Anh Minh Trần', '1985-02-21', '2020-04-16', '648080785867', '0155595592', 'TK047', N'Nữ', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV048', N'Nhật Trần', '1986-01-22', '2024-04-10', '649983067937', '0991708726', 'TK048', N'Nam', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV049', N'Lâm Mai Bảo Bùi', '1998-03-16', '2020-07-25', '028655951303', '0918334698', 'TK049', N'Nam', N'Sale');
+INSERT INTO NHAN_VIEN VALUES ('NV050', N'Quang Đức Vũ', '1999-01-15', '2021-11-09', '521166931309', '0416219018', 'TK050', N'Nam', N'Sale');
+
+
+
+-- =====================================================
+-- TAI_KHOAN KHACH_HANG
+-- =====================================================
+INSERT INTO TAI_KHOAN VALUES ('TK051','123456','kh51@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK052','123456','kh52@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK053','123456','kh53@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK054','123456','kh54@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK055','123456','kh55@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK056','123456','kh56@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK057','123456','kh57@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK058','123456','kh58@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK059','123456','kh59@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK060','123456','kh60@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK061','123456','kh61@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK062','123456','kh62@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK063','123456','kh63@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK064','123456','kh64@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK065','123456','kh65@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK066','123456','kh66@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK067','123456','kh67@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK068','123456','kh68@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK069','123456','kh69@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK070','123456','kh70@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK071','123456','kh71@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK072','123456','kh72@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK073','123456','kh73@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK074','123456','kh74@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK075','123456','kh75@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK076','123456','kh76@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK077','123456','kh77@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK078','123456','kh78@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK079','123456','kh79@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK080','123456','kh80@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK081','123456','kh81@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK082','123456','kh82@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK083','123456','kh83@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK084','123456','kh84@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK085','123456','kh85@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK086','123456','kh86@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK087','123456','kh87@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK088','123456','kh88@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK089','123456','kh89@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK090','123456','kh90@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK091','123456','kh91@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK092','123456','kh92@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK093','123456','kh93@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK094','123456','kh94@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK095','123456','kh95@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK096','123456','kh96@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK097','123456','kh97@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK098','123456','kh98@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK099','123456','kh99@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK100','123456','kh100@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK101','123456','kh001@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK102','123456','kh002@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK103','123456','kh003@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK104','123456','kh004@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK105','123456','kh005@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK106','123456','kh006@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK107','123456','kh007@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK108','123456','kh008@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK109','123456','kh009@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK110','123456','kh010@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK111','123456','kh011@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK112','123456','kh012@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK113','123456','kh013@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK114','123456','kh014@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK115','123456','kh015@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK116','123456','kh016@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK117','123456','kh017@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK118','123456','kh018@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK119','123456','kh019@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK120','123456','kh020@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK121','123456','kh021@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK122','123456','kh022@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK123','123456','kh023@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK124','123456','kh024@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK125','123456','kh025@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK126','123456','kh026@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK127','123456','kh027@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK128','123456','kh028@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK129','123456','kh029@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK130','123456','kh030@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK131','123456','kh031@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK132','123456','kh032@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK133','123456','kh033@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK134','123456','kh034@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK135','123456','kh035@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK136','123456','kh036@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK137','123456','kh037@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK138','123456','kh038@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK139','123456','kh039@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK140','123456','kh040@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK141','123456','kh041@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK142','123456','kh042@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK143','123456','kh043@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK144','123456','kh044@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK145','123456','kh045@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK146','123456','kh046@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK147','123456','kh047@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK148','123456','kh048@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK149','123456','kh049@gmail.com','CUSTOMER',NULL);
+INSERT INTO TAI_KHOAN VALUES ('TK150','123456','kh050@gmail.com','CUSTOMER',NULL);
+
+-- =====================================================
+-- KHACH_HANG
+-- =====================================================
+
+INSERT INTO KHACH_HANG VALUES ('KH001',N'Nhiên Hoàng','1995-11-25','524946814569','0042095194',N'Nam','TK051');
+INSERT INTO KHACH_HANG VALUES ('KH002',N'Bà Ngọc Nguyễn','2004-12-15','810742763958','0011040677',N'Nam','TK052');
+INSERT INTO KHACH_HANG VALUES ('KH003',N'Nam Mai','2006-12-09','107641318106','0526195894',N'Nữ','TK053');
+INSERT INTO KHACH_HANG VALUES ('KH004',N'Bảo Lê','1997-01-18','106988285803','0372482389',N'Nam','TK054');
+INSERT INTO KHACH_HANG VALUES ('KH005',N'Vi Phạm','1995-11-10','191596036274','0122677040',N'Nữ','TK055');
+INSERT INTO KHACH_HANG VALUES ('KH006',N'Châu Bùi','2005-06-10','835569359987','0096323624',N'Nữ','TK056');
+INSERT INTO KHACH_HANG VALUES ('KH007',N'Quang Vũ','2000-07-09','706856880053','0055044127',N'Nam','TK057');
+INSERT INTO KHACH_HANG VALUES ('KH008',N'Vũ Đặng','1999-01-12','668989938299','0550890306',N'Nam','TK058');
+INSERT INTO KHACH_HANG VALUES ('KH009',N'Thành Dương','2001-02-06','226679893679','0055341218',N'Nữ','TK059');
+INSERT INTO KHACH_HANG VALUES ('KH010',N'Linh Đặng','1998-11-27','287436013401','0793576914',N'Nam','TK060');
+INSERT INTO KHACH_HANG VALUES ('KH011',N'Nhiên Nguyễn','1995-06-08','275848701060','0489986006',N'Nam','TK061');
+INSERT INTO KHACH_HANG VALUES ('KH012',N'Bảo Văn Mai','1998-11-27','851689112719','0640028148',N'Nam','TK062');
+INSERT INTO KHACH_HANG VALUES ('KH013',N'Nhật Phú Vũ','2002-05-25','108487718649','0767290872',N'Nữ','TK063');
+INSERT INTO KHACH_HANG VALUES ('KH014',N'Chị Bảo Bùi','1997-02-28','831269765107','0664314690',N'Nam','TK064');
+INSERT INTO KHACH_HANG VALUES ('KH015',N'Dũng Đức Bùi','2003-01-25','504887639471','0648950518',N'Nữ','TK065');
+INSERT INTO KHACH_HANG VALUES ('KH016',N'Lâm Mai Vũ','2000-04-10','189411881799','0993054806',N'Nam','TK066');
+INSERT INTO KHACH_HANG VALUES ('KH017',N'Chị An Vũ','1998-02-07','648957464125','0596581105',N'Nam','TK067');
+INSERT INTO KHACH_HANG VALUES ('KH018',N'Ông Châu Vũ','1997-07-27','796837372041','0189895671',N'Nam','TK068');
+INSERT INTO KHACH_HANG VALUES ('KH019',N'Anh Hoàng','2000-09-09','556107081263','0584661729',N'Nữ','TK069');
+INSERT INTO KHACH_HANG VALUES ('KH020',N'Quý ông Dũng Đặng','1998-02-18','572591441496','0602685755',N'Nam','TK070');
+INSERT INTO KHACH_HANG VALUES ('KH021',N'Quý ông Tú Mai','2003-05-21','625936204128','0926770145',N'Nam','TK071');
+INSERT INTO KHACH_HANG VALUES ('KH022',N'Cô Nhật Lê','1997-07-13','857514781654','0415704667',N'Nữ','TK072');
+INSERT INTO KHACH_HANG VALUES ('KH023',N'Bảo Trần','1999-12-13','804293593184','0929532382',N'Nam','TK073');
+INSERT INTO KHACH_HANG VALUES ('KH024',N'Bảo Mai Bảo Mai','1995-05-30','631995130205','0786637309',N'Nữ','TK074');
+INSERT INTO KHACH_HANG VALUES ('KH025',N'Hà Hoàng','2001-11-04','060510386118','0993061844',N'Nữ','TK075');
+INSERT INTO KHACH_HANG VALUES ('KH026',N'Nhật Trần','2004-05-17','486405781016','0094999471',N'Nam','TK076');
+INSERT INTO KHACH_HANG VALUES ('KH027',N'Hồng Dương','1995-01-25','915368573251','0895117822',N'Nam','TK077');
+INSERT INTO KHACH_HANG VALUES ('KH028',N'Cô Khoa Hoàng','1998-09-06','228604188748','0481503665',N'Nam','TK078');
+INSERT INTO KHACH_HANG VALUES ('KH029',N'Hà Thị Đặng','1998-11-15','377142389473','0656192858',N'Nam','TK079');
+INSERT INTO KHACH_HANG VALUES ('KH030',N'Thành Phú Nguyễn','2000-10-20','624007814082','0673832812',N'Nam','TK080');
+INSERT INTO KHACH_HANG VALUES ('KH031',N'Thành Hải Lê','2002-03-26','704582732370','0914316363',N'Nữ','TK081');
+INSERT INTO KHACH_HANG VALUES ('KH032',N'Chị Thành Lê','1998-12-04','927646423030','0020884878',N'Nữ','TK082');
+INSERT INTO KHACH_HANG VALUES ('KH033',N'Kim Thị Hoàng','2002-09-17','220780465065','0183350981',N'Nam','TK083');
+INSERT INTO KHACH_HANG VALUES ('KH034',N'Nhiên Đức Dương','2000-12-21','073325109159','0576284191',N'Nam','TK084');
+INSERT INTO KHACH_HANG VALUES ('KH035',N'Vũ Đức Nguyễn','1999-01-10','866007728054','0281634753',N'Nữ','TK085');
+INSERT INTO KHACH_HANG VALUES ('KH036',N'An Hữu Hoàng','2003-11-26','929061756880','0410051439',N'Nam','TK086');
+INSERT INTO KHACH_HANG VALUES ('KH037',N'Hải Vũ','2000-12-21','957363463795','0661603794',N'Nữ','TK087');
+INSERT INTO KHACH_HANG VALUES ('KH038',N'Thảo Dương','2005-05-04','884353933590','0205035002',N'Nam','TK088');
+INSERT INTO KHACH_HANG VALUES ('KH039',N'Chi Đặng','2006-05-25','625702055908','0029749644',N'Nữ','TK089');
+INSERT INTO KHACH_HANG VALUES ('KH040',N'Quý cô Phương Phạm','2000-08-26','478884405557','0239933606',N'Nữ','TK090');
+INSERT INTO KHACH_HANG VALUES ('KH041',N'Phương Trần','2006-12-17','028536569626','0246364507',N'Nam','TK091');
+INSERT INTO KHACH_HANG VALUES ('KH042',N'Ngọc Đặng','2004-07-15','952371156926','0613532524',N'Nữ','TK092');
+INSERT INTO KHACH_HANG VALUES ('KH043',N'Quý cô Thảo Dương','2004-09-24','376845383916','0118864693',N'Nữ','TK093');
+INSERT INTO KHACH_HANG VALUES ('KH044',N'An Nguyễn','1996-04-19','761450586585','0245613717',N'Nữ','TK094');
+INSERT INTO KHACH_HANG VALUES ('KH045',N'Trung Đức Mai','1995-12-10','581721328837','0996188768',N'Nữ','TK095');
+INSERT INTO KHACH_HANG VALUES ('KH046',N'Hà Trí Dương','2001-04-26','721652969474','0324843773',N'Nam','TK096');
+INSERT INTO KHACH_HANG VALUES ('KH047',N'Quý cô Bảo Phạm','1995-02-02','030062906102','0094823183',N'Nữ','TK097');
+INSERT INTO KHACH_HANG VALUES ('KH048',N'Nhật Hoàng','1997-07-23','942957565987','0500160513',N'Nữ','TK098');
+INSERT INTO KHACH_HANG VALUES ('KH049',N'Hương Phạm','1999-07-21','099733212467','0969235331',N'Nữ','TK099');
+INSERT INTO KHACH_HANG VALUES ('KH050',N'Hưng Hoàng Vũ','1998-10-30','275427132527','0358147027',N'Nam','TK100');
+INSERT INTO KHACH_HANG VALUES ('KH051',N'Quý cô Nhật Phạm','2000-12-05','562649365788','0317075974',N'Nam','TK101');
+INSERT INTO KHACH_HANG VALUES ('KH052',N'Tùng Trí Phạm','1998-03-19','320128292096','0256021013',N'Nữ','TK102');
+INSERT INTO KHACH_HANG VALUES ('KH053',N'Lâm Đặng','1999-03-08','154075116766','0103062947',N'Nữ','TK103');
+INSERT INTO KHACH_HANG VALUES ('KH054',N'Bảo Quang Phạm','1995-01-21','453246858307','0785838042',N'Nam','TK104');
+INSERT INTO KHACH_HANG VALUES ('KH055',N'Quý cô Chi Mai','1996-11-11','436647871801','0817143868',N'Nam','TK105');
+INSERT INTO KHACH_HANG VALUES ('KH056',N'Quý cô Thành Mai','1995-06-17','447725708795','0980494017',N'Nữ','TK106');
+INSERT INTO KHACH_HANG VALUES ('KH057',N'Bảo Mai Bùi','1999-11-07','894721401659','0540324539',N'Nam','TK107');
+INSERT INTO KHACH_HANG VALUES ('KH058',N'Cô Nhật Nguyễn','2006-06-19','484620659331','0343456343',N'Nữ','TK108');
+INSERT INTO KHACH_HANG VALUES ('KH059',N'Cô Nhật Phạm','2003-08-08','047543751481','0728798337',N'Nữ','TK109');
+INSERT INTO KHACH_HANG VALUES ('KH060',N'Hưng Đặng','2005-07-12','478523442744','0384732260',N'Nam','TK110');
+INSERT INTO KHACH_HANG VALUES ('KH061',N'Anh Dương','1999-12-29','323175923476','0539823940',N'Nữ','TK111');
+INSERT INTO KHACH_HANG VALUES ('KH062',N'Hưng Bảo Dương','2001-07-27','034764927114','0341714714',N'Nam','TK112');
+INSERT INTO KHACH_HANG VALUES ('KH063',N'Anh Dũng Đặng','1998-12-22','446485993857','0269632815',N'Nam','TK113');
+INSERT INTO KHACH_HANG VALUES ('KH064',N'Mai Vũ','2003-06-04','690115043368','0201217055',N'Nam','TK114');
+INSERT INTO KHACH_HANG VALUES ('KH065',N'Cô Thành Dương','1999-02-04','642161482957','0327075768',N'Nữ','TK115');
+INSERT INTO KHACH_HANG VALUES ('KH066',N'Bảo Lê','1999-12-31','068848478205','0120842882',N'Nữ','TK116');
+INSERT INTO KHACH_HANG VALUES ('KH067',N'Hải Thị Bùi','2002-07-06','072660695593','0287253362',N'Nữ','TK117');
+INSERT INTO KHACH_HANG VALUES ('KH068',N'Ông Dũng Lê','2002-04-22','349560097916','0367706237',N'Nam','TK118');
+INSERT INTO KHACH_HANG VALUES ('KH069',N'Mai Nguyễn','2002-09-02','633006539102','0588002325',N'Nam','TK119');
+INSERT INTO KHACH_HANG VALUES ('KH070',N'Phương Đức Dương','2003-11-28','291585911204','0221115004',N'Nam','TK120');
+INSERT INTO KHACH_HANG VALUES ('KH071',N'Thảo Vũ','2001-03-25','284062644030','0021019229',N'Nữ','TK121');
+INSERT INTO KHACH_HANG VALUES ('KH072',N'Anh Thành Nguyễn','2004-10-18','667630293306','0995468900',N'Nam','TK122');
+INSERT INTO KHACH_HANG VALUES ('KH073',N'Quý ông Châu Lê','2001-11-12','816841453141','0570088665',N'Nữ','TK123');
+INSERT INTO KHACH_HANG VALUES ('KH074',N'Cô Duyên Mai','1998-10-01','188959050004','0464312392',N'Nam','TK124');
+INSERT INTO KHACH_HANG VALUES ('KH075',N'Lâm Phú Trần','2003-02-23','074967209333','0406623960',N'Nam','TK125');
+INSERT INTO KHACH_HANG VALUES ('KH076',N'Bà Xuân Phạm','1999-05-10','004556599303','0366553031',N'Nam','TK126');
+INSERT INTO KHACH_HANG VALUES ('KH077',N'Chi Bùi','2003-10-18','776337656286','0283774203',N'Nữ','TK127');
+INSERT INTO KHACH_HANG VALUES ('KH078',N'Nhật Thị Lê','1997-07-13','506156818947','0185073590',N'Nữ','TK128');
+INSERT INTO KHACH_HANG VALUES ('KH079',N'Quý cô Hồng Dương','2004-03-03','566105861784','0887041234',N'Nam','TK129');
+INSERT INTO KHACH_HANG VALUES ('KH080',N'Minh Lê','2004-02-16','026746227077','0062889551',N'Nam','TK130');
+INSERT INTO KHACH_HANG VALUES ('KH081',N'Thành Mai','2003-02-15','135013908848','0501767100',N'Nam','TK131');
+INSERT INTO KHACH_HANG VALUES ('KH082',N'Anh Tú Mai','1998-06-18','858273690530','0764475328',N'Nam','TK132');
+INSERT INTO KHACH_HANG VALUES ('KH083',N'Ngọc Mai','1998-05-15','643107038164','0793955368',N'Nữ','TK133');
+INSERT INTO KHACH_HANG VALUES ('KH084',N'Nhật Đặng','1999-02-09','128731219625','0473021735',N'Nam','TK134');
+INSERT INTO KHACH_HANG VALUES ('KH085',N'Bà Bảo Nguyễn','1997-05-23','708813356685','0559265918',N'Nữ','TK135');
+INSERT INTO KHACH_HANG VALUES ('KH086',N'Cô Chi Hoàng','2003-12-21','397488651460','0663056426',N'Nam','TK136');
+INSERT INTO KHACH_HANG VALUES ('KH087',N'Phương Quang Mai','2003-05-24','140564496298','0250862508',N'Nữ','TK137');
+INSERT INTO KHACH_HANG VALUES ('KH088',N'Tú Mai Nguyễn','2004-12-05','127483062932','0171571841',N'Nữ','TK138');
+INSERT INTO KHACH_HANG VALUES ('KH089',N'Trung Quang Phạm','2004-02-13','403354555870','0722096963',N'Nam','TK139');
+INSERT INTO KHACH_HANG VALUES ('KH090',N'Quý cô Hải Mai','1999-09-03','243823297221','0742462503',N'Nữ','TK140');
+INSERT INTO KHACH_HANG VALUES ('KH091',N'Bác Trung Phạm','2005-03-02','472054557793','0626547482',N'Nữ','TK141');
+INSERT INTO KHACH_HANG VALUES ('KH092',N'Thành Trần','1995-03-10','561305691692','0957230233',N'Nữ','TK142');
+INSERT INTO KHACH_HANG VALUES ('KH093',N'Cô Nhật Đặng','2003-01-12','825076589458','0748802721',N'Nam','TK143');
+INSERT INTO KHACH_HANG VALUES ('KH094',N'Cô Vân Mai','2001-11-19','188016557298','0894228491',N'Nam','TK144');
+INSERT INTO KHACH_HANG VALUES ('KH095',N'Quý cô Yến Lê','1997-05-10','245290177731','0516882226',N'Nữ','TK145');
+INSERT INTO KHACH_HANG VALUES ('KH096',N'Nam Hữu Bùi','2001-03-13','023124304592','0679648430',N'Nữ','TK146');
+INSERT INTO KHACH_HANG VALUES ('KH097',N'Ánh Hoàng','2001-10-03','154786697800','0675241887',N'Nữ','TK147');
+INSERT INTO KHACH_HANG VALUES ('KH098',N'Lan Nguyễn','2003-10-30','506551439637','0722831757',N'Nữ','TK148');
+INSERT INTO KHACH_HANG VALUES ('KH099',N'Quý ông Tú Dương','2004-06-24','683568464160','0148831741',N'Nam','TK149');
+INSERT INTO KHACH_HANG VALUES ('KH100',N'Quang Hoàng','1998-07-01','972900869688','0384203709',N'Nữ','TK150');
+-- =====================================================
+-- PHIEU_DANG_KY_THUE
+-- =====================================================
+
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK001','2024-09-20','KH065',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK002','2025-08-07','KH089',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK003','2025-06-25','KH020',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK004','2024-09-15','KH084',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK005','2025-04-20','KH006',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK006','2025-06-03','KH077',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK007','2024-11-04','KH094',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK008','2024-11-01','KH078',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK009','2024-07-22','KH100',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK010','2025-10-02','KH087',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK011','2024-11-10','KH056',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK012','2025-08-06','KH062',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK013','2024-04-27','KH039',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK014','2025-11-11','KH073',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK015','2024-01-17','KH064',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK016','2024-05-09','KH010',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK017','2025-08-11','KH034',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK018','2025-03-30','KH023',N'Cá nhân');
+
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK019','2025-07-01','KH085',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK020','2024-12-10','KH071',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK021','2024-05-12','KH047',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK022','2024-07-12','KH094',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK023','2024-06-29','KH021',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK024','2025-10-26','KH095',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK025','2024-09-12','KH003',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK026','2025-09-29','KH072',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK027','2024-07-08','KH022',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK028','2024-10-22','KH037',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK029','2025-04-20','KH055',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK030','2024-06-10','KH006',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK031','2025-04-07','KH025',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK032','2024-03-22','KH018',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK033','2024-04-03','KH075',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK034','2025-05-04','KH055',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK035','2025-08-06','KH085',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK036','2025-11-05','KH050',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK037','2025-05-04','KH092',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK038','2025-06-18','KH002',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK039','2025-09-23','KH055',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK040','2024-12-22','KH041',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK041','2024-05-09','KH027',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK042','2025-06-24','KH020',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK043','2024-10-26','KH072',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK044','2024-08-11','KH053',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK045','2025-01-11','KH076',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK046','2025-03-13','KH070',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK047','2024-10-23','KH094',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK048','2025-03-31','KH076',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK049','2024-01-24','KH076',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK050','2024-08-16','KH058',N'Nhóm');
+
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK051','2024-05-05','KH018',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK052','2025-03-13','KH013',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK053','2025-12-31','KH060',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK054','2024-10-02','KH069',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK055','2025-03-23','KH098',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK056','2024-07-18','KH095',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK057','2025-12-05','KH064',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK058','2025-06-11','KH083',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK059','2025-01-15','KH093',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK060','2024-11-04','KH019',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK061','2024-06-12','KH100',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK062','2025-03-13','KH099',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK063','2025-12-15','KH017',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK064','2025-12-13','KH080',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK065','2024-12-21','KH057',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK066','2024-01-16','KH062',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK067','2024-07-17','KH051',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK068','2025-06-16','KH086',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK069','2025-02-14','KH053',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK070','2024-07-06','KH088',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK071','2024-10-28','KH016',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK072','2024-12-11','KH014',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK073','2025-10-21','KH086',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK074','2024-04-28','KH053',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK075','2024-09-07','KH046',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK076','2024-05-22','KH044',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK077','2024-01-20','KH011',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK078','2024-09-25','KH073',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK079','2024-07-04','KH066',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK080','2024-11-26','KH015',N'Nhóm');
+
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK081','2024-10-02','KH046',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK082','2025-12-04','KH055',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK083','2024-09-13','KH096',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK084','2025-07-27','KH047',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK085','2025-11-04','KH080',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK086','2024-09-28','KH082',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK087','2025-09-21','KH075',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK088','2024-06-25','KH025',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK089','2025-09-17','KH009',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK090','2025-10-04','KH012',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK091','2024-04-19','KH080',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK092','2024-01-11','KH088',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK093','2024-11-27','KH057',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK094','2025-11-17','KH004',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK095','2025-11-27','KH042',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK096','2025-03-16','KH092',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK097','2025-06-21','KH047',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK098','2025-12-05','KH001',N'Nhóm');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK099','2024-03-15','KH053',N'Cá nhân');
+INSERT INTO PHIEU_DANG_KY_THUE VALUES ('PDK100','2025-04-02','KH085',N'Cá nhân');
+-- =====================================================
+-- PHIEU_DAT_COC
+-- =====================================================
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC001','2025-12-18 18:03:20',500000,N'Đã đặt cọc','KH003','NV023');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC002','2025-12-19 02:25:48',1000000,N'Đã đặt cọc','KH038','NV017');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC003','2025-09-09 19:22:26',2000000,N'Đã đặt cọc','KH003','NV020');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC004','2024-12-25 17:16:42',1500000,N'Đã đặt cọc','KH021','NV035');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC005','2024-01-12 02:25:41',1000000,N'Đã đặt cọc','KH089','NV017');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC006','2025-08-14 11:20:00',500000,N'Đã đặt cọc','KH094','NV046');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC007','2025-12-12 15:06:11',1000000,N'Đã đặt cọc','KH024','NV003');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC008','2025-11-19 20:07:18',1000000,N'Đã đặt cọc','KH061','NV043');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC009','2025-11-24 22:59:52',1500000,N'Đã đặt cọc','KH001','NV020');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC010','2024-10-26 03:08:42',1500000,N'Đã đặt cọc','KH085','NV042');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC011','2024-09-07 05:00:19',2000000,N'Đã đặt cọc','KH085','NV018');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC012','2024-11-09 13:33:19',500000,N'Chưa đặt cọc','KH096','NV001');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC013','2024-06-14 23:27:28',500000,N'Đã đặt cọc','KH038','NV042');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC014','2025-01-16 20:37:18',1000000,N'Đã đặt cọc','KH052','NV001');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC015','2025-05-29 11:22:56',2000000,N'Đã đặt cọc','KH092','NV008');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC016','2025-09-07 14:10:45',1000000,N'Chưa đặt cọc','KH051','NV003');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC017','2024-09-06 22:11:15',2000000,N'Chưa đặt cọc','KH073','NV034');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC018','2025-06-06 09:15:17',2000000,N'Đã đặt cọc','KH017','NV011');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC019','2025-12-10 00:57:37',1500000,N'Chưa đặt cọc','KH017','NV001');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC020','2025-10-22 12:27:00',500000,N'Đã đặt cọc','KH077','NV005');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC021','2024-03-03 05:12:56',1500000,N'Đã đặt cọc','KH064','NV043');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC022','2025-12-10 17:04:21',1500000,N'Đã đặt cọc','KH050','NV029');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC023','2025-02-14 20:51:38',1500000,N'Đã đặt cọc','KH040','NV009');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC024','2024-11-03 16:20:02',1000000,N'Đã đặt cọc','KH075','NV003');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC025','2024-02-13 20:37:10',1000000,N'Đã đặt cọc','KH093','NV035');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC026','2024-05-19 19:07:12',1500000,N'Đã đặt cọc','KH057','NV031');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC027','2024-03-05 06:46:11',2000000,N'Đã đặt cọc','KH070','NV045');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC028','2025-02-25 22:37:53',1500000,N'Đã đặt cọc','KH038','NV023');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC029','2024-03-09 13:30:55',2000000,N'Đã đặt cọc','KH014','NV037');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC030','2024-11-15 12:56:05',2000000,N'Đã đặt cọc','KH021','NV002');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC031','2024-08-15 16:50:38',1000000,N'Đã đặt cọc','KH006','NV011');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC032','2025-11-23 21:38:46',1000000,N'Đã đặt cọc','KH009','NV022');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC033','2025-12-18 22:14:01',2000000,N'Đã đặt cọc','KH028','NV005');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC034','2024-11-15 03:38:07',1500000,N'Đã đặt cọc','KH050','NV043');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC035','2025-06-15 05:05:50',1000000,N'Đã đặt cọc','KH048','NV035');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC036','2025-11-07 00:03:09',1500000,N'Đã đặt cọc','KH090','NV012');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC037','2024-11-29 18:05:59',2000000,N'Đã đặt cọc','KH086','NV021');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC038','2025-07-29 00:15:33',500000,N'Đã đặt cọc','KH036','NV036');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC039','2025-08-02 11:22:14',500000,N'Đã đặt cọc','KH035','NV009');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC040','2025-10-17 14:32:26',1000000,N'Đã đặt cọc','KH070','NV037');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC041','2025-04-25 12:40:55',1500000,N'Chưa đặt cọc','KH020','NV050');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC042','2025-03-20 16:04:20',1500000,N'Đã đặt cọc','KH002','NV039');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC043','2025-05-21 01:04:56',1500000,N'Đã đặt cọc','KH065','NV036');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC044','2024-03-27 15:08:14',1000000,N'Đã đặt cọc','KH046','NV035');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC045','2025-01-24 18:47:01',1000000,N'Đã đặt cọc','KH079','NV014');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC046','2025-01-29 14:43:27',500000,N'Chưa đặt cọc','KH063','NV012');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC047','2024-05-29 10:01:25',500000,N'Đã đặt cọc','KH039','NV019');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC048','2025-06-11 05:58:32',2000000,N'Đã đặt cọc','KH005','NV024');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC049','2024-02-13 18:21:52',500000,N'Đã đặt cọc','KH094','NV045');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC050','2024-07-23 16:35:47',1000000,N'Đã đặt cọc','KH039','NV038');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC051','2025-02-05 19:49:23',2000000,N'Đã đặt cọc','KH032','NV008');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC052','2024-05-05 10:03:58',500000,N'Chưa đặt cọc','KH087','NV014');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC053','2025-06-16 17:50:17',500000,N'Chưa đặt cọc','KH065','NV047');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC054','2025-01-17 01:44:07',2000000,N'Đã đặt cọc','KH069','NV008');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC055','2025-09-06 20:54:07',1000000,N'Đã đặt cọc','KH051','NV017');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC056','2025-10-24 06:27:50',2000000,N'Đã đặt cọc','KH038','NV041');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC057','2025-09-13 04:59:06',2000000,N'Đã đặt cọc','KH082','NV028');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC058','2024-09-22 09:47:26',1500000,N'Đã đặt cọc','KH082','NV015');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC059','2025-07-09 10:21:06',2000000,N'Đã đặt cọc','KH026','NV036');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC060','2025-01-23 02:14:26',500000,N'Đã đặt cọc','KH013','NV036');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC061','2024-11-15 02:47:20',1500000,N'Đã đặt cọc','KH079','NV047');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC062','2024-11-07 07:56:21',1500000,N'Chưa đặt cọc','KH054','NV031');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC063','2025-06-16 15:10:03',2000000,N'Đã đặt cọc','KH014','NV025');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC064','2024-03-19 13:51:51',1500000,N'Đã đặt cọc','KH048','NV023');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC065','2025-11-09 19:27:14',2000000,N'Chưa đặt cọc','KH058','NV043');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC066','2025-06-12 08:12:06',1500000,N'Đã đặt cọc','KH083','NV038');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC067','2024-02-05 01:59:02',500000,N'Đã đặt cọc','KH080','NV016');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC068','2025-10-19 10:39:49',2000000,N'Đã đặt cọc','KH023','NV045');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC069','2024-01-05 18:50:54',500000,N'Đã đặt cọc','KH036','NV005');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC070','2025-07-19 02:51:16',1500000,N'Đã đặt cọc','KH035','NV048');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC071','2025-12-17 05:19:05',2000000,N'Đã đặt cọc','KH082','NV045');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC072','2025-12-13 15:32:39',1500000,N'Đã đặt cọc','KH039','NV048');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC073','2025-04-13 14:35:53',500000,N'Đã đặt cọc','KH019','NV026');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC074','2024-04-21 19:10:48',500000,N'Đã đặt cọc','KH085','NV043');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC075','2024-09-09 14:38:31',1000000,N'Đã đặt cọc','KH062','NV029');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC076','2024-11-13 00:46:02',1000000,N'Đã đặt cọc','KH078','NV026');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC077','2024-02-27 04:27:50',500000,N'Đã đặt cọc','KH031','NV019');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC078','2025-06-07 14:06:35',1500000,N'Chưa đặt cọc','KH068','NV021');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC079','2025-01-05 17:06:26',1500000,N'Đã đặt cọc','KH048','NV047');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC080','2025-03-04 18:53:34',1000000,N'Đã đặt cọc','KH086','NV004');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC081','2025-02-07 01:12:35',2000000,N'Đã đặt cọc','KH066','NV032');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC082','2024-04-30 11:01:30',500000,N'Đã đặt cọc','KH060','NV012');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC083','2025-11-30 15:30:42',1000000,N'Đã đặt cọc','KH097','NV003');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC084','2025-04-12 04:07:47',1500000,N'Chưa đặt cọc','KH080','NV039');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC085','2025-09-07 20:51:15',2000000,N'Chưa đặt cọc','KH049','NV046');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC086','2025-04-28 05:16:38',1500000,N'Đã đặt cọc','KH052','NV041');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC087','2025-12-04 04:28:33',500000,N'Đã đặt cọc','KH039','NV018');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC088','2025-09-25 08:56:25',1500000,N'Đã đặt cọc','KH056','NV028');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC089','2025-09-05 05:32:02',1000000,N'Đã đặt cọc','KH040','NV019');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC090','2024-02-27 07:33:09',2000000,N'Đã đặt cọc','KH085','NV029');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC091','2024-04-22 02:17:23',2000000,N'Đã đặt cọc','KH003','NV048');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC092','2024-08-21 21:16:28',2000000,N'Đã đặt cọc','KH031','NV009');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC093','2024-09-16 12:05:07',500000,N'Đã đặt cọc','KH094','NV027');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC094','2025-04-10 23:00:48',1000000,N'Đã đặt cọc','KH093','NV026');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC095','2024-09-27 06:46:03',500000,N'Đã đặt cọc','KH089','NV003');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC096','2025-02-28 21:13:49',1500000,N'Đã đặt cọc','KH062','NV001');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC097','2025-08-21 03:53:35',500000,N'Đã đặt cọc','KH085','NV004');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC098','2024-05-22 03:33:06',500000,N'Đã đặt cọc','KH008','NV049');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC099','2024-03-10 19:38:06',2000000,N'Đã đặt cọc','KH018','NV012');
+INSERT INTO PHIEU_DAT_COC VALUES ('PDC100','2024-06-06 22:02:40',500000,N'Đã đặt cọc','KH080','NV041');
+
+-- =====================================================
+-- LICH
+-- =====================================================
+
+INSERT INTO LICH VALUES ('LICH0001','2026-06-08 01:21:13',N'Xem phòng',N'Chưa xử lý','PDK001',NULL,'KTX001','P101','NV001');
+INSERT INTO LICH VALUES ('LICH0002','2026-06-07 04:08:16',N'Nhận phòng',N'Chưa xử lý','PDK002',NULL,'KTX001','P102','NV002');
+INSERT INTO LICH VALUES ('LICH0003','2026-07-14 15:30:28',N'Bàn giao phòng',N'Chưa xử lý','PDK003',NULL,'KTX001','P201','NV003');
+INSERT INTO LICH VALUES ('LICH0004','2026-08-05 04:20:19',N'Xem phòng',N'Chưa xử lý','PDK004',NULL,'KTX001','P202','NV004');
+INSERT INTO LICH VALUES ('LICH0005','2026-07-06 09:48:01',N'Bàn giao phòng', N'Đã xử lý','PDK005',NULL,'KTX001','P301','NV005');
+
+INSERT INTO LICH VALUES ('LICH0006','2026-06-23 23:03:07',N'Bàn giao phòng',N'Chưa xử lý','PDK006',NULL,'KTX002','P101','NV006');
+INSERT INTO LICH VALUES ('LICH0007','2026-07-17 21:03:24',N'Bàn giao phòng', N'Đã xử lý','PDK007',NULL,'KTX002','P102','NV007');
+INSERT INTO LICH VALUES ('LICH0008','2026-06-14 13:53:19',N'Bàn giao phòng',N'Chưa xử lý','PDK008',NULL,'KTX002','P201','NV008');
+INSERT INTO LICH VALUES ('LICH0009','2026-07-19 17:40:30',N'Bàn giao phòng',N'Chưa xử lý','PDK009',NULL,'KTX002','P202','NV009');
+INSERT INTO LICH VALUES ('LICH0010','2026-06-22 08:32:11',N'Bàn giao phòng',N'Chưa xử lý','PDK010',NULL,'KTX002','P101','NV010');
+
+INSERT INTO LICH VALUES ('LICH0011','2026-07-24 04:06:59',N'Nhận phòng',N'Chưa xử lý','PDK011',NULL,'KTX003','P101','NV011');
+INSERT INTO LICH VALUES ('LICH0012','2026-07-16 07:54:43',N'Nhận phòng', N'Đã xử lý','PDK012',NULL,'KTX003','P102','NV012');
+INSERT INTO LICH VALUES ('LICH0013','2026-06-23 18:35:14',N'Xem phòng',N'Chưa xử lý','PDK013',NULL,'KTX003','P201','NV013');
+INSERT INTO LICH VALUES ('LICH0014','2026-07-19 09:26:19',N'Bàn giao phòng',N'Chưa xử lý','PDK014',NULL,'KTX003','P202','NV014');
+INSERT INTO LICH VALUES ('LICH0015','2026-08-01 21:03:07',N'Xem phòng',N'Chưa xử lý','PDK015',NULL,'KTX003','P301','NV015');
+
+INSERT INTO LICH VALUES ('LICH0016','2026-05-19 16:03:51',N'Nhận phòng', N'Đã xử lý','PDK016',NULL,'KTX004','P101','NV016');
+INSERT INTO LICH VALUES ('LICH0017','2026-05-27 10:04:31',N'Nhận phòng', N'Đã xử lý','PDK017',NULL,'KTX004','P102','NV017');
+INSERT INTO LICH VALUES ('LICH0018','2026-06-19 02:18:32',N'Xem phòng', N'Đã xử lý','PDK018',NULL,'KTX004','P201','NV018');
+INSERT INTO LICH VALUES ('LICH0019','2026-07-06 05:23:35',N'Nhận phòng', N'Đã xử lý','PDK019',NULL,'KTX004','P202','NV019');
+INSERT INTO LICH VALUES ('LICH0020','2026-07-04 09:38:45',N'Xem phòng',N'Chưa xử lý','PDK020',NULL,'KTX004','P101','NV020');
+
+INSERT INTO LICH VALUES ('LICH0021','2026-07-09 15:39:01',N'Bàn giao phòng', N'Đã xử lý','PDK021',NULL,'KTX005','P101','NV021');
+INSERT INTO LICH VALUES ('LICH0022','2026-08-07 22:09:49',N'Xem phòng', N'Đã xử lý','PDK022',NULL,'KTX005','P102','NV022');
+INSERT INTO LICH VALUES ('LICH0023','2026-07-24 18:27:33',N'Xem phòng', N'Đã xử lý','PDK023',NULL,'KTX005','P201','NV023');
+INSERT INTO LICH VALUES ('LICH0024','2026-05-22 22:43:06',N'Bàn giao phòng',N'Chưa xử lý','PDK024',NULL,'KTX005','P202','NV024');
+INSERT INTO LICH VALUES ('LICH0025','2026-07-28 17:04:23',N'Bàn giao phòng',N'Chưa xử lý','PDK025',NULL,'KTX005','P301','NV025');
+INSERT INTO LICH VALUES ('LICH0026','2026-07-30 02:24:08',N'Xem phòng', N'Đã xử lý','PDK026',NULL,'KTX001','P102','NV026');
+INSERT INTO LICH VALUES ('LICH0027','2026-07-18 15:52:19',N'Nhận phòng', N'Đã xử lý','PDK027',NULL,'KTX002','P201','NV027');
+INSERT INTO LICH VALUES ('LICH0028','2026-05-18 17:00:16',N'Xem phòng',N'Chưa xử lý','PDK028',NULL,'KTX003','P202','NV028');
+INSERT INTO LICH VALUES ('LICH0029','2026-07-18 07:08:43',N'Xem phòng',N'Chưa xử lý','PDK029',NULL,'KTX004','P101','NV029');
+INSERT INTO LICH VALUES ('LICH0030','2026-05-19 17:36:29',N'Bàn giao phòng', N'Đã xử lý','PDK030',NULL,'KTX005','P202','NV030');
+
+INSERT INTO LICH VALUES ('LICH0031','2026-05-16 21:13:40',N'Nhận phòng',N'Chưa xử lý','PDK031',NULL,'KTX003','P402','NV031');
+INSERT INTO LICH VALUES ('LICH0032','2026-08-01 10:05:18',N'Nhận phòng',N'Chưa xử lý','PDK032',NULL,'KTX003','P101','NV032');
+INSERT INTO LICH VALUES ('LICH0033','2026-07-28 19:24:55',N'Nhận phòng', N'Đã xử lý','PDK033',NULL,'KTX002','P202','NV033');
+INSERT INTO LICH VALUES ('LICH0034','2026-05-22 21:09:48',N'Bàn giao phòng', N'Đã xử lý','PDK034',NULL,'KTX002','P201','NV034');
+INSERT INTO LICH VALUES ('LICH0035','2026-08-03 04:39:37',N'Nhận phòng',N'Chưa xử lý','PDK035',NULL,'KTX004','P202','NV035');
+INSERT INTO LICH VALUES ('LICH0036','2026-07-06 04:34:31',N'Xem phòng', N'Đã xử lý','PDK036',NULL,'KTX002','P101','NV036');
+INSERT INTO LICH VALUES ('LICH0037','2026-07-18 07:09:25',N'Bàn giao phòng',N'Chưa xử lý','PDK037',NULL,'KTX001','P102','NV037');
+INSERT INTO LICH VALUES ('LICH0038','2026-07-22 06:45:21',N'Bàn giao phòng',N'Chưa xử lý','PDK038',NULL,'KTX001','P201','NV038');
+INSERT INTO LICH VALUES ('LICH0039','2026-05-19 19:40:46',N'Xem phòng',N'Chưa xử lý','PDK039',NULL,'KTX004','P102','NV039');
+INSERT INTO LICH VALUES ('LICH0040','2026-06-30 22:49:51',N'Xem phòng',N'Chưa xử lý','PDK040',NULL,'KTX002','P201','NV040');
+
+INSERT INTO LICH VALUES ('LICH0041','2026-07-20 00:29:35',N'Bàn giao phòng', N'Đã xử lý','PDK041',NULL,'KTX004','P101','NV041');
+INSERT INTO LICH VALUES ('LICH0042','2026-07-02 08:32:41',N'Xem phòng', N'Đã xử lý','PDK042',NULL,'KTX005','P202','NV042');
+INSERT INTO LICH VALUES ('LICH0043','2026-05-25 01:36:11',N'Nhận phòng', N'Đã xử lý','PDK043',NULL,'KTX005','P401','NV043');
+INSERT INTO LICH VALUES ('LICH0044','2026-05-14 12:05:04',N'Bàn giao phòng', N'Đã xử lý','PDK044',NULL,'KTX004','P201','NV044');
+INSERT INTO LICH VALUES ('LICH0045','2026-06-24 20:41:06',N'Xem phòng',N'Chưa xử lý','PDK045',NULL,'KTX004','P101','NV045');
+INSERT INTO LICH VALUES ('LICH0046','2026-07-10 21:04:18',N'Bàn giao phòng', N'Đã xử lý','PDK046',NULL,'KTX004','P102','NV046');
+INSERT INTO LICH VALUES ('LICH0047','2026-07-17 21:54:30',N'Nhận phòng', N'Đã xử lý','PDK047',NULL,'KTX005','P301','NV047');
+INSERT INTO LICH VALUES ('LICH0048','2026-07-29 13:10:32',N'Nhận phòng',N'Chưa xử lý','PDK048',NULL,'KTX003','P201','NV048');
+INSERT INTO LICH VALUES ('LICH0049','2026-06-27 19:01:44',N'Bàn giao phòng', N'Đã xử lý','PDK049',NULL,'KTX003','P302','NV049');
+INSERT INTO LICH VALUES ('LICH0050','2026-07-05 14:35:30',N'Xem phòng', N'Đã xử lý','PDK050',NULL,'KTX002','P101','NV050');
+
+INSERT INTO LICH VALUES ('LICH0051','2026-06-08 16:59:15',N'Xem phòng',N'Chưa xử lý','PDK051',NULL,'KTX005','P202','NV001');
+INSERT INTO LICH VALUES ('LICH0052','2026-06-18 19:45:58',N'Nhận phòng',N'Chưa xử lý','PDK052',NULL,'KTX004','P101','NV002');
+INSERT INTO LICH VALUES ('LICH0053','2026-07-14 09:17:38',N'Xem phòng',N'Chưa xử lý','PDK053',NULL,'KTX004','P202','NV003');
+INSERT INTO LICH VALUES ('LICH0054','2026-06-30 19:01:16',N'Xem phòng',N'Chưa xử lý','PDK054',NULL,'KTX005','P301','NV004');
+INSERT INTO LICH VALUES ('LICH0055','2026-07-12 09:15:33',N'Bàn giao phòng',N'Chưa xử lý','PDK055',NULL,'KTX001','P301','NV005');
+
+INSERT INTO LICH VALUES ('LICH0056','2026-07-07 19:50:12',N'Nhận phòng', N'Đã xử lý','PDK056',NULL,'KTX001','P101','NV006');
+INSERT INTO LICH VALUES ('LICH0058','2026-06-06 04:00:55',N'Nhận phòng', N'Đã xử lý','PDK058',NULL,'KTX003','P301','NV008');
+INSERT INTO LICH VALUES ('LICH0059','2026-07-25 11:45:40',N'Nhận phòng',N'Chưa xử lý','PDK059',NULL,'KTX004','P201','NV009');
+INSERT INTO LICH VALUES ('LICH0060','2026-05-11 10:11:14',N'Bàn giao phòng', N'Đã xử lý','PDK060',NULL,'KTX001','P302','NV010');
+
+INSERT INTO LICH VALUES ('LICH0061','2026-06-01 08:00:00',N'Xem phòng',N'Chưa xử lý','PDK061',NULL,'KTX001','P101','NV001');
+INSERT INTO LICH VALUES ('LICH0062','2026-06-02 08:00:00',N'Nhận phòng', N'Đã xử lý','PDK062',NULL,'KTX002','P101','NV002');
+INSERT INTO LICH VALUES ('LICH0063','2026-06-03 08:00:00',N'Bàn giao phòng',N'Chưa xử lý','PDK063',NULL,'KTX003','P101','NV003');
+INSERT INTO LICH VALUES ('LICH0064','2026-06-04 08:00:00',N'Xem phòng', N'Đã xử lý','PDK064',NULL,'KTX004','P101','NV004');
+INSERT INTO LICH VALUES ('LICH0065','2026-06-05 08:00:00',N'Nhận phòng',N'Chưa xử lý','PDK065',NULL,'KTX005','P101','NV005');
+
+INSERT INTO LICH VALUES ('LICH0066','2026-06-06 08:00:00',N'Bàn giao phòng', N'Đã xử lý','PDK066',NULL,'KTX001','P101','NV006');
+INSERT INTO LICH VALUES ('LICH0067','2026-06-07 08:00:00',N'Xem phòng',N'Chưa xử lý','PDK067',NULL,'KTX002','P101','NV007');
+INSERT INTO LICH VALUES ('LICH0068','2026-06-08 08:00:00',N'Nhận phòng', N'Đã xử lý','PDK068',NULL,'KTX003','P101','NV008');
+INSERT INTO LICH VALUES ('LICH0069','2026-06-09 08:00:00',N'Bàn giao phòng',N'Chưa xử lý','PDK069',NULL,'KTX004','P101','NV009');
+INSERT INTO LICH VALUES ('LICH0070','2026-06-10 08:00:00',N'Xem phòng', N'Đã xử lý','PDK070',NULL,'KTX005','P101','NV010');
+
+INSERT INTO LICH VALUES ('LICH0071','2026-06-11 08:00:00',N'Nhận phòng',N'Chưa xử lý','PDK071',NULL,'KTX001','P101','NV011');
+INSERT INTO LICH VALUES ('LICH0072','2026-06-12 08:00:00',N'Bàn giao phòng', N'Đã xử lý','PDK072',NULL,'KTX002','P101','NV012');
+INSERT INTO LICH VALUES ('LICH0073','2026-06-13 08:00:00',N'Xem phòng',N'Chưa xử lý','PDK073',NULL,'KTX003','P101','NV013');
+INSERT INTO LICH VALUES ('LICH0074','2026-06-14 08:00:00',N'Nhận phòng', N'Đã xử lý','PDK074',NULL,'KTX004','P101','NV014');
+INSERT INTO LICH VALUES ('LICH0075','2026-06-15 08:00:00',N'Bàn giao phòng',N'Chưa xử lý','PDK075',NULL,'KTX005','P101','NV015');
+
+INSERT INTO LICH VALUES ('LICH0076','2026-06-16 08:00:00',N'Xem phòng', N'Đã xử lý','PDK076',NULL,'KTX001','P101','NV016');
+INSERT INTO LICH VALUES ('LICH0077','2026-06-17 08:00:00',N'Nhận phòng',N'Chưa xử lý','PDK077',NULL,'KTX002','P101','NV017');
+INSERT INTO LICH VALUES ('LICH0078','2026-06-18 08:00:00',N'Bàn giao phòng', N'Đã xử lý','PDK078',NULL,'KTX003','P101','NV018');
+INSERT INTO LICH VALUES ('LICH0079','2026-06-19 08:00:00',N'Xem phòng',N'Chưa xử lý','PDK079',NULL,'KTX004','P101','NV019');
+INSERT INTO LICH VALUES ('LICH0080','2026-06-20 08:00:00',N'Nhận phòng', N'Đã xử lý','PDK080',NULL,'KTX005','P101','NV020');
+
+INSERT INTO LICH VALUES ('LICH0081','2026-06-21 08:00:00',N'Bàn giao phòng',N'Chưa xử lý','PDK081',NULL,'KTX001','P101','NV021');
+INSERT INTO LICH VALUES ('LICH0082','2026-06-22 08:00:00',N'Xem phòng', N'Đã xử lý','PDK082',NULL,'KTX002','P101','NV022');
+INSERT INTO LICH VALUES ('LICH0083','2026-06-23 08:00:00',N'Nhận phòng',N'Chưa xử lý','PDK083',NULL,'KTX003','P101','NV023');
+INSERT INTO LICH VALUES ('LICH0084','2026-06-24 08:00:00',N'Bàn giao phòng', N'Đã xử lý','PDK084',NULL,'KTX004','P101','NV024');
+INSERT INTO LICH VALUES ('LICH0085','2026-06-25 08:00:00',N'Xem phòng',N'Chưa xử lý','PDK085',NULL,'KTX005','P101','NV025');
+
+INSERT INTO LICH VALUES ('LICH0086','2026-06-26 08:00:00',N'Nhận phòng', N'Đã xử lý','PDK086',NULL,'KTX001','P101','NV026');
+INSERT INTO LICH VALUES ('LICH0087','2026-06-27 08:00:00',N'Bàn giao phòng',N'Chưa xử lý','PDK087',NULL,'KTX002','P101','NV027');
+INSERT INTO LICH VALUES ('LICH0088','2026-06-28 08:00:00',N'Xem phòng', N'Đã xử lý','PDK088',NULL,'KTX003','P101','NV028');
+INSERT INTO LICH VALUES ('LICH0089','2026-06-29 08:00:00',N'Nhận phòng',N'Chưa xử lý','PDK089',NULL,'KTX004','P101','NV029');
+INSERT INTO LICH VALUES ('LICH0090','2026-06-30 08:00:00',N'Bàn giao phòng', N'Đã xử lý','PDK090',NULL,'KTX005','P101','NV030');
+
+INSERT INTO LICH VALUES ('LICH0091','2026-07-01 08:00:00',N'Xem phòng',N'Chưa xử lý','PDK091',NULL,'KTX001','P101','NV031');
+INSERT INTO LICH VALUES ('LICH0092','2026-07-02 08:00:00',N'Nhận phòng', N'Đã xử lý','PDK092',NULL,'KTX002','P101','NV032');
+INSERT INTO LICH VALUES ('LICH0093','2026-07-03 08:00:00',N'Bàn giao phòng',N'Chưa xử lý','PDK093',NULL,'KTX003','P101','NV033');
+INSERT INTO LICH VALUES ('LICH0094','2026-07-04 08:00:00',N'Xem phòng', N'Đã xử lý','PDK094',NULL,'KTX004','P101','NV034');
+INSERT INTO LICH VALUES ('LICH0095','2026-07-05 08:00:00',N'Nhận phòng',N'Chưa xử lý','PDK095',NULL,'KTX005','P101','NV035');
+
+INSERT INTO LICH VALUES ('LICH0096','2026-07-06 08:00:00',N'Bàn giao phòng', N'Đã xử lý','PDK096',NULL,'KTX001','P101','NV036');
+INSERT INTO LICH VALUES ('LICH0097','2026-07-07 08:00:00',N'Xem phòng',N'Chưa xử lý','PDK097',NULL,'KTX002','P101','NV037');
+INSERT INTO LICH VALUES ('LICH0098','2026-07-08 08:00:00',N'Nhận phòng', N'Đã xử lý','PDK098',NULL,'KTX003','P101','NV038');
+INSERT INTO LICH VALUES ('LICH0099','2026-07-09 08:00:00',N'Bàn giao phòng',N'Chưa xử lý','PDK099',NULL,'KTX004','P101','NV039');
+INSERT INTO LICH VALUES ('LICH0100','2026-07-10 08:00:00',N'Xem phòng', N'Đã xử lý','PDK100',NULL,'KTX005','P101','NV040');
+
+INSERT INTO LICH VALUES ('LICH0101','2026-07-11 08:00:00',N'Nhận phòng',N'Chưa xử lý','PDK001',NULL,'KTX001','P101','NV041');
+INSERT INTO LICH VALUES ('LICH0102','2026-07-12 08:00:00',N'Bàn giao phòng', N'Đã xử lý','PDK002',NULL,'KTX002','P101','NV042');
+INSERT INTO LICH VALUES ('LICH0103','2026-07-13 08:00:00',N'Xem phòng',N'Chưa xử lý','PDK003',NULL,'KTX003','P101','NV043');
+INSERT INTO LICH VALUES ('LICH0104','2026-07-14 08:00:00',N'Nhận phòng', N'Đã xử lý','PDK004',NULL,'KTX004','P101','NV044');
+INSERT INTO LICH VALUES ('LICH0105','2026-07-15 08:00:00',N'Bàn giao phòng',N'Chưa xử lý','PDK005',NULL,'KTX005','P101','NV045');
+
+INSERT INTO LICH VALUES ('LICH0106','2026-07-16 08:00:00',N'Xem phòng', N'Đã xử lý','PDK001',NULL,'KTX001','P101','NV046');
+INSERT INTO LICH VALUES ('LICH0107','2026-07-17 08:00:00',N'Nhận phòng',N'Chưa xử lý','PDK002',NULL,'KTX002','P101','NV047');
+INSERT INTO LICH VALUES ('LICH0108','2026-07-18 08:00:00',N'Bàn giao phòng', N'Đã xử lý','PDK003',NULL,'KTX003','P101','NV048');
+INSERT INTO LICH VALUES ('LICH0109','2026-07-19 08:00:00',N'Xem phòng',N'Chưa xử lý','PDK004',NULL,'KTX004','P101','NV049');
+INSERT INTO LICH VALUES ('LICH0110','2026-07-20 08:00:00',N'Nhận phòng', N'Đã xử lý','PDK005',NULL,'KTX005','P101','NV050');
+
+INSERT INTO LICH VALUES ('LICH0111','2026-07-21 08:00:00',N'Bàn giao phòng',N'Chưa xử lý','PDK001',NULL,'KTX001','P101','NV001');
+INSERT INTO LICH VALUES ('LICH0112','2026-07-22 08:00:00',N'Xem phòng', N'Đã xử lý','PDK002',NULL,'KTX002','P101','NV002');
+INSERT INTO LICH VALUES ('LICH0113','2026-07-23 08:00:00',N'Nhận phòng',N'Chưa xử lý','PDK003',NULL,'KTX003','P101','NV003');
+INSERT INTO LICH VALUES ('LICH0114','2026-07-24 08:00:00',N'Bàn giao phòng', N'Đã xử lý','PDK004',NULL,'KTX004','P101','NV004');
+INSERT INTO LICH VALUES ('LICH0115','2026-07-25 08:00:00',N'Xem phòng',N'Chưa xử lý','PDK005',NULL,'KTX005','P101','NV005');
+
+INSERT INTO LICH VALUES ('LICH0116','2026-07-26 08:00:00',N'Nhận phòng', N'Đã xử lý','PDK001',NULL,'KTX001','P101','NV006');
+INSERT INTO LICH VALUES ('LICH0117','2026-07-27 08:00:00',N'Bàn giao phòng',N'Chưa xử lý','PDK002',NULL,'KTX002','P101','NV007');
+INSERT INTO LICH VALUES ('LICH0118','2026-07-28 08:00:00',N'Xem phòng', N'Đã xử lý','PDK003',NULL,'KTX003','P101','NV008');
+INSERT INTO LICH VALUES ('LICH0119','2026-07-29 08:00:00',N'Nhận phòng',N'Chưa xử lý','PDK004',NULL,'KTX004','P101','NV009');
+INSERT INTO LICH VALUES ('LICH0120','2026-07-30 08:00:00',N'Bàn giao phòng', N'Đã xử lý','PDK005',NULL,'KTX005','P101','NV010');
+-- =====================================================
+-- LICH_GIUONG
+-- =====================================================
+
+INSERT INTO LICH_GIUONG (MA_PHIEU, MA_GIUONG)
+SELECT DISTINCT l.MA_PHIEU, g.MA_GIUONG
+FROM LICH l
+JOIN GIUONG g
+	ON l.MA_KTX = g.MA_KTX
+   AND l.MA_PHONG = g.MA_PHONG;
+-- =====================================================
+-- HOP_DONG_THUE
+-- =====================================================
+INSERT INTO HOP_DONG_THUE VALUES ('HD001','2024-08-20','2025-04-17',3,N'Hợp đồng thuê ký túc xá',N'Chưa ký','LICH0055','contract_1.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD002','2024-01-21','2024-06-19',2,N'Hợp đồng thuê ký túc xá',N'Chưa ký','LICH0097','contract_2.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD003','2025-01-08','2025-06-07',1,N'Hợp đồng thuê phòng dài hạn',N'Đã ký','LICH0024','contract_3.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD004','2024-04-13','2024-07-12',1,N'Hợp đồng thuê phòng dài hạn',N'Chưa ký','LICH0033','contract_4.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD005','2024-12-15','2025-07-13',4,N'Hợp đồng thuê sinh viên',N'Chưa ký','LICH0106','contract_5.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD006','2024-12-18','2025-08-15',1,N'Hợp đồng thuê phòng dài hạn',N'Đã ký','LICH0005','contract_6.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD007','2024-02-20','2024-12-16',3,N'Hợp đồng thuê phòng dài hạn',N'Đã ký','LICH0095','contract_7.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD008','2025-07-27','2026-05-23',1,N'Hợp đồng thuê ký túc xá',N'Chưa ký','LICH0108','contract_8.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD009','2024-11-07','2025-07-05',1,N'Hợp đồng thuê ký túc xá',N'Đã ký','LICH0009','contract_9.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD010','2024-09-17','2025-06-14',3,N'Hợp đồng thuê phòng dài hạn',N'Đã ký','LICH0065','contract_10.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD011','2025-12-14','2026-09-10',1,N'Hợp đồng thuê sinh viên',N'Đã ký','LICH0102','contract_11.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD013','2024-10-14','2025-05-12',3,N'Hợp đồng thuê ký túc xá',N'Đã ký','LICH0073','contract_13.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD014','2025-07-26','2025-10-24',1,N'Hợp đồng thuê phòng dài hạn',N'Chưa ký','LICH0118','contract_14.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD015','2024-01-17','2024-08-14',3,N'Hợp đồng thuê ký túc xá',N'Chưa ký','LICH0041','contract_15.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD016','2024-09-09','2025-08-05',1,N'Hợp đồng thuê sinh viên',N'Chưa ký','LICH0074','contract_16.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD017','2024-05-10','2025-03-06',4,N'Hợp đồng thuê sinh viên',N'Chưa ký','LICH0076','contract_17.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD018','2024-06-26','2024-11-23',4,N'Hợp đồng thuê sinh viên',N'Chưa ký','LICH0089','contract_18.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD019','2025-05-23','2025-10-20',2,N'Hợp đồng thuê phòng dài hạn',N'Chưa ký','LICH0118','contract_19.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD020','2024-06-26','2025-03-23',4,N'Hợp đồng thuê ký túc xá',N'Đã ký','LICH0116','contract_20.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD023','2024-08-06','2025-05-03',1,N'Hợp đồng thuê sinh viên',N'Chưa ký','LICH0026','contract_23.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD024','2025-03-16','2025-12-11',2,N'Hợp đồng thuê phòng dài hạn',N'Chưa ký','LICH0078','contract_24.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD025','2024-02-14','2024-06-13',1,N'Hợp đồng thuê ký túc xá',N'Đã ký','LICH0024','contract_25.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD026','2025-03-02','2025-05-31',2,N'Hợp đồng thuê sinh viên',N'Chưa ký','LICH0048','contract_26.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD027','2024-05-18','2025-05-13',1,N'Hợp đồng thuê phòng dài hạn',N'Chưa ký','LICH0066','contract_27.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD028','2025-12-12','2026-10-08',2,N'Hợp đồng thuê sinh viên',N'Chưa ký','LICH0008','contract_28.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD029','2025-10-01','2026-02-28',1,N'Hợp đồng thuê ký túc xá',N'Đã ký','LICH0004','contract_29.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD033','2024-02-23','2024-10-20',2,N'Hợp đồng thuê phòng dài hạn',N'Chưa ký','LICH0086','contract_33.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD035','2024-06-08','2025-06-03',1,N'Hợp đồng thuê sinh viên',N'Đã ký','LICH0075','contract_35.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD036','2024-07-30','2025-04-26',3,N'Hợp đồng thuê ký túc xá',N'Đã ký','LICH0089','contract_36.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD037','2024-03-09','2025-02-02',3,N'Hợp đồng thuê ký túc xá',N'Chưa ký','LICH0088','contract_37.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD038','2024-08-03','2025-03-01',1,N'Hợp đồng thuê sinh viên',N'Đã ký','LICH0072','contract_38.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD040','2024-09-18','2025-01-16',1,N'Hợp đồng thuê phòng dài hạn',N'Đã ký','LICH0009','contract_40.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD041','2024-09-26','2025-01-24',3,N'Hợp đồng thuê sinh viên',N'Chưa ký','LICH0066','contract_41.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD042','2024-12-25','2025-08-22',2,N'Hợp đồng thuê phòng dài hạn',N'Đã ký','LICH0061','contract_42.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD043','2024-05-09','2025-05-04',2,N'Hợp đồng thuê sinh viên',N'Chưa ký','LICH0068','contract_43.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD044','2024-05-11','2024-08-09',4,N'Hợp đồng thuê phòng dài hạn',N'Chưa ký','LICH0088','contract_44.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD045','2024-01-23','2024-09-19',3,N'Hợp đồng thuê phòng dài hạn',N'Đã ký','LICH0105','contract_45.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD046','2024-11-29','2025-03-29',1,N'Hợp đồng thuê ký túc xá',N'Đã ký','LICH0041','contract_46.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD047','2025-11-28','2026-05-27',1,N'Hợp đồng thuê phòng dài hạn',N'Đã ký','LICH0105','contract_47.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD049','2025-07-09','2026-06-04',2,N'Hợp đồng thuê phòng dài hạn',N'Chưa ký','LICH0020','contract_49.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD050','2024-07-13','2024-11-10',3,N'Hợp đồng thuê phòng dài hạn',N'Đã ký','LICH0012','contract_50.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD051','2024-07-12','2025-02-07',1,N'Hợp đồng thuê ký túc xá',N'Chưa ký','LICH0104','contract_51.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD052','2025-11-30','2026-07-28',2,N'Hợp đồng thuê phòng dài hạn',N'Đã ký','LICH0089','contract_52.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD053','2024-07-03','2024-10-01',4,N'Hợp đồng thuê phòng dài hạn',N'Đã ký','LICH0041','contract_53.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD054','2025-10-13','2026-01-11',4,N'Hợp đồng thuê ký túc xá',N'Đã ký','LICH0106','contract_54.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD055','2024-12-11','2025-09-07',2,N'Hợp đồng thuê sinh viên',N'Chưa ký','LICH0025','contract_55.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD056','2024-09-02','2025-05-30',4,N'Hợp đồng thuê phòng dài hạn',N'Đã ký','LICH0069','contract_56.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD057','2025-01-30','2025-05-30',3,N'Hợp đồng thuê ký túc xá',N'Chưa ký','LICH0024','contract_57.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD058','2024-01-18','2024-07-16',4,N'Hợp đồng thuê phòng dài hạn',N'Đã ký','LICH0078','contract_58.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD059','2025-03-16','2025-11-11',2,N'Hợp đồng thuê phòng dài hạn',N'Chưa ký','LICH0108','contract_59.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD060','2024-03-09','2025-03-04',4,N'Hợp đồng thuê ký túc xá',N'Đã ký','LICH0011','contract_60.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD061','2024-01-10','2024-10-06',3,N'Hợp đồng thuê phòng dài hạn',N'Chưa ký','LICH0009','contract_61.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD062','2025-04-14','2025-10-11',4,N'Hợp đồng thuê sinh viên',N'Chưa ký','LICH0089','contract_62.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD063','2024-12-29','2025-07-27',2,N'Hợp đồng thuê ký túc xá',N'Chưa ký','LICH0114','contract_63.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD065','2024-03-29','2025-02-22',4,N'Hợp đồng thuê sinh viên',N'Chưa ký','LICH0021','contract_65.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD066','2025-09-03','2026-05-01',4,N'Hợp đồng thuê sinh viên',N'Chưa ký','LICH0041','contract_66.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD067','2025-03-29','2025-10-25',2,N'Hợp đồng thuê phòng dài hạn',N'Đã ký','LICH0119','contract_67.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD068','2024-05-04','2024-11-30',2,N'Hợp đồng thuê phòng dài hạn',N'Chưa ký','LICH0099','contract_68.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD069','2024-11-04','2025-08-31',2,N'Hợp đồng thuê ký túc xá',N'Đã ký','LICH0085','contract_69.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD070','2025-11-14','2026-09-10',1,N'Hợp đồng thuê sinh viên',N'Đã ký','LICH0086','contract_70.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD071','2024-07-09','2024-10-07',2,N'Hợp đồng thuê ký túc xá',N'Đã ký','LICH0054','contract_71.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD072','2025-09-08','2026-03-07',1,N'Hợp đồng thuê ký túc xá',N'Chưa ký','LICH0118','contract_72.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD073','2025-01-25','2025-05-25',2,N'Hợp đồng thuê phòng dài hạn',N'Chưa ký','LICH0114','contract_73.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD074','2024-02-05','2024-12-01',1,N'Hợp đồng thuê sinh viên',N'Đã ký','LICH0094','contract_74.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD075','2025-11-04','2026-05-03',4,N'Hợp đồng thuê sinh viên',N'Đã ký','LICH0074','contract_75.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD076','2024-02-13','2024-05-13',1,N'Hợp đồng thuê phòng dài hạn',N'Chưa ký','LICH0112','contract_76.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD077','2025-08-06','2025-12-04',3,N'Hợp đồng thuê ký túc xá',N'Chưa ký','LICH0108','contract_77.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD078','2025-09-13','2026-07-10',2,N'Hợp đồng thuê sinh viên',N'Đã ký','LICH0081','contract_78.png');
+INSERT INTO HOP_DONG_THUE VALUES ('HD080','2024-05-02','2025-02-26',1,N'Hợp đồng thuê phòng dài hạn',N'Đã ký','LICH0032','contract_80.png');
+
+-- =====================================================
+-- UPDATE TAI_KHOAN.MA_HOP_DONG
+-- =====================================================
+
+;WITH MAP_HD AS
 (
-    MA_KH,
-    TEN_KH,
-    NGAY_SINH,
-    CCCD,
-    SDT,
-    GIOI_TINH,
-    MA_TK
+    SELECT
+        kh.MA_TK,
+        hd.MA_HOP_DONG,
+        ROW_NUMBER() OVER (
+            PARTITION BY kh.MA_TK
+            ORDER BY hd.NGAY_BD DESC, hd.MA_HOP_DONG DESC
+        ) AS RN
+    FROM HOP_DONG_THUE hd
+    JOIN LICH l
+        ON l.MA_PHIEU = hd.MA_PHIEU
+    JOIN PHIEU_DANG_KY_THUE pdk
+        ON pdk.MA_PDK = l.MA_PDK
+    JOIN KHACH_HANG kh
+        ON kh.MA_KH = pdk.MA_KH
 )
-VALUES
-(
-    'KH004',
-    N'Hoàng Văn E',
-    '2001-04-04',
-    '123456789555',
-    '0944444444',
-    N'Nam',
-    'TK005'
-);
+UPDATE tk
+SET tk.MA_HOP_DONG = m.MA_HOP_DONG
+FROM TAI_KHOAN tk
+JOIN MAP_HD m
+    ON m.MA_TK = tk.MA_TK
+   AND m.RN = 1;
 GO
+-- Kiểm tra kết quả sau khi cập nhật
+-- SELECT tk.MA_TK, tk.MA_HOP_DONG
+-- FROM TAI_KHOAN tk
+-- WHERE tk.MA_HOP_DONG IS NOT NULL
+-- ORDER BY tk.MA_TK;
 
-/* ---------- PHIẾU ĐĂNG KÝ ---------- */
+-- =====================================================
+-- BIEN_BAN_BAN_GIAO
+-- =====================================================
 
-INSERT INTO PHIEU_DANG_KY_THUE
-(
-    MA_PDK,
-    NGAY_DANG_KY,
-    MA_KH,
-    HINH_THUC_THUE
-)
-VALUES
-(
-    'PDK004',
-    CAST(GETDATE() AS DATE),
-    'KH004',
-    N'Cá nhân'
-);
-GO
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB001','2025-12-04','HD041','NV024','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB002','2025-11-05','HD020','NV029','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB003','2025-08-11','HD078','NV010','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB004','2024-06-25','HD053','NV007','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB005','2024-04-08','HD061','NV045','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB006','2024-02-13','HD067','NV044','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB009','2024-04-06','HD077','NV013','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB010','2024-05-08','HD018','NV014','ban_giao_2.png');
 
-/* ---------- LỊCH XEM PHÒNG 1 ---------- */
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB013','2025-06-27','HD029','NV048','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB014','2024-03-04','HD023','NV045','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB015','2026-01-01','HD061','NV050','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB016','2025-03-06','HD066','NV033','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB017','2024-01-31','HD070','NV017','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB018','2025-05-14','HD013','NV017','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB019','2025-11-14','HD041','NV007','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB020','2025-04-12','HD005','NV042','ban_giao_2.png');
 
-INSERT INTO LICH
-(
-    MA_PHIEU,
-    NGAY_GIO,
-    LOAI,
-    TRANG_THAI,
-    MA_PDK,
-    MA_PDC,
-    MA_KTX,
-    MA_PHONG,
-    MA_NV
-)
-VALUES
-(
-    'LICH004',
-    DATEADD(HOUR, 2, GETDATE()),
-    N'Xem phòng',
-    N'Chưa xử lý',
-    'PDK004',
-    NULL,
-    'KTX001',
-    'P101',
-    'NV001'
-);
-GO
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB021','2025-11-06','HD056','NV048','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB022','2025-07-29','HD072','NV042','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB023','2024-12-22','HD063','NV012','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB024','2024-03-08','HD009','NV013','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB025','2024-07-27','HD004','NV047','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB026','2024-10-28','HD070','NV011','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB027','2024-12-25','HD005','NV009','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB028','2025-01-29','HD011','NV011','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB029','2024-02-03','HD041','NV039','ban_giao_1.png');
 
-/* ---------- KHÁCH HÀNG 5 ---------- */
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB031','2025-08-07','HD051','NV032','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB032','2024-10-09','HD033','NV001','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB033','2025-11-05','HD066','NV024','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB034','2024-10-05','HD044','NV038','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB035','2025-05-29','HD066','NV021','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB036','2024-03-14','HD075','NV016','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB037','2025-05-14','HD002','NV034','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB038','2025-04-26','HD029','NV038','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB039','2025-05-26','HD052','NV011','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB040','2024-02-14','HD008','NV010','ban_giao_2.png');
 
-INSERT INTO TAI_KHOAN
-(
-    MA_TK,
-    MAT_KHAU,
-    EMAIL,
-    ROLE,
-    MA_HOP_DONG
-)
-VALUES
-(
-    'TK006',
-    '123',
-    'customer5@gmail.com',
-    'CUSTOMER',
-    NULL
-);
-GO
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB041','2025-01-24','HD045','NV035','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB042','2025-12-30','HD057','NV019','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB045','2025-11-09','HD043','NV039','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB046','2025-11-26','HD002','NV038','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB047','2024-05-05','HD070','NV044','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB049','2025-07-21','HD074','NV049','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB050','2025-10-21','HD050','NV028','ban_giao_2.png');
 
-INSERT INTO KHACH_HANG
-(
-    MA_KH,
-    TEN_KH,
-    NGAY_SINH,
-    CCCD,
-    SDT,
-    GIOI_TINH,
-    MA_TK
-)
-VALUES
-(
-    'KH005',
-    N'Nguyễn Thị F',
-    '2000-06-06',
-    '123456789666',
-    '0955555555',
-    N'Nữ',
-    'TK006'
-);
-GO
 
-/* ---------- PHIẾU ĐĂNG KÝ ---------- */
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB051','2024-10-25','HD066','NV003','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB052','2025-09-10','HD074','NV001','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB055','2025-10-01','HD053','NV027','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB056','2025-06-14','HD019','NV032','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB057','2025-04-11','HD011','NV010','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB058','2024-03-02','HD046','NV001','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB059','2024-09-08','HD051','NV047','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB060','2024-12-21','HD065','NV038','ban_giao_2.png');
 
-INSERT INTO PHIEU_DANG_KY_THUE
-(
-    MA_PDK,
-    NGAY_DANG_KY,
-    MA_KH,
-    HINH_THUC_THUE
-)
-VALUES
-(
-    'PDK005',
-    CAST(GETDATE() AS DATE),
-    'KH005',
-    N'Nhóm'
-);
-GO
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB061','2024-04-04','HD003','NV023','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB062','2024-04-12','HD010','NV046','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB063','2025-01-11','HD077','NV042','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB065','2025-05-28','HD046','NV047','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB066','2024-03-26','HD055','NV016','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB067','2025-08-05','HD025','NV031','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB068','2024-05-24','HD018','NV018','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB069','2024-05-31','HD055','NV010','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB070','2024-06-20','HD068','NV010','ban_giao_2.png');
 
-/* ---------- LỊCH XEM PHÒNG 2 ---------- */
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB071','2025-12-06','HD026','NV048','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB072','2025-09-11','HD035','NV027','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB073','2024-05-26','HD020','NV025','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB074','2025-05-04','HD005','NV015','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB075','2024-02-10','HD001','NV008','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB076','2025-10-26','HD033','NV009','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB077','2025-03-25','HD072','NV038','ban_giao_1.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB078','2024-11-21','HD061','NV035','ban_giao_2.png');
+INSERT INTO BIEN_BAN_BAN_GIAO VALUES ('BB080','2024-04-21','HD076','NV040','ban_giao_2.png');
+-- =====================================================
+-- BB_BG_CHI_TIET
+-- =====================================================
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT001', N'Bàn học', 3, 200000, 'BB001');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT002', N'Bóng đèn', 1, 500000, 'BB001');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT003', N'Máy lạnh', 1, 200000, 'BB001');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT004', N'Bóng đèn', 1, 100000, 'BB002');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT005', N'Ghế nhựa', 5, 500000, 'BB002');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT006', N'Bàn học', 3, 1000000, 'BB002');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT007', N'Chìa khóa', 1, 500000, 'BB002');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT008', N'Tủ đồ', 1, 50000, 'BB002');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT009', N'Bóng đèn', 5, 100000, 'BB003');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT010', N'Chìa khóa', 2, 100000, 'BB003');
 
-INSERT INTO LICH
-(
-    MA_PHIEU,
-    NGAY_GIO,
-    LOAI,
-    TRANG_THAI,
-    MA_PDK,
-    MA_PDC,
-    MA_KTX,
-    MA_PHONG,
-    MA_NV
-)
-VALUES
-(
-    'LICH005',
-    DATEADD(DAY, 1, GETDATE()),
-    N'Xem phòng',
-    N'Đã xử lý',
-    'PDK005',
-    NULL,
-    'KTX001',
-    'P101',
-    'NV001'
-);
-GO
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT011', N'Nệm', 4, 200000, 'BB003');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT012', N'Ghế nhựa', 5, 1000000, 'BB003');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT013', N'Quạt máy', 2, 1000000, 'BB003');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT014', N'Bàn học', 4, 100000, 'BB004');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT015', N'Nệm', 4, 100000, 'BB004');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT016', N'Tủ đồ', 5, 200000, 'BB004');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT017', N'Quạt máy', 2, 100000, 'BB004');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT018', N'Bóng đèn', 1, 1000000, 'BB004');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT019', N'Chìa khóa', 3, 500000, 'BB005');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT020', N'Ghế nhựa', 3, 1000000, 'BB005');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT021', N'Bóng đèn', 4, 50000, 'BB005');
 
-/* =========================================================
-   CHECK DATA XEM PHÒNG
-========================================================= */
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT022', N'Bàn học', 1, 100000, 'BB005');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT023', N'Máy lạnh', 4, 100000, 'BB006');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT024', N'Ghế nhựa', 1, 1000000, 'BB006');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT031', N'Quạt máy', 3, 200000, 'BB009');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT032', N'Tủ đồ', 2, 100000, 'BB009');
 
-SELECT 
-    L.MA_PHIEU,
-    L.LOAI,
-    L.TRANG_THAI,
-    KH.TEN_KH,
-    P.MA_PHONG,
-    KTX.TEN_KTX
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT033', N'Bàn học', 4, 100000, 'BB010');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT034', N'Bóng đèn', 4, 500000, 'BB010');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT035', N'Chìa khóa', 3, 500000, 'BB010');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT036', N'Nệm', 5, 1000000, 'BB010');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT042', N'Bàn học', 4, 50000, 'BB013');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT043', N'Nệm', 5, 100000, 'BB013');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT044', N'Tủ đồ', 5, 500000, 'BB014');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT045', N'Bóng đèn', 1, 100000, 'BB014');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT046', N'Máy lạnh', 3, 1000000, 'BB014');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT047', N'Ghế nhựa', 4, 1000000, 'BB014');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT048', N'Nệm', 2, 200000, 'BB014');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT049', N'Quạt máy', 4, 50000, 'BB015');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT050', N'Bàn học', 4, 1000000, 'BB015');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT051', N'Tủ đồ', 3, 50000, 'BB015');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT052', N'Nệm', 2, 50000, 'BB015');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT053', N'Ghế nhựa', 2, 200000, 'BB015');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT054', N'Nệm', 2, 100000, 'BB016');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT055', N'Tủ đồ', 4, 200000, 'BB016');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT056', N'Bóng đèn', 3, 50000, 'BB016');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT057', N'Chìa khóa', 3, 100000, 'BB016');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT058', N'Nệm', 5, 100000, 'BB017');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT059', N'Máy lạnh', 4, 100000, 'BB017');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT060', N'Bàn học', 4, 500000, 'BB018');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT061', N'Bóng đèn', 1, 50000, 'BB018');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT062', N'Ghế nhựa', 1, 1000000, 'BB018');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT063', N'Tủ đồ', 3, 500000, 'BB018');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT064', N'Nệm', 4, 500000, 'BB018');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT065', N'Tủ đồ', 3, 100000, 'BB019');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT066', N'Máy lạnh', 1, 500000, 'BB019');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT067', N'Ghế nhựa', 4, 1000000, 'BB019');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT068', N'Chìa khóa', 1, 200000, 'BB019');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT069', N'Máy lạnh', 3, 50000, 'BB020');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT070', N'Chìa khóa', 4, 500000, 'BB020');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT071', N'Ghế nhựa', 4, 1000000, 'BB020');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT072', N'Bóng đèn', 3, 1000000, 'BB020');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT073', N'Bàn học', 1, 200000, 'BB020');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT074', N'Tủ đồ', 2, 200000, 'BB021');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT075', N'Máy lạnh', 4, 500000, 'BB021');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT076', N'Quạt máy', 3, 50000, 'BB022');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT077', N'Nệm', 3, 50000, 'BB022');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT078', N'Chìa khóa', 1, 1000000, 'BB023');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT079', N'Bóng đèn', 2, 500000, 'BB023');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT080', N'Máy lạnh', 2, 1000000, 'BB023');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT081', N'Quạt máy', 4, 50000, 'BB024');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT082', N'Máy lạnh', 3, 100000, 'BB024');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT083', N'Bàn học', 1, 100000, 'BB024');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT084', N'Tủ đồ', 2, 500000, 'BB024');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT085', N'Tủ đồ', 2, 500000, 'BB025');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT086', N'Bàn học', 5, 1000000, 'BB025');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT087', N'Nệm', 3, 50000, 'BB025');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT088', N'Bóng đèn', 1, 200000, 'BB025');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT089', N'Chìa khóa', 3, 50000, 'BB025');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT090', N'Máy lạnh', 2, 100000, 'BB026');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT091', N'Ghế nhựa', 5, 100000, 'BB026');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT092', N'Tủ đồ', 4, 50000, 'BB026');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT093', N'Ghế nhựa', 2, 500000, 'BB027');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT094', N'Máy lạnh', 5, 200000, 'BB027');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT095', N'Quạt máy', 4, 500000, 'BB027');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT096', N'Bóng đèn', 1, 500000, 'BB027');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT097', N'Máy lạnh', 5, 200000, 'BB028');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT098', N'Quạt máy', 1, 100000, 'BB028');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT099', N'Bóng đèn', 1, 200000, 'BB028');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT100', N'Chìa khóa', 1, 1000000, 'BB028');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT101', N'Bàn học', 2, 100000, 'BB029');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT102', N'Chìa khóa', 2, 50000, 'BB029');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT103', N'Quạt máy', 5, 200000, 'BB029');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT108', N'Ghế nhựa', 3, 200000, 'BB031');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT109', N'Tủ đồ', 5, 50000, 'BB031');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT110', N'Chìa khóa', 5, 50000, 'BB031');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT111', N'Bóng đèn', 4, 100000, 'BB032');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT112', N'Tủ đồ', 1, 50000, 'BB032');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT113', N'Ghế nhựa', 3, 100000, 'BB032');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT114', N'Nệm', 2, 500000, 'BB032');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT115', N'Chìa khóa', 1, 500000, 'BB033');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT116', N'Nệm', 2, 200000, 'BB033');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT117', N'Máy lạnh', 1, 200000, 'BB033');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT118', N'Quạt máy', 3, 100000, 'BB033');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT119', N'Quạt máy', 3, 200000, 'BB034');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT120', N'Tủ đồ', 5, 500000, 'BB034');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT121', N'Máy lạnh', 1, 200000, 'BB034');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT122', N'Chìa khóa', 1, 1000000, 'BB034');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT123', N'Quạt máy', 2, 50000, 'BB035');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT124', N'Bàn học', 1, 100000, 'BB035');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT125', N'Tủ đồ', 5, 200000, 'BB035');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT126', N'Tủ đồ', 4, 100000, 'BB036');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT127', N'Chìa khóa', 4, 1000000, 'BB036');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT128', N'Ghế nhựa', 4, 1000000, 'BB036');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT129', N'Bóng đèn', 5, 200000, 'BB037');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT130', N'Quạt máy', 1, 1000000, 'BB037');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT131', N'Ghế nhựa', 1, 100000, 'BB037');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT132', N'Nệm', 4, 500000, 'BB037');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT133', N'Máy lạnh', 4, 500000, 'BB038');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT134', N'Bàn học', 4, 50000, 'BB038');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT135', N'Ghế nhựa', 5, 200000, 'BB038');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT136', N'Bóng đèn', 1, 500000, 'BB038');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT137', N'Chìa khóa', 4, 100000, 'BB038');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT138', N'Ghế nhựa', 1, 100000, 'BB039');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT139', N'Bàn học', 3, 500000, 'BB039');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT140', N'Quạt máy', 4, 200000, 'BB040');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT141', N'Chìa khóa', 1, 1000000, 'BB040');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT142', N'Bóng đèn', 2, 100000, 'BB040');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT143', N'Tủ đồ', 1, 1000000, 'BB040');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT144', N'Ghế nhựa', 1, 500000, 'BB040');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT145', N'Ghế nhựa', 4, 1000000, 'BB041');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT146', N'Tủ đồ', 2, 1000000, 'BB041');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT147', N'Bàn học', 4, 50000, 'BB041');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT148', N'Chìa khóa', 1, 1000000, 'BB041');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT149', N'Quạt máy', 5, 50000, 'BB042');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT150', N'Chìa khóa', 1, 1000000, 'BB042');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT151', N'Máy lạnh', 2, 1000000, 'BB042');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT152', N'Tủ đồ', 1, 500000, 'BB042');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT153', N'Nệm', 3, 1000000, 'BB042');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT160', N'Chìa khóa', 1, 1000000, 'BB045');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT161', N'Ghế nhựa', 4, 1000000, 'BB045');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT162', N'Quạt máy', 1, 1000000, 'BB045');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT163', N'Nệm', 4, 200000, 'BB045');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT164', N'Bàn học', 3, 100000, 'BB046');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT165', N'Nệm', 3, 200000, 'BB046');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT166', N'Máy lạnh', 4, 200000, 'BB046');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT167', N'Bóng đèn', 4, 100000, 'BB047');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT168', N'Quạt máy', 4, 50000, 'BB047');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT169', N'Chìa khóa', 2, 500000, 'BB047');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT170', N'Ghế nhựa', 4, 100000, 'BB047');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT171', N'Máy lạnh', 1, 100000, 'BB047');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT174', N'Nệm', 2, 50000, 'BB049');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT175', N'Quạt máy', 1, 1000000, 'BB049');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT176', N'Bàn học', 3, 100000, 'BB049');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT177', N'Chìa khóa', 2, 200000, 'BB049');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT178', N'Bóng đèn', 1, 500000, 'BB049');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT179', N'Chìa khóa', 5, 50000, 'BB050');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT180', N'Bóng đèn', 3, 50000, 'BB050');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT181', N'Nệm', 5, 1000000, 'BB050');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT182', N'Ghế nhựa', 4, 100000, 'BB050');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT183', N'Máy lạnh', 1, 500000, 'BB050');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT184', N'Bóng đèn', 5, 200000, 'BB051');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT185', N'Nệm', 2, 50000, 'BB051');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT186', N'Chìa khóa', 4, 200000, 'BB051');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT187', N'Bàn học', 2, 1000000, 'BB052');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT194', N'Nệm', 4, 50000, 'BB055');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT195', N'Bóng đèn', 2, 1000000, 'BB055');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT196', N'Ghế nhựa', 3, 200000, 'BB055');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT197', N'Tủ đồ', 2, 1000000, 'BB056');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT198', N'Bàn học', 5, 1000000, 'BB056');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT199', N'Bóng đèn', 5, 1000000, 'BB056');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT200', N'Nệm', 2, 1000000, 'BB056');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT201', N'Quạt máy', 3, 100000, 'BB057');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT202', N'Bàn học', 4, 200000, 'BB057');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT203', N'Ghế nhựa', 3, 1000000, 'BB057');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT204', N'Tủ đồ', 4, 1000000, 'BB058');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT205', N'Máy lạnh', 1, 100000, 'BB058');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT206', N'Ghế nhựa', 3, 1000000, 'BB059');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT207', N'Bóng đèn', 3, 1000000, 'BB059');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT208', N'Chìa khóa', 1, 100000, 'BB059');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT209', N'Bóng đèn', 5, 200000, 'BB060');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT210', N'Chìa khóa', 4, 200000, 'BB060');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT211', N'Nệm', 2, 200000, 'BB060');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT212', N'Quạt máy', 3, 50000, 'BB060');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT213', N'Tủ đồ', 1, 1000000, 'BB061');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT214', N'Nệm', 4, 100000, 'BB061');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT215', N'Quạt máy', 3, 200000, 'BB062');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT216', N'Bàn học', 1, 200000, 'BB062');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT217', N'Tủ đồ', 1, 50000, 'BB062');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT218', N'Ghế nhựa', 2, 200000, 'BB062');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT219', N'Nệm', 1, 50000, 'BB063');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT220', N'Bóng đèn', 5, 1000000, 'BB063');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT221', N'Quạt máy', 3, 100000, 'BB063');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT226', N'Bàn học', 4, 100000, 'BB065');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT227', N'Ghế nhựa', 4, 50000, 'BB065');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT228', N'Máy lạnh', 1, 200000, 'BB065');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT229', N'Chìa khóa', 2, 100000, 'BB066');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT230', N'Bóng đèn', 4, 500000, 'BB066');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT231', N'Quạt máy', 2, 100000, 'BB066');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT232', N'Bàn học', 5, 1000000, 'BB066');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT233', N'Tủ đồ', 4, 500000, 'BB067');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT234', N'Ghế nhựa', 3, 1000000, 'BB067');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT235', N'Máy lạnh', 5, 500000, 'BB068');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT236', N'Quạt máy', 1, 200000, 'BB068');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT237', N'Bàn học', 2, 200000, 'BB068');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT238', N'Nệm', 5, 200000, 'BB068');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT239', N'Máy lạnh', 2, 500000, 'BB069');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT240', N'Nệm', 1, 100000, 'BB069');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT241', N'Tủ đồ', 3, 50000, 'BB069');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT242', N'Bàn học', 2, 100000, 'BB069');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT243', N'Bóng đèn', 1, 500000, 'BB069');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT244', N'Chìa khóa', 1, 50000, 'BB070');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT245', N'Bàn học', 4, 100000, 'BB070');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT246', N'Bóng đèn', 3, 500000, 'BB070');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT247', N'Tủ đồ', 2, 100000, 'BB070');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT248', N'Máy lạnh', 4, 100000, 'BB070');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT249', N'Chìa khóa', 4, 100000, 'BB071');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT250', N'Quạt máy', 3, 50000, 'BB071');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT251', N'Bàn học', 3, 50000, 'BB072');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT252', N'Máy lạnh', 4, 200000, 'BB072');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT253', N'Chìa khóa', 4, 200000, 'BB072');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT254', N'Quạt máy', 4, 200000, 'BB072');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT255', N'Quạt máy', 3, 50000, 'BB073');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT256', N'Máy lạnh', 5, 50000, 'BB073');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT257', N'Ghế nhựa', 1, 100000, 'BB073');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT258', N'Chìa khóa', 1, 500000, 'BB073');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT259', N'Tủ đồ', 2, 50000, 'BB074');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT260', N'Quạt máy', 1, 1000000, 'BB074');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT261', N'Tủ đồ', 4, 500000, 'BB075');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT262', N'Quạt máy', 5, 50000, 'BB075');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT263', N'Nệm', 2, 200000, 'BB075');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT264', N'Máy lạnh', 1, 50000, 'BB075');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT265', N'Bàn học', 5, 100000, 'BB075');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT266', N'Ghế nhựa', 5, 200000, 'BB076');
+
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT267', N'Tủ đồ', 2, 100000, 'BB076');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT268', N'Chìa khóa', 2, 500000, 'BB076');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT269', N'Tủ đồ', 1, 200000, 'BB077');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT270', N'Máy lạnh', 2, 200000, 'BB077');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT271', N'Quạt máy', 3, 100000, 'BB077');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT272', N'Máy lạnh', 3, 100000, 'BB078');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT273', N'Bóng đèn', 4, 50000, 'BB078');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT279', N'Chìa khóa', 1, 100000, 'BB080');
+INSERT INTO BB_BG_CHI_TIET VALUES ('VT280', N'Ghế nhựa', 3, 200000, 'BB080');
+
+
+-- =====================================================
+-- PHIEU_THANH_TOAN
+-- =====================================================
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT001', N'Tiền mặt', '2025-07-24', 2000000, N'Đã thanh toán', 'HD038', 'PDC033');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT002', N'QR', '2024-11-03', 3000000, N'Đã thanh toán', 'HD033', 'PDC035');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT003', N'Tiền mặt', '2024-11-11', 1000000, N'Đã thanh toán', 'HD056', 'PDC020');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT004', N'QR', '2024-11-03', 500000, N'Chưa thanh toán', 'HD065', 'PDC015');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT005', N'Tiền mặt', '2025-02-02', 3000000, N'Đã thanh toán', 'HD058', 'PDC071');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT006', N'Tiền mặt', '2024-03-15', 5000000, N'Đã thanh toán', 'HD080', 'PDC077');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT007', N'QR', '2024-05-28', 3000000, N'Đã thanh toán', 'HD073', 'PDC049');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT008', N'Tiền mặt', '2024-05-12', 1000000, N'Đã thanh toán', 'HD026', 'PDC083');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT009', N'Tiền mặt', '2025-06-27', 5000000, N'Đã thanh toán', 'HD029', 'PDC023');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT010', N'Tiền mặt', '2024-07-04', 2000000, N'Đã thanh toán', 'HD020', NULL);
+
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT011', N'QR', '2025-04-14', 1500000, N'Đã thanh toán', 'HD025', 'PDC012');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT012', N'Tiền mặt', '2025-11-23', 1000000, N'Đã thanh toán', 'HD014', 'PDC015');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT013', N'QR', '2024-06-07', 2000000, N'Đã thanh toán', 'HD074', NULL);
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT015', N'QR', '2025-09-08', 3000000, N'Đã thanh toán', 'HD036', 'PDC041');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT017', N'QR', '2025-05-13', 3000000, N'Đã thanh toán', 'HD027', 'PDC040');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT019', N'Tiền mặt', '2024-11-08', 500000, N'Đã thanh toán', 'HD033', 'PDC064');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT020', N'QR', '2024-09-03', 2000000, N'Chưa thanh toán', 'HD065', 'PDC086');
+
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT023', N'Tiền mặt', '2024-08-03', 2000000, N'Đã thanh toán', 'HD008', 'PDC028');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT024', N'QR', '2025-09-03', 2000000, N'Chưa thanh toán', 'HD080', 'PDC007');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT025', N'Tiền mặt', '2024-12-04', 1000000, N'Đã thanh toán', 'HD062', 'PDC043');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT026', N'Tiền mặt', '2024-09-18', 1500000, N'Đã thanh toán', 'HD027', 'PDC017');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT027', N'QR', '2025-09-30', 2000000, N'Đã thanh toán', 'HD035', NULL);
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT028', N'QR', '2025-08-17', 5000000, N'Đã thanh toán', 'HD054', NULL);
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT029', N'Tiền mặt', '2025-02-03', 5000000, N'Đã thanh toán', 'HD055', 'PDC081');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT030', N'Tiền mặt', '2025-10-02', 3000000, N'Đã thanh toán', 'HD047', 'PDC062');
+
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT031', N'Tiền mặt', '2024-03-27', 1000000, N'Đã thanh toán', 'HD047', NULL);
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT032', N'Tiền mặt', '2025-12-12', 2000000, N'Đã thanh toán', 'HD078', 'PDC064');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT033', N'QR', '2025-11-28', 3000000, N'Đã thanh toán', 'HD076', 'PDC064');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT034', N'Tiền mặt', '2025-08-11', 1500000, N'Đã thanh toán', 'HD065', NULL);
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT036', N'QR', '2024-11-23', 1000000, N'Chưa thanh toán', 'HD066', 'PDC003');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT037', N'Tiền mặt', '2025-01-15', 500000, N'Đã thanh toán', 'HD010', 'PDC051');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT039', N'QR', '2024-05-13', 3000000, N'Chưa thanh toán', 'HD078', 'PDC086');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT040', N'Tiền mặt', '2025-03-12', 500000, N'Đã thanh toán', 'HD045', 'PDC078');
+
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT041', N'Tiền mặt', '2024-12-22', 5000000, N'Đã thanh toán', 'HD067', 'PDC028');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT042', N'Tiền mặt', '2024-01-24', 5000000, N'Đã thanh toán', 'HD076', 'PDC085');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT043', N'QR', '2024-05-07', 1000000, N'Đã thanh toán', 'HD080', NULL);
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT044', N'QR', '2025-06-14', 1500000, N'Đã thanh toán', 'HD001', 'PDC003');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT045', N'QR', '2024-06-26', 500000, N'Đã thanh toán', 'HD056', 'PDC044');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT046', N'QR', '2025-01-13', 1000000, N'Chưa thanh toán', 'HD080', 'PDC033');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT047', N'QR', '2024-10-23', 1000000, N'Chưa thanh toán', 'HD027', 'PDC016');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT048', N'Tiền mặt', '2025-03-22', 500000, N'Đã thanh toán', 'HD038', 'PDC090');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT049', N'QR', '2025-11-10', 1500000, N'Đã thanh toán', 'HD080', 'PDC023');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT050', N'QR', '2025-01-01', 3000000, N'Đã thanh toán', 'HD073', 'PDC022');
+
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT052', N'QR', '2025-11-10', 3000000, N'Đã thanh toán', 'HD077', 'PDC085');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT053', N'Tiền mặt', '2024-01-02', 5000000, N'Đã thanh toán', 'HD059', 'PDC018');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT054', N'QR', '2024-08-08', 1500000, N'Chưa thanh toán', 'HD075', 'PDC095');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT055', N'QR', '2025-06-26', 500000, N'Đã thanh toán', 'HD069', NULL);
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT056', N'Tiền mặt', '2025-07-13', 2000000, N'Đã thanh toán', 'HD078', 'PDC033');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT057', N'QR', '2024-12-05', 2000000, N'Đã thanh toán', 'HD011', 'PDC074');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT058', N'QR', '2025-06-16', 5000000, N'Đã thanh toán', 'HD005', 'PDC002');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT059', N'QR', '2024-04-29', 3000000, N'Đã thanh toán', 'HD004', 'PDC088');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT060', N'Tiền mặt', '2024-04-05', 1000000, N'Đã thanh toán', 'HD067', 'PDC016');
+
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT061', N'Tiền mặt', '2024-04-30', 500000, N'Đã thanh toán', 'HD047', 'PDC022');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT062', N'Tiền mặt', '2025-05-03', 2000000, N'Chưa thanh toán', 'HD038', 'PDC085');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT064', N'Tiền mặt', '2025-12-18', 1500000, N'Đã thanh toán', 'HD046', NULL);
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT065', N'Tiền mặt', '2024-01-09', 500000, N'Đã thanh toán', 'HD076', 'PDC096');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT067', N'QR', '2024-09-22', 500000, N'Đã thanh toán', 'HD049', 'PDC017');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT068', N'Tiền mặt', '2025-12-26', 2000000, N'Chưa thanh toán', 'HD068', 'PDC013');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT069', N'QR', '2024-08-28', 5000000, N'Đã thanh toán', 'HD035', 'PDC061');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT070', N'Tiền mặt', '2025-01-21', 5000000, N'Đã thanh toán', 'HD072', 'PDC006');
+
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT071', N'QR', '2024-11-11', 5000000, N'Đã thanh toán', 'HD072', 'PDC077');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT072', N'Tiền mặt', '2024-03-04', 500000, N'Đã thanh toán', 'HD053', 'PDC079');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT073', N'Tiền mặt', '2025-11-07', 1500000, N'Đã thanh toán', 'HD033', 'PDC039');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT074', N'Tiền mặt', '2025-02-10', 5000000, N'Đã thanh toán', 'HD068', 'PDC034');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT075', N'Tiền mặt', '2024-02-02', 1500000, N'Đã thanh toán', 'HD067', 'PDC025');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT076', N'QR', '2024-02-15', 500000, N'Đã thanh toán', 'HD019', 'PDC043');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT077', N'Tiền mặt', '2025-07-27', 1500000, N'Đã thanh toán', 'HD056', 'PDC036');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT078', N'QR', '2025-01-18', 1000000, N'Chưa thanh toán', 'HD019', 'PDC020');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT079', N'QR', '2024-09-21', 1500000, N'Đã thanh toán', 'HD080', NULL);
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT080', N'QR', '2024-10-01', 5000000, N'Đã thanh toán', 'HD020', 'PDC027');
+
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT081', N'QR', '2024-04-24', 3000000, N'Đã thanh toán', 'HD058', NULL);
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT083', N'QR', '2024-05-18', 3000000, N'Đã thanh toán', 'HD066', 'PDC022');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT084', N'Tiền mặt', '2024-10-16', 1500000, N'Đã thanh toán', 'HD003', 'PDC002');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT087', N'Tiền mặt', '2024-10-12', 500000, N'Đã thanh toán', 'HD038', 'PDC031');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT089', N'QR', '2024-12-25', 1000000, N'Chưa thanh toán', 'HD038', 'PDC086');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT090', N'Tiền mặt', '2025-10-20', 1000000, N'Đã thanh toán', 'HD049', 'PDC069');
+
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT091', N'QR', '2024-11-14', 5000000, N'Đã thanh toán', 'HD059', 'PDC027');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT092', N'QR', '2024-01-13', 1500000, N'Đã thanh toán', 'HD001', 'PDC081');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT093', N'Tiền mặt', '2024-02-08', 3000000, N'Đã thanh toán', 'HD056', 'PDC053');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT094', N'Tiền mặt', '2024-08-29', 1000000, N'Chưa thanh toán', 'HD004', NULL);
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT096', N'QR', '2025-02-16', 5000000, N'Chưa thanh toán', 'HD078', NULL);
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT097', N'Tiền mặt', '2025-11-02', 3000000, N'Chưa thanh toán', 'HD015', 'PDC090');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT098', N'Tiền mặt', '2024-09-14', 5000000, N'Đã thanh toán', 'HD040', 'PDC062');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT099', N'QR', '2024-10-03', 3000000, N'Đã thanh toán', 'HD050', NULL);
+
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT101', N'QR', '2025-08-17', 1500000, N'Đã thanh toán', 'HD067', 'PDC073');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT102', N'QR', '2024-08-26', 2000000, N'Đã thanh toán', 'HD051', 'PDC002');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT103', N'QR', '2024-09-24', 2000000, N'Chưa thanh toán', 'HD078', 'PDC082');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT104', N'Tiền mặt', '2024-10-10', 2000000, N'Đã thanh toán', 'HD033', 'PDC003');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT106', N'Tiền mặt', '2025-07-02', 2000000, N'Chưa thanh toán', 'HD043', NULL);
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT107', N'Tiền mặt', '2025-05-02', 3000000, N'Đã thanh toán', 'HD008', 'PDC015');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT108', N'Tiền mặt', '2025-12-16', 1500000, N'Đã thanh toán', 'HD004', 'PDC059');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT109', N'QR', '2024-12-16', 2000000, N'Chưa thanh toán', 'HD051', 'PDC062');
+
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT110', N'QR', '2024-05-04', 1000000, N'Đã thanh toán', 'HD072', NULL);
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT111', N'QR', '2025-06-22', 3000000, N'Đã thanh toán', 'HD050', 'PDC027');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT112', N'Tiền mặt', '2024-04-13', 1000000, N'Đã thanh toán', 'HD080', 'PDC099');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT113', N'Tiền mặt', '2024-07-05', 1000000, N'Chưa thanh toán', 'HD066', 'PDC007');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT114', N'QR', '2024-01-09', 2000000, N'Chưa thanh toán', 'HD073', 'PDC058');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT115', N'QR', '2025-05-28', 1000000, N'Chưa thanh toán', 'HD063', 'PDC081');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT116', N'QR', '2025-06-10', 3000000, N'Đã thanh toán', 'HD078', NULL);
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT117', N'Tiền mặt', '2025-06-03', 1500000, N'Đã thanh toán', 'HD026', 'PDC014');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT118', N'QR', '2025-01-15', 2000000, N'Đã thanh toán', 'HD003', 'PDC006');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT119', N'QR', '2024-07-13', 5000000, N'Đã thanh toán', 'HD006', 'PDC047');
+INSERT INTO PHIEU_THANH_TOAN VALUES ('TT120', N'QR', '2025-05-15', 5000000, N'Đã thanh toán', 'HD029', 'PDC058');
+
+-- =====================================================
+-- BIEN_BAN_TRA_PHONG
+-- =====================================================
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT001','2024-11-17',N'Cần sửa bóng đèn','NV011','TT061','HD017',N'Đã hẹn');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT003','2025-07-15',N'Đã kiểm tra tài sản','NV047','TT094','HD076',N'Đã xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT004','2024-02-19',N'Cần sửa bóng đèn','NV016','TT103','HD002',N'Đang chờ xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT006','2024-09-15',N'Phòng còn tốt','NV004','TT029','HD054',N'Đang chờ xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT007','2025-02-05',N'Phòng còn tốt','NV024','TT054','HD046',N'Đã hẹn');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT008','2025-11-27',N'Thiết bị đầy đủ','NV035','TT094','HD046',N'Đang chờ xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT009','2025-05-20',N'Phòng còn tốt','NV021','TT029','HD063',N'Đã hẹn');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT010','2024-07-28',N'Phòng còn tốt','NV035','TT064','HD028',N'Đã hẹn');
+
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT012','2025-06-09',N'Phòng sạch sẽ','NV026','TT104','HD009',N'Đang chờ xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT013','2024-08-07',N'Đã kiểm tra tài sản','NV012','TT027','HD060',N'Đang chờ xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT015','2024-02-03',N'Đã kiểm tra tài sản','NV014','TT023','HD005',N'Đã hẹn');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT017','2024-06-13',N'Phòng sạch sẽ','NV016','TT015','HD024',N'Đang chờ xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT018','2025-03-27',N'Đã kiểm tra tài sản','NV013','TT042','HD027',N'Đã xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT019','2024-11-26',N'Đã kiểm tra tài sản','NV043','TT053','HD019',N'Đang chờ xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT020','2024-01-16',N'Thiết bị đầy đủ','NV046','TT011','HD045',N'Đã hẹn');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT021','2024-01-17',N'Phòng sạch sẽ','NV005','TT056','HD017',N'Đã hẹn');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT022','2024-08-15',N'Thiết bị đầy đủ','NV041','TT101','HD076',N'Đã xử lí');
+
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT023','2024-11-22',N'Phòng sạch sẽ','NV002','TT005','HD045',N'Đã hẹn');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT024','2025-10-19',N'Thiết bị đầy đủ','NV003','TT033','HD068',N'Đang chờ xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT026','2025-08-19',N'Thiết bị đầy đủ','NV024','TT087','HD070',N'Đang chờ xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT027','2024-01-05',N'Phòng sạch sẽ','NV038','TT098','HD061',N'Đang chờ xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT028','2024-09-07',N'Thiết bị đầy đủ','NV028','TT102','HD069',N'Đã hẹn');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT029','2025-07-31',N'Cần sửa bóng đèn','NV007','TT076','HD010',N'Đang chờ xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT031','2024-11-22',N'Cần sửa bóng đèn','NV021','TT020','HD043',N'Đã hẹn');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT033','2024-05-21',N'Đã kiểm tra tài sản','NV037','TT075','HD041',N'Đã hẹn');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT035','2024-05-21',N'Đã kiểm tra tài sản','NV008','TT036','HD009',N'Đã hẹn');
+
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT036','2025-05-08',N'Thiết bị đầy đủ','NV049','TT084','HD007',N'Đã hẹn');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT037','2024-10-26',N'Thiết bị đầy đủ','NV020','TT047','HD025',N'Đã xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT039','2025-04-29',N'Đã kiểm tra tài sản','NV045','TT117','HD005',N'Đã xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT041','2024-04-28',N'Cần sửa bóng đèn','NV031','TT039','HD054',N'Đã xử lí');
+
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT044','2024-08-21',N'Đã kiểm tra tài sản','NV035','TT110','HD029',N'Đang chờ xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT045','2025-03-16',N'Thiết bị đầy đủ','NV015','TT010','HD029',N'Đã xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT046','2025-10-12',N'Cần sửa bóng đèn','NV016','TT012','HD046',N'Đang chờ xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT048','2024-10-28',N'Phòng sạch sẽ','NV034','TT111','HD065',N'Đã xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT049','2025-08-02',N'Cần sửa bóng đèn','NV028','TT025','HD011',N'Đã xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT050','2025-08-15',N'Phòng sạch sẽ','NV001','TT061','HD071',N'Đang chờ xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT051','2024-12-02',N'Phòng còn tốt','NV030','TT027','HD072',N'Đã hẹn');
+
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT053','2024-06-16',N'Thiết bị đầy đủ','NV046','TT071','HD062',N'Đã xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT055','2024-04-22',N'Đã kiểm tra tài sản','NV041','TT043','HD014',N'Đang chờ xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT056','2025-12-10',N'Cần sửa bóng đèn','NV048','TT027','HD051',N'Đã hẹn');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT058','2025-03-24',N'Cần sửa bóng đèn','NV009','TT055','HD014',N'Đã xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT059','2024-10-07',N'Cần sửa bóng đèn','NV021','TT054','HD077',N'Đang chờ xử lí');
+INSERT INTO BIEN_BAN_TRA_PHONG VALUES ('BBT060','2025-01-04',N'Phòng sạch sẽ','NV002','TT007','HD071',N'Đang chờ xử lí');
+
+--- ===============
+-- CẬP NHẬT PDC CHO LICH 
+
+UPDATE L
+SET L.MA_PDC = X.MA_PDC
 FROM LICH L
 JOIN PHIEU_DANG_KY_THUE PDK
     ON L.MA_PDK = PDK.MA_PDK
-JOIN KHACH_HANG KH
-    ON PDK.MA_KH = KH.MA_KH
-JOIN PHONG P
-    ON L.MA_PHONG = P.MA_PHONG
-JOIN KY_TUC_XA KTX
-    ON L.MA_KTX = KTX.MA_KTX
-WHERE L.LOAI = N'Xem phòng';
-GO
-
+CROSS APPLY (
+    SELECT TOP 1 PDC.MA_PDC
+    FROM PHIEU_DAT_COC PDC
+    WHERE PDC.MA_KH = PDK.MA_KH
+    ORDER BY PDC.NGAY DESC, PDC.MA_PDC DESC
+) X
+WHERE L.MA_PDC IS NULL;
