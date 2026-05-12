@@ -7,8 +7,9 @@ interface DayCellProps {
   dayTasks: any[];
   currentDate: Date;
   selectedTaskId: string | null;
+
   onSelectTask: (task: any | null) => void;
-  onRefresh: () => void; // Thêm hàm này để load lại data khi dời/hủy lịch thành công
+  onRefresh: () => void;
 }
 
 export default function DayCell({
@@ -39,7 +40,7 @@ export default function DayCell({
                   ${isSelected ? "bg-yellow-300 font-semibold shadow-sm" : "hover:bg-gray-100"}`}
               >
                 <div
-                  className={`w-2 h-2 rounded-full ${task.loai === "Xem phòng" ? "bg-accent" : "bg-primary"}`}
+                  className={`w-2 h-2 rounded-full ${task.loai === "Xem phòng" ? "bg-accent" : "bg-primary"}`}
                 ></div>
                 {task.khachHang.split(" ").pop()} - {task.gio}
               </div>

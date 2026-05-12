@@ -53,3 +53,24 @@ export const calculateDepositAmount = (giaGiuong: number[]) => {
   return total * 2;
 };
 
+// lấy phiếu đặt cọc qua mã phiếu
+export const handleGetDepositDetail = async (maPdc: string) => {
+  try {
+    const response = await fetch(`/api/deposit/${maPdc}`, {
+      method: "GET",
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+
+      throw new Error(data.error || "Lỗi lấy chi tiết đặt cọc");
+    }
+
+    return await response.json();
+
+  } catch (error) {
+    console.error("Lỗi handleGetDepositDetail:", error);
+    throw error;
+  }
+};

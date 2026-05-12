@@ -55,10 +55,8 @@ export default function DepositPage() {
   useEffect(() => {
     const fetchDepositDetail = async () => {
       try {
-        const res = await fetch(`/api/deposit/${maPdc}`);
-        if (!res.ok) throw new Error("Không tìm thấy phiếu đặt cọc");
-        const json = await res.json();
-        setData(json);
+        const res = await depositService.handleGetDepositDetail(maPdc);
+        setData(res);
       } catch (err) {
         console.error(err);
         alert("Lỗi tải dữ liệu phiếu đặt cọc!");
@@ -96,6 +94,8 @@ export default function DepositPage() {
             <h2 className="font-bold text-text2 text-base mb-3 border-b pb-2 border-[#d8f3f0]">Thông tin khách hàng</h2>
             <div className="space-y-2 text-sm">
               <p className="font-bold text-base text-gray-900">{data.KHACH_HANG.TEN_KH}</p>
+              <p><span className="text-text1">Giới tính:</span> {data.KHACH_HANG.GIOI_TINH}</p>
+              <p><span className="text-text1">Ngày sinh:</span> {data.KHACH_HANG.NGAY_SINH}</p>
               <p><span className="text-text1">Mã KH:</span> {data.KHACH_HANG.MA_KH}</p>
               <p><span className="text-text1">SĐT:</span> {data.KHACH_HANG.SDT}</p>
               <p><span className="text-text1">CCCD:</span> {data.KHACH_HANG.CCCD}</p>

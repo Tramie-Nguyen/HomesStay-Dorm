@@ -42,13 +42,10 @@ export default function Popup({ task, currentDate, onClose, onRefresh }: PopupPr
       }`}
       // Bấm vào bất kỳ đâu trên thẻ div này sẽ chuyển trang
       onClick={() => {
-        if (task.loai === "Xem phòng") {
+        if (task.loai === "Xem phòng") {
           router.push(`/sale/lich-cua-toi/xem-phong/${task.id}`);
-        } else if (task.loai?.trim().normalize() === "Nhận phòng".normalize()) {
+        } else {
           router.push(`/sale/lich-cua-toi/nhan-phong/${task.id}`);
-        }
-        else {
-          alert("Chưa có trang chi tiết cho loại lịch này.");
         }
       }}
     >
@@ -63,7 +60,7 @@ export default function Popup({ task, currentDate, onClose, onRefresh }: PopupPr
           ✕
         </button>
 
-        <span className={`px-3 py-1 rounded-full text-white text-xs ${task.loai === 'Xem phòng' ? 'bg-accent' : 'bg-primary'} gap-2 inline-flex items-center mb-2`}>
+        <span className={`px-3 py-1 rounded-full text-white text-xs ${task.loai === 'Xem phòng' ? 'bg-accent' : 'bg-primary'} gap-2 inline-flex items-center mb-2`}>
           <strong>{task.loai}</strong>
         </span>
 
@@ -113,7 +110,7 @@ export default function Popup({ task, currentDate, onClose, onRefresh }: PopupPr
                 </button>
               )}
 
-              {task.loai === 'Xem phòng' && !isRescheduling && (
+              {task.loai === 'Xem phòng' && !isRescheduling && (
                 <button 
                   disabled={isLoading}
                   onClick={(e) => {

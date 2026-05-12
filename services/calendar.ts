@@ -136,3 +136,67 @@ export const handleThemLich = async (lichData: {
     alert("Lỗi kết nối mạng.");
   }
 };
+
+// Lấy chi tiết lịch theo ID
+export const handleLayChiTietLich = async (id: string) => {
+  try {
+    const res = await fetch(`/api/lich/${id}`, {
+      method: "GET",
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      alert(`Lỗi: ${data.details || data.error}`);
+      return null;
+    }
+    return await res.json();
+  } catch {
+    alert("Lỗi kết nối mạng.");
+    return null;
+  }
+};
+
+// thêm pdc mới vào lịch
+export const handleThemPdcVaoLich = async (
+  maPhieu: string,
+  maPdc: string,
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+  onRefresh: () => void,
+  onClose?: () => void
+) => {
+  try {
+    setIsLoading(true);
+
+    const res = await fetch("/api/lich/them-pdc", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        maPhieu,
+        maPdc,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(`Lỗi: ${data.details || data.error}`);
+      return false;
+    }
+
+    onRefresh();
+
+    if (onClose) {
+      onClose();
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Lỗi thêm PDC vào lịch:", error);
+    alert("Lỗi kết nối mạng.");
+    return false;
+  } finally {
+    setIsLoading(false);
+  }
+};

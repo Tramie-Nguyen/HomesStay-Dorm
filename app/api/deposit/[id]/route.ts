@@ -1,6 +1,25 @@
 import { NextResponse } from "next/server";
 import { getPool } from "@/lib/db";
 
+export async function PUT(req: Request) {
+  try {
+    const body = await req.json();
+    const { MA_PDC, status } = body;
+    const pool = await getPool();
+
+    const result = await pool
+      .request()
+      .input("MA_PDC", MA_PDC)
+      .input("TRANG_THAI", status)
+      .execute("SP_CapNhatTrangThaiPDC");
+      
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error("Error updating deposit status:", error);
+    return NextResponse.json({ error: "Failed to update deposit status" }, { status: 500 });
+  }
+}
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -39,7 +58,9 @@ export async function GET(
         MA_KH: baseData.MA_KH,
         TEN_KH: baseData.TEN_KH,
         SDT: baseData.SDT,
+        NGAY_SINH: baseData.NGAY_SINH,
         CCCD: baseData.CCCD,
+        GIOI_TINH: baseData.GIOI_TINH,
         EMAIL: baseData.EMAIL
       },
 
@@ -69,22 +90,3 @@ export async function GET(
     );
   }
 };
-
-export async function PUT(req: Request) {
-  try {
-    const body = await req.json();
-    const { MA_PDC, status } = body;
-    const pool = await getPool();
-
-    const result = await pool
-      .request()
-      .input("MA_PDC", MA_PDC)
-      .input("TRANG_THAI", status)
-      .execute("SP_CapNhatTrangThaiPDC");
-      
-    return NextResponse.json(result);
-  } catch (error) {
-    console.error("Error updating deposit status:", error);
-    return NextResponse.json({ error: "Failed to update deposit status" }, { status: 500 });
-  }
-}

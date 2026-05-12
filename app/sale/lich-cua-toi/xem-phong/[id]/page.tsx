@@ -10,12 +10,74 @@ import * as depositService from "@/services/deposit";
 import * as calendarService from "@/services/calendar";
 import { toast } from "react-toastify"; // Đảm bảo bạn đã import toast
 
+export interface RentalCalendarData {
+  // ===== LỊCH =====
+  id: string;
+  NGAY_GIO: string;
+
+  ngay: number;
+  gio: string;
+
+  loai: string;
+  trangThai: string;
+
+  maPdk: string | null;
+  maPdc: string | null;
+
+  // ===== KHÁCH HÀNG =====
+  maKh: string;
+  khachHang: string;
+  sdt: string;
+  cccd: string;
+  gioiTinh: string;
+  ngaySinh: string;
+
+  // ===== PHÒNG =====
+  maKtx: string;
+  tenKtx: string;
+
+  maPhong: string;
+
+  hinhAnhPhong: string | null;
+  moTaPhong: string | null;
+  trangThaiPhong: string;
+
+  SL_GIUONG: number;
+  SL_GIUONG_TRONG: number;
+
+  // ===== DỊCH VỤ =====
+  GIA_DIEN: number;
+  GIA_NUOC: number;
+  WIFI: string;
+  GUI_XE: number;
+  DICH_VU: number;
+
+  // ===== NHÂN VIÊN =====
+  maNv: string;
+  tenNv: string;
+
+  // ===== PHIẾU =====
+  HINH_THUC_THUE: string | null;
+
+  SO_TIEN: number | null;
+  trangThaiDatCoc: string | null;
+
+  // ===== GIƯỜNG =====
+  GIUONGS: {
+    MA_GIUONG: string;
+    GIA: number;
+  }[];
+
+  // ===== FE =====
+  TONG_TIEN: number;
+}
+
 export default function RentalDetail() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
 
-  const [data, setData] = useState<RentalData | null>(null);
+  const [data, setData] = useState<RentalCalendarData | null>(null);
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [maNv, setMaNv] = useState<string>("");
@@ -39,17 +101,13 @@ export default function RentalDetail() {
 
   const fetchData = async () => {
     try {
-      const res = await fetch(`/api/rental/${id}`, {
-        cache: "no-store",
-      });
+      const res = await calendarService.handleLayChiTietLich(id);
 
-      if (!res.ok) {
+      if (!res) {
         setData(null);
         return;
       }
-
-      const json = await res.json();
-      const giuongs = Array.isArray(json?.GIUONGS) ? json.GIUONGS : [];
+      const giuongs = Array.isArray(res?.GIUONGS) ? res.GIUONGS : [];
 
       // 2. Tính toán tổng tiền ngay khi lấy được dữ liệu chính xác từ API
       const tongTienCalc = depositService.calculateDepositAmount(
@@ -57,7 +115,7 @@ export default function RentalDetail() {
       );
 
       setData({
-        ...json,
+        ...res,
         GIUONGS: giuongs,
         TONG_TIEN: tongTienCalc, // Gán trực tiếp vào state
       });
@@ -95,19 +153,15 @@ export default function RentalDetail() {
         <h3 className="font-semibold mb-2 text-text2">Thông tin khách</h3>
         <div className="border border-[#009BDE] rounded-2xl">
           <CustomerCard
-            id={data.MA_KH}
-            name={data.TEN_KH}
-            code={data.MA_KH}
-            phone={data.SDT}
-            dob={data.NGAY_SINH}
-            cccd={data.CCCD}
-            gender={data.GIOI_TINH}
-            email={data.EMAIL ?? "—"}
-            startDate={data.NGAY_BD}
-            endDate={data.NGAY_KT}
-            contractStatus={data.TRANG_THAI_HOP_DONG}
-            disableEdit={!!data.HOP_DONG_IMAGE && !!data.BIEN_BAN_IMAGE}
-            scheduleType={data.LOAI}
+            id={data.maKh}
+            name={data.khachHang}
+            code={data.maKh}
+            phone={data.sdt}
+            dob={data.ngaySinh}
+            cccd={data.cccd}
+            gender={data.gioiTinh}
+            email={"—"}
+            scheduleType={data.loai}
             onRefresh={fetchData}
           />
         </div>
@@ -117,9 +171,10 @@ export default function RentalDetail() {
       <div className="mt-6">
         <h3 className="font-semibold mb-2 text-text2">Thông tin phòng</h3>
         <RoomCard
-          maPhieu={data.MA_PHIEU}
-          roomId={data.MA_PHONG}
-          name={data.TEN_PHONG}
+          maPhieu={data.id}
+          roomId={data.maPhong}
+          name={data.tenKtx}
+          beds={beds}
           bedCode={beds.map((g) => g.MA_GIUONG).join(", ")}
           totalPrice={data.TONG_TIEN}
           electricity={data.GIA_DIEN}
@@ -128,12 +183,18 @@ export default function RentalDetail() {
           vehicle={data.GUI_XE}
           service={data.DICH_VU}
           checkinTime={
-            data.NGAY_GIO ? new Date(data.NGAY_GIO).toLocaleString("vi-VN") : ""
+            data.NGAY_GIO
+              ? new Date(data.NGAY_GIO).toLocaleString("vi-VN")
+              : ""
           }
-          status={data.TRANG_THAI_PHONG}
-          scheduleType={data.LOAI}
-          scheduleStatus={data.TRANG_THAI_LICH}
-          imageUrl="/room.png"
+          status={data.trangThaiPhong}
+          imageUrl={data.hinhAnhPhong || "/room.png"}
+          mapLink=""
+          canChangeSchedule={
+            data.trangThai !== "Đã xử lý"
+          }
+          scheduleType={data.loai}
+          scheduleStatus={data.trangThai}
           onRefresh={fetchData}
         />
       </div>
@@ -168,14 +229,20 @@ export default function RentalDetail() {
 
           setIsProcessing(true);
           try {
+            // Tạo phiếu đặt cọc
             const result = await depositService.handleCreateDeposit({
               soTien: data.TONG_TIEN,
-              maKh: data.MA_KH,
+              maKh: data.maKh,
               maNv: maNv
             });
 
             setOpenConfirmModal(false);
             toast.success("Tạo phiếu đặt cọc thành công!");
+
+            // thêm pdc vào lịch
+            await calendarService.handleThemPdcVaoLich(data.id, result.maPdc, setIsProcessing, fetchData);
+            // cập nhật trạng thái lịch
+            await calendarService.handleCapNhatLich(data.id, 'Đã xử lý', setIsProcessing, fetchData);
 
             // Chuyển sang trang hoàn tất thanh toán đặt cọc (trang có QR code)
             if (result && result.maPdc) {
