@@ -42,7 +42,8 @@ export default function TT_HoanCocPage() {
         }
         const customer = json.customer || null;
         const itemsArr = json.items || [];
-        const reasonText = json.reason || null;
+        const reasonText =
+          json.reason ?? customer?.LY_DO ?? null;
 
         console.log("Customer data:", customer);
         console.log("Image URL:", customer?.IMAGE_URL);
