@@ -45,11 +45,8 @@ export default function NavBar() {
   ];
 
   const bmItems = [
-    { href: "/bm/danh-sach-phong", label: "Danh sách phòng" },
-    { href: "/bm/khach-cua-toi", label: "Khách của tôi" },
     { href: "/bm/tra-phong", label: "Trả phòng" },
     { href: "/bm/hoan-coc", label: "Hoàn cọc" },
-    { href: "/bm/chinh-sach", label: "Chính sách" },
   ];
 
   let navItems = guestItems;

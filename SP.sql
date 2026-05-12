@@ -179,7 +179,7 @@ GO
    SP_GET_RENTAL_DETAILS
 ========================================================= */
 
-CREATE PROCEDURE SP_GET_RENTAL_DETAILS
+CREATE OR ALTER PROCEDURE SP_GET_RENTAL_DETAILS
     @id VARCHAR(10)
 AS
 BEGIN
@@ -297,10 +297,6 @@ BEGIN
       AND MA_PHONG = @roomId;
 END
 GO
-
-USE DORM
-GO
-
 
 -- ============================================
 -- XUANXUANXUANXUANXUANXUANXUANXUANXUANXUANXUAN 
@@ -575,7 +571,7 @@ BEGIN
     -- trả về mã thanh toán để UI có thể hiển thị hoặc sử dụng tiếp
     SELECT @MA_THANH_TOAN AS MA_THANH_TOAN;
 END;
-GO 
+GO
 
 -- lấy thông tin trang lịch hẹn nhân viên 
 CREATE OR ALTER PROCEDURE sp_get_lich_hen_nhan_vien
@@ -2010,7 +2006,6 @@ BEGIN
         (
             MA_PDK,
             NGAY_DANG_KY,
-            MA_NV,
             MA_KH,
             HINH_THUC_THUE
         )
@@ -2018,7 +2013,6 @@ BEGIN
         (
             @MA_PDK,
             @NGAY_DANG_KY,
-            @MA_NV,
             @MA_KH,
             @HINH_THUC_THUE
         );
@@ -2031,8 +2025,7 @@ BEGIN
             TRANG_THAI,
             MA_PDK,
             MA_KTX,
-            MA_PHONG,
-            MA_NV
+            MA_PHONG
         )
         VALUES
         (
@@ -2042,8 +2035,7 @@ BEGIN
             @TRANG_THAI,
             @MA_PDK,
             @MA_KTX,
-            @MA_PHONG,
-            @MA_NV
+            @MA_PHONG
         );
 
         INSERT INTO LICH_GIUONG
@@ -2055,7 +2047,7 @@ BEGIN
             @MA_PHIEU,
             LTRIM(RTRIM(value))
         FROM STRING_SPLIT(@DS_MA_GIUONG, ',')
-        WHERE LTRIM(RTRIM(value)) <> '';
+        WHERE LTRIM(RTRIM(NULL)) <> '';
 
         COMMIT TRAN;
     END TRY
@@ -2132,8 +2124,7 @@ GO
 
 CREATE OR ALTER PROCEDURE SP_DoiLich
     @MaPhieu VARCHAR(10),
-    @NgayGioMoi DATETIME,
-    @TrangThaiMoi
+    @NgayGioMoi DATETIME
 AS
 BEGIN
     -- Kiểm tra xem lịch có tồn tại và đang 'Chưa xử lý' hay không
@@ -2183,7 +2174,7 @@ GO
 
 -- new
 -- Stored Procedure dọn dẹp phiếu hết hạn
-CREATE PROCEDURE SP_HuyDatCocQuahan
+CREATE OR ALTER PROCEDURE SP_HuyDatCocQuahan
 AS
 BEGIN
     SET NOCOUNT ON;
