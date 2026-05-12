@@ -119,14 +119,14 @@ export default function QL_dsTraPhongPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
-              <select
+              {/* <select
                 className="rounded-md border border-base px-3 py-1.5 text-sm bg-white"
                 value={filterStatus ?? ""}
                 onChange={(e) => setFilterStatus(e.target.value || null)}
               >
                 <option value="">Tất cả trạng thái</option>
                 <option value="Đang chờ xử lí">Đang chờ xử lí</option>
-              </select>
+              </select> */}
             </div>
           </div>
 

@@ -63,13 +63,16 @@ export default function HandoverModal({ open, onClose, rentalId }: Props) {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => null);
-        throw new Error(errorData?.message || errorData?.error || "Upload failed");
+        throw new Error(
+          errorData?.message || errorData?.error || "Upload failed",
+        );
       }
 
       toast.success("Bàn giao thành công");
       setContract(null);
       setHandover(null);
       onClose();
+      window.location.reload();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Có lỗi xảy ra";
       toast.error(message);

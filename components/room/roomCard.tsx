@@ -151,7 +151,7 @@ export default function RoomCard({
             </div>
           </div>
 
-          <p className="text-text2 text-lg font-medium mt-2">{status}</p>
+          <p className="text-accent text-lg font-medium mt-2">{status}</p>
 
           <div className="flex justify-between items-center mt-3">
             {mapLink ? (
