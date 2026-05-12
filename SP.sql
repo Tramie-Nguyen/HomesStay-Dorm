@@ -1688,57 +1688,115 @@ CREATE OR ALTER PROCEDURE SP_GetDanhSachPhong
     @Search     NVARCHAR(100) = '',
     @TrangThai  NVARCHAR(10)  = '',
     @SortDir    VARCHAR(4)    = 'ASC',
-    @Ward       NVARCHAR(100) = '',   
-    @GioiTinh   NVARCHAR(3)   = '',   
+    @Ward       NVARCHAR(100) = '',
+    @GioiTinh   NVARCHAR(3)   = '',
+    @MinBeds    INT           = 1,
     @Page       INT           = 1,
     @PageSize   INT           = 6
 AS
 BEGIN
     SET NOCOUNT ON;
+
     DECLARE @Offset INT = (@Page - 1) * @PageSize;
 
-    -- 1. Đổ dữ liệu vào bảng tạm #KetQua
     SELECT
         p.MA_PHONG,
+        p.MA_KTX,
         p.IMAGE_URL,
         p.SL_GIUONG,
-        p.SL_GIUONG_TRONG,
-        p.TRANG_THAI,
-        p.MA_KTX,
+
+        -- luôn ép NULL về 0
+        ISNULL(gt.GIUONG_TRONG, 0) AS SL_GIUONG_TRONG,
+
+        -- trạng thái lấy hoàn toàn từ số giường trống
+        CASE
+            WHEN ISNULL(gt.GIUONG_TRONG, 0) > 0
+                THEN N'Trống'
+            ELSE N'Đã thuê'
+        END AS TRANG_THAI,
+
         k.TEN_KTX,
         k.DIA_CHI,
         k.QUY_DINH,
+
         ISNULL(gp.GIA_MIN, 0) AS GIA_MIN,
         ISNULL(gp.GIA_MAX, 0) AS GIA_MAX
+
     INTO #KetQua
     FROM PHONG p
-    LEFT JOIN KY_TUC_XA k  ON p.MA_KTX  = k.MA_KTX
+
+    LEFT JOIN KY_TUC_XA k
+        ON p.MA_KTX = k.MA_KTX
+
     LEFT JOIN (
-        SELECT MA_PHONG, MIN(GIA) AS GIA_MIN, MAX(GIA) AS GIA_MAX
-        FROM GIUONG GROUP BY MA_PHONG
-    ) gp ON p.MA_PHONG = gp.MA_PHONG
+        SELECT
+            MA_KTX,
+            MA_PHONG,
+            MIN(GIA) AS GIA_MIN,
+            MAX(GIA) AS GIA_MAX
+        FROM GIUONG
+        GROUP BY MA_KTX, MA_PHONG
+    ) gp
+        ON p.MA_KTX = gp.MA_KTX
+       AND p.MA_PHONG = gp.MA_PHONG
+
+    LEFT JOIN (
+        SELECT
+            MA_KTX,
+            MA_PHONG,
+            COUNT(*) AS GIUONG_TRONG
+        FROM GIUONG
+        WHERE TRANG_THAI = N'Trống'
+        GROUP BY MA_KTX, MA_PHONG
+    ) gt
+        ON p.MA_KTX = gt.MA_KTX
+       AND p.MA_PHONG = gt.MA_PHONG
+
     WHERE
-        (@Search    = '' OR p.MA_PHONG LIKE '%' + @Search + '%')
-        AND (@TrangThai = '' OR p.TRANG_THAI = @TrangThai)
-        AND (@Ward      = '' OR k.DIA_CHI  LIKE '%' + @Ward + '%')
-        AND (@GioiTinh  = '' OR k.QUY_DINH LIKE '%' + @GioiTinh + '%');
+        (@Search = ''
+            OR p.MA_PHONG LIKE '%' + @Search + '%')
 
-    -- 2. Trả về tổng số bản ghi
-    SELECT COUNT(*) AS TONG_BAN_GHI FROM #KetQua;
+        -- lọc trạng thái đúng nghiệp vụ
+        AND (
+            @TrangThai = ''
+            OR (
+                @TrangThai = N'Trống'
+                AND ISNULL(gt.GIUONG_TRONG, 0) > 0
+            )
+            OR (
+                @TrangThai = N'Đã thuê'
+                AND ISNULL(gt.GIUONG_TRONG, 0) = 0
+            )
+        )
 
-    -- 3. Trả về dữ liệu phân trang
+        AND (@Ward = ''
+            OR k.DIA_CHI LIKE '%' + @Ward + '%')
+
+        AND (@GioiTinh = ''
+            OR k.QUY_DINH LIKE '%' + @GioiTinh + '%')
+
+        -- lọc số giường tối thiểu
+        AND (
+            @MinBeds <= 1
+            OR ISNULL(gt.GIUONG_TRONG, 0) >= @MinBeds
+        );
+
+    -- tổng bản ghi
+    SELECT COUNT(*) AS TONG_BAN_GHI
+    FROM #KetQua;
+
+    -- phân trang
     SELECT *
     FROM #KetQua
     ORDER BY
-        CASE WHEN @SortDir = 'ASC'  THEN GIA_MIN END ASC,
+        CASE WHEN @SortDir = 'ASC' THEN GIA_MIN END ASC,
         CASE WHEN @SortDir = 'DESC' THEN GIA_MAX END DESC
-    OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY;
+    OFFSET @Offset ROWS
+    FETCH NEXT @PageSize ROWS ONLY;
 
-    -- Xóa bảng tạm sau khi dùng
     DROP TABLE #KetQua;
 END;
 GO
-
 -- ── SP 2: Chi tiết phòng ─────────────────────────────────────────────────────
 CREATE OR ALTER PROCEDURE SP_GetChiTietPhong
     @MaPhong VARCHAR(10)
